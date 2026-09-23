@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Food Isn't Good or Bad: An Interactive Lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ink:#2E1A3B; --paper:#F6F7FB; --surface:#FFFFFF; --leaf:#16776C; --leaf-soft:#DDF1EE;
+  --citrus:#F2C230; --citrus-soft:#FFF4CC; --berry:#C2255C; --berry-soft:#FBE3EC;
+  --muted:#5E5468; --line:#D9D4E0;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#F1EAF6; --paper:#1A1320; --surface:#251C2D; --leaf:#5CC7B8; --leaf-soft:#173A36;
+    --citrus:#F2C230; --citrus-soft:#3A3217; --berry:#F06A98; --berry-soft:#3D1B29;
+    --muted:#B9AEC4; --line:#3E3348;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#F1EAF6; --paper:#1A1320; --surface:#251C2D; --leaf:#5CC7B8; --leaf-soft:#173A36;
+  --citrus:#F2C230; --citrus-soft:#3A3217; --berry:#F06A98; --berry-soft:#3D1B29;
+  --muted:#B9AEC4; --line:#3E3348;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1.075rem;line-height:1.6}
+img{max-width:100%}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--citrus);outline-offset:2px;border-radius:6px}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+
+/* Hero */
+.hero{padding:48px 0 28px}
+.tags{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.tag{position:relative;font-family:var(--display);font-weight:800;font-size:1.6rem;padding:6px 22px 6px 34px;border-radius:6px 999px 999px 6px;color:#fff;transform:rotate(-4deg)}
+.tag::before{content:"";position:absolute;left:12px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--paper)}
+.tag.good{background:var(--leaf)}
+.tag.bad{background:var(--berry);transform:rotate(3deg)}
+.tag::after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:4px;background:var(--ink);transform:scaleX(0);transform-origin:left;animation:strike .6s .5s ease-out forwards}
+@keyframes strike{to{transform:scaleX(1) rotate(-2deg)}}
+@media (prefers-reduced-motion: reduce){.tag::after{animation:none;transform:scaleX(1) rotate(-2deg)}}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;margin:0 0 14px;letter-spacing:-.02em}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0}
+.who{display:grid;grid-template-columns:1fr 140px;gap:12px;margin-top:26px}
+.who label{display:block;font-weight:700;font-size:.95rem;margin-bottom:4px}
+.who input{width:100%;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--surface)}
+@media (max-width:520px){.who{grid-template-columns:1fr}}
+
+/* Stepper */
+.stepper{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:2px solid var(--line)}
+.stepper ol{list-style:none;margin:0 auto;padding:10px 20px;max-width:760px;display:flex;gap:6px;overflow-x:auto}
+.stepper button{white-space:nowrap;border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:.92rem;cursor:pointer}
+.stepper button[aria-current="step"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.stepper button.done::after{content:" ✓";color:var(--leaf);font-weight:700}
+.stepper button[aria-current="step"].done::after{color:var(--citrus)}
+
+/* Sections */
+section.step{display:none;padding:34px 0 60px}
+section.step.active{display:block}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(1.7rem,4.5vw,2.3rem);line-height:1.1;margin:0 0 8px}
+h3{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:32px 0 8px}
+.intro{color:var(--muted);margin:0 0 22px}
+
+.reading{background:var(--surface);border-left:6px solid var(--citrus);padding:18px 22px;border-radius:0 12px 12px 0;margin:26px 0 18px}
+.reading .rlabel{font-family:var(--display);font-weight:700;color:var(--muted);font-size:.95rem;margin:0 0 6px}
+.reading p{margin:0;max-width:68ch}
+.source{font-size:.9rem;color:var(--muted);margin-top:8px}
+
+.q{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:18px 20px;margin:14px 0}
+.q .prompt{font-weight:700;margin:0 0 12px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;padding:10px 14px;border:2px solid var(--line);border-radius:10px;background:var(--paper);cursor:pointer;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt .box{flex:0 0 22px;height:22px;border:2px solid var(--muted);border-radius:50%;margin-top:1px;display:grid;place-items:center;font-size:.8rem}
+.multi .opt .box{border-radius:5px}
+.opt.sel{border-color:var(--ink)}
+.opt.sel .box{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.opt.sel .box::after{content:"✓"}
+.opt.right{border-color:var(--leaf);background:var(--leaf-soft)}
+.opt.wrong{border-color:var(--berry);background:var(--berry-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:12px 0 0;padding:10px 14px;border-radius:10px;display:none}
+.fb.show{display:block}
+.fb.good{background:var(--leaf-soft)}
+.fb.meh{background:var(--citrus-soft)}
+textarea{width:100%;min-height:96px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--paper);resize:vertical;line-height:1.5}
+.count{font-size:.9rem;text-align:right;margin-top:4px;font-weight:700}
+.count.ok{color:var(--leaf)}
+.count.short{color:var(--berry)}
+.minnote{font-size:.9rem;color:var(--muted);margin:-6px 0 8px}
+textarea.short{border-color:var(--berry)}
+.heads-up{background:var(--citrus-soft);border-radius:12px;padding:12px 16px;margin-top:14px}
+.heads-up p{margin:0}
+
+.btn{display:inline-block;border:none;border-radius:10px;padding:11px 20px;font-weight:700;cursor:pointer;background:var(--ink);color:var(--paper)}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:36px;padding-top:20px;border-top:2px solid var(--line)}
+
+/* Agree scale */
+.scale{display:flex;gap:8px;flex-wrap:wrap}
+.scale button{flex:1 1 120px;padding:9px 10px;border:2px solid var(--line);border-radius:10px;background:var(--paper);cursor:pointer}
+.scale button.sel{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.was{font-size:.9rem;color:var(--muted);margin:8px 0 0}
+
+/* Sort */
+.sortitem{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 14px;border:2px solid var(--line);border-radius:10px;background:var(--paper);margin:8px 0}
+.sortitem .say{font-style:italic}
+.pick{display:flex;gap:6px}
+.pick button{padding:7px 12px;border-radius:999px;border:2px solid var(--line);background:var(--surface);cursor:pointer;font-size:.9rem;white-space:nowrap}
+.pick button.sel.shame{background:var(--berry);border-color:var(--berry);color:#fff}
+.pick button.sel.fact{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.sortitem.right{border-color:var(--leaf)}
+.sortitem.wrong{border-color:var(--berry)}
+.sortitem .why{grid-column:1/-1;font-size:.93rem;margin:0;display:none}
+.sortitem.checked .why{display:block}
+@media (max-width:560px){.sortitem{grid-template-columns:1fr}}
+
+/* Explorer */
+.foods{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.food{padding:14px 10px;border:2px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;text-align:center}
+.food .em{font-size:2.2rem;display:block;line-height:1.2}
+.food .nm{font-weight:700;font-size:.95rem}
+.food.seen{border-color:var(--leaf)}
+.food[aria-pressed="true"]{border-color:var(--ink);background:var(--citrus-soft)}
+.panel{margin-top:14px;background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:18px 20px;display:none}
+.panel.show{display:block}
+.panel h4{font-family:var(--display);font-size:1.25rem;margin:0 0 10px}
+.panel dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+.panel dt{font-weight:700}
+.panel dd{margin:0}
+.explored{font-size:.92rem;color:var(--muted);margin-top:8px}
+
+.expert{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:16px 20px;margin:12px 0}
+.expert h4{font-family:var(--display);margin:0 0 4px;font-size:1.15rem}
+.expert p{margin:0}
+
+.care{background:var(--leaf-soft);border-radius:14px;padding:16px 20px;margin-top:28px}
+.care p{margin:0}
+
+.checklist{list-style:none;padding:0;margin:14px 0}
+.checklist li{padding:6px 0;border-bottom:1px solid var(--line)}
+.checklist li.ok::before{content:"✓ ";color:var(--leaf);font-weight:700}
+.checklist li.no::before{content:"○ ";color:var(--berry);font-weight:700}
+.status{margin-top:10px;font-size:.95rem}
+.small{font-size:.9rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="wrap hero">
+  <div class="tags" aria-hidden="true"><span class="tag good">good</span><span class="tag bad">bad</span></div>
+  <h1>Food doesn't have a report card.</h1>
+  <p class="lede">You've probably heard foods called "good" or "bad." In this lesson you'll read about why that label falls short, test some real situations, and practice a better way to talk about what you eat.</p>
+  <div class="who">
+    <div><label for="name">Your name</label><input id="name" autocomplete="name"></div>
+    <div><label for="period">Class period</label><input id="period" inputmode="numeric"></div>
+  </div>
+  <p class="small" style="margin-top:10px">Your work saves automatically on this device. Finish by saving your PDF in step 5 and uploading it to Google Classroom.</p>
+  <div class="heads-up"><p><strong>Heads up on written answers:</strong> each one has a minimum word count. If you don't write enough, that question shows as <strong>not complete</strong> and the step won't get a check mark. A counter under each box tells you when you've written enough.</p></div>
+</header>
+
+<nav class="stepper" aria-label="Lesson steps"><ol id="stepnav"></ol></nav>
+
+<main class="wrap">
+
+<!-- STEP 1 -->
+<section class="step" data-step="0">
+  <h2>1. Before you read</h2>
+  <p class="intro">There are no wrong answers here. Tell us what you honestly think right now. You'll look at these again at the end.</p>
+  <div id="pre"></div>
+  <div class="nav"><span></span><button class="btn" data-go="1">Start reading</button></div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" data-step="1">
+  <h2>2. Read and check</h2>
+  <p class="intro">Read each part of the article, then answer the checkpoint right below it. Multiple-choice answers lock once you check them, so read carefully first.</p>
+
+  <div class="reading"><p class="rlabel">Part 1 of 4</p>
+    <p>In the world of health and nutrition, it's common to hear people label foods as "good" or "bad." However, this simplistic categorization can create misconceptions about what we eat and may lead to unhealthy attitudes toward food. Instead of viewing foods in binary terms, it's essential to understand that all foods can fit into a balanced diet.</p></div>
+  <div id="cp1"></div>
+
+  <div class="reading"><p class="rlabel">Part 2 of 4</p>
+    <p>The misconception of "good" foods versus "bad" foods often stems from popular diets or trends. For example, fruits, vegetables, and whole grains are frequently labeled as "good" because they provide essential nutrients, such as vitamins, minerals, and fiber. Conversely, foods high in sugar, saturated fat, and sodium, like candy, chips, or soda, are often dismissed as "bad." While it's true that moderation is key, labeling foods negatively doesn't take into account the context of individual dietary needs and choices.</p></div>
+  <div id="cp2"></div>
+
+  <div class="reading"><p class="rlabel">Part 3 of 4</p>
+    <p>Understanding food in terms of nutrients rather than morality allows us to make better choices. For instance, a piece of cake at a birthday party is not inherently "bad"; it's a treat that can be enjoyed in moderation. Likewise, some "good" foods may not work for everyone due to allergies or intolerances.</p></div>
+  <div id="cp3"></div>
+
+  <div class="reading"><p class="rlabel">Part 4 of 4</p>
+    <p>Ultimately, food is not just about nutrition; it's also about culture, enjoyment, and social experiences. Recognizing that all foods can play a role in a balanced lifestyle helps create a healthier relationship with the food we eat, fostering mindfulness rather than guilt. By shifting the perspective away from labeling foods, we can appreciate the value of moderation and variety in our diets.</p></div>
+  <div id="cp4"></div>
+
+  <div class="nav"><button class="btn alt" data-go="0">Back</button><button class="btn" data-go="2">Next: beyond the reading</button></div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" data-step="2">
+  <h2>3. Beyond the reading</h2>
+  <p class="intro">Health experts agree with the article's big idea. Here's what two major organizations say, followed by three activities.</p>
+
+  <div class="expert"><h4>Look at the pattern, not one food</h4>
+    <p>The <em>Dietary Guidelines for Americans</em> (USDA and HHS) focus on your overall eating pattern over time. They encourage mostly <strong>nutrient-dense</strong> foods, meaning foods that pack a lot of vitamins, minerals, fiber, and protein into each bite, while leaving some room for foods with added sugar, saturated fat, or sodium in smaller amounts.</p></div>
+  <div class="expert"><h4>The "total diet" approach</h4>
+    <p>The <em>Academy of Nutrition and Dietetics</em>, the professional group for registered dietitians, says the healthfulness of your diet depends on what you eat overall. Rather than judging single foods, it looks at how all your food choices work together.</p></div>
+
+  <h3>Activity A: Label or nutrient?</h3>
+  <p class="intro">For each statement, decide if it's <strong>label talk</strong> (calls a food good or bad without any context) or <strong>nutrient talk</strong> (describes what a food does for your body or why it fits the situation).</p>
+  <div id="sort"></div>
+  <div class="row"><button class="btn" id="checkSort">Check my sort</button><span id="sortScore" class="small"></span></div>
+
+  <h3>Activity B: Reframe it</h3>
+  <p class="intro">Rewrite each label statement using nutrient talk. Say what the food provides or when it fits well.</p>
+  <div id="reframe"></div>
+
+  <h3>Activity C: What does this food bring?</h3>
+  <p class="intro">Tap each food to see what it offers and when it fits well. Open all six before answering the question underneath.</p>
+  <div class="foods" id="foods"></div>
+  <div class="panel" id="foodPanel" aria-live="polite"></div>
+  <p class="explored" id="exploredCount"></p>
+  <div id="cp5"></div>
+
+  <div class="nav"><button class="btn alt" data-go="1">Back</button><button class="btn" data-go="3">Next: reflect</button></div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" data-step="3">
+  <h2>4. Reflect</h2>
+  <p class="intro">Answer the same five statements again. Your first answer is shown under each one.</p>
+  <div id="post"></div>
+  <h3>Write about it</h3>
+  <div id="reflect"></div>
+  <div class="care"><p><strong>A note for you:</strong> If you ever have questions or worries about food or your health, you can talk with a trusted adult, such as a parent, your school counselor, the school nurse, or your teacher.</p></div>
+  <div class="nav"><button class="btn alt" data-go="2">Back</button><button class="btn" data-go="4">Next: submit</button></div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step" data-step="4">
+  <h2>5. Submit your work</h2>
+  <p class="intro">Check that everything is finished, then save your PDF and upload it to Google Classroom.</p>
+  <ul class="checklist" id="checklist"></ul>
+  <div class="row">
+    <button class="btn" id="savePdf">Save my PDF</button>
+    <button class="btn alt" id="copyAns">Copy my answers</button>
+    <button class="btn alt" id="resetAll">Start over</button>
+  </div>
+  <p class="status" id="saveStatus" role="status"></p>
+  <p class="small">If the PDF doesn't download, select <strong>Copy my answers</strong>, paste them into a Google Doc, and turn in the Doc instead.</p>
+  <textarea id="copyBox" readonly aria-label="Your answers as text" style="display:none;min-height:260px;margin-top:12px"></textarea>
+  <div class="nav"><button class="btn alt" data-go="3">Back</button><span></span></div>
+</section>
+
+</main>
+
+<script>
+/* ---------- Content ---------- */
+const STEPS = ["Before you read","Read and check","Beyond the reading","Reflect","Submit"];
+
+const BELIEFS = [
+  "Some foods are just bad and should never be eaten.",
+  "Whether a food is a good choice can depend on the situation.",
+  "A food that's a great choice for one person might not be a good choice for another.",
+  "Food matters for reasons that have nothing to do with nutrition.",
+  "Popular diet trends are a reliable way to decide what to eat."
+];
+const SCALE = ["Strongly disagree","Disagree","Agree","Strongly agree"];
+
+const CHECKPOINTS = {
+  cp1: [
+    {id:"q1", type:"mc", prompt:"What is the author's main argument?",
+     opts:["Fruits, vegetables, and whole grains are the only good foods.","Calling foods \"good\" or \"bad\" oversimplifies things, and all foods can fit into a balanced diet.","Candy and soda should be removed from school cafeterias.","Nutrition doesn't really matter as long as you enjoy your food."],
+     answer:1, why:"The first paragraph says the good/bad label is \"simplistic\" and that all foods can fit into a balanced diet. The author still cares about nutrition, just not moral labels."},
+    {id:"t1", type:"text", minW:15, prompt:"The author says not to view foods \"in binary terms.\" Using context clues, explain what binary means here and give an example of binary thinking about food."}
+  ],
+  cp2: [
+    {id:"q2", type:"mc", prompt:"According to the reading, where does the good-vs-bad idea often come from?",
+     opts:["Doctors and registered dietitians","Popular diets or trends","School lunch programs","Food packaging laws"],
+     answer:1, why:"The article says the misconception often stems from popular diets or trends."},
+    {id:"m1", type:"multi", prompt:"Foods often get called \"bad\" because they're high in which of these? Select all that apply.",
+     opts:["Sugar","Fiber","Saturated fat","Vitamins and minerals","Sodium"],
+     answer:[0,2,4], why:"Sugar, saturated fat, and sodium are the nutrients the article lists. Fiber, vitamins, and minerals are what get foods labeled \"good.\""},
+    {id:"q3", type:"mc", prompt:"What does the author say labeling foods negatively fails to consider?",
+     opts:["How much the food costs","How the food tastes","The context of each person's dietary needs and choices","Whether the food is organic"],
+     answer:2, why:"The key word is context. What makes sense for one person, on one day, in one situation, isn't the same for everyone."}
+  ],
+  cp3: [
+    {id:"s1", type:"mc", prompt:"Scenario: Maya has a slice of cake at her cousin's birthday party. Which description best matches the reading?",
+     opts:["Cake doesn't belong in any diet.","Cake is a health food because it contains eggs and milk.","The cake is a treat at a celebration, and it can fit into a balanced diet in moderation.","Only fruits and vegetables should be served at parties."],
+     answer:2, why:"The article uses this exact example: cake at a party is a treat that can be enjoyed in moderation. It also plays a social role at the celebration."},
+    {id:"s2", type:"mc", prompt:"Scenario: Jordan has a peanut allergy. A teammate keeps saying, \"Peanut butter is a good protein, you should eat it.\" What does the reading say about this?",
+     opts:["The teammate is right because peanut butter is a \"good\" food.","A food that's nutritious for many people can still be the wrong choice for someone with an allergy or intolerance.","Jordan should try a small amount to build tolerance.","Protein isn't important, so it doesn't matter."],
+     answer:1, why:"The article points out that some \"good\" foods don't work for everyone due to allergies or intolerances. For Jordan, peanut butter is dangerous, not \"good.\""},
+    {id:"s3", type:"mc", prompt:"Scenario: A cross-country runner drinks a sports drink during a 90-minute race. Another student drinks three sports drinks while gaming on the couch. What's the best way to describe this?",
+     opts:["Sports drinks are good, so both are fine.","Sports drinks are bad, so both made a bad choice.","Same drink, different context. The sugar and electrolytes serve a purpose during long, intense exercise but aren't needed while sitting still.","Only the gamer's choice matters."],
+     answer:2, why:"This shows why context beats labels. The drink didn't change; the situation did."}
+  ],
+  cp4: [
+    {id:"m2", type:"multi", prompt:"According to the reading, what roles can food play in our lives? Select all that apply.",
+     opts:["Nutrition","Culture","Advertising","Enjoyment","Social experiences","Fashion"],
+     answer:[0,1,3,4], why:"The article lists nutrition, culture, enjoyment, and social experiences as roles food plays in our lives."},
+    {id:"t2", type:"text", minW:15, prompt:"Describe a food that matters to you, your family, or your culture for a reason beyond nutrition. When do you eat it, and what makes it meaningful?"}
+  ],
+  cp5: [
+    {id:"q4", type:"mc", prompt:"After exploring all six foods, which statement is most accurate?",
+     opts:["Only the foods with lots of vitamins are worth eating.","Every food brings something, and how often you eat it and the situation matter more than a good or bad label.","Foods eaten at celebrations don't count.","A food is healthy for everyone if it's healthy for most people."],
+     answer:1, why:"Each food offered something, whether nutrients, quick energy, or connection, and each had situations where it fits better or worse. That's the total diet approach in action."}
+  ]
+};
+
+const SORT = [
+  {s:"Chips are bad.", a:"shame", why:"This labels the food without saying anything about its nutrients or the situation."},
+  {s:"Beans have a lot of fiber, which helps keep me full longer.", a:"fact", why:"This describes what a nutrient actually does."},
+  {s:"Fruit is good, so it's all I need to eat.", a:"shame", why:"Fruit is nutrient-dense, but calling it simply \"good\" ignores the need for protein, fats, and variety."},
+  {s:"This soup is pretty salty, so I'll pair it with some fruit and water.", a:"fact", why:"This notices a nutrient (sodium) and balances it with other foods."},
+  {s:"Carbs are bad.", a:"shame", why:"Carbohydrates are your body's main energy source. Labeling a whole nutrient this way comes from diet trends, not science."},
+  {s:"Milk and yogurt give me calcium and vitamin D for strong bones.", a:"fact", why:"This connects a food to what it does for your body."},
+  {s:"Pizza is junk food.", a:"shame", why:"This labels the food. Pizza provides carbohydrates, protein, and calcium, and it can be high in sodium."},
+  {s:"I want some protein after practice to help my muscles recover.", a:"fact", why:"This matches food to a real need in the moment."}
+];
+
+const REFRAME = [
+  {id:"r1", minW:8, s:"Chips are bad."},
+  {id:"r2", minW:8, s:"Carbs are bad."}
+];
+
+const FOODS = [
+  {em:"🥬", nm:"Spinach", gives:"Vitamin K, vitamin A, folate, iron, and fiber in very few calories. Very nutrient-dense.", fit:"Easy to add to salads, smoothies, eggs, or pasta nearly any day.", care:"Doesn't provide much energy on its own, so it works best as part of a meal."},
+  {em:"🎂", nm:"Birthday cake", gives:"Quick energy from carbohydrates and fat, plus celebration and time with people you care about.", fit:"Special occasions, where the social and cultural value is a big part of the point.", care:"High in added sugar with few vitamins or fiber, so it fits best as an occasional treat."},
+  {em:"🥜", nm:"Peanut butter", gives:"Protein, healthy unsaturated fats, and vitamin E. Keeps you full.", fit:"Snacks, sandwiches, and after-school fuel for most people.", care:"Can be life-threatening for someone with a peanut allergy. \"Good\" depends on who's eating."},
+  {em:"🍕", nm:"Pizza", gives:"Carbohydrates for energy, protein and calcium from cheese, and vegetables if you add them.", fit:"A filling meal, especially with a side salad or fruit.", care:"Often high in sodium and saturated fat, so variety across the week helps."},
+  {em:"🧃", nm:"Sports drink", gives:"Fast sugar and electrolytes like sodium and potassium.", fit:"Long, intense exercise (roughly an hour or more) or heavy sweating in the heat.", care:"While sitting still it's mostly added sugar. Water is usually the better everyday drink."},
+  {em:"🫔", nm:"A family holiday dish", gives:"Whatever its ingredients offer, plus tradition, identity, and connection across generations.", fit:"Holidays and family gatherings, where the meaning is as important as the nutrients.", care:"No food is \"bad\" for being rich or special. It's one part of a bigger pattern."}
+];
+
+const REFLECT = [
+  {id:"f1", minW:15, prompt:"Did any of your answers from step 1 change? Pick one statement and explain what you think now and why."},
+  {id:"f2", minW:15, prompt:"Think of a food ad, social media post, or diet trend that called a food good or bad. How would you describe that food using nutrient talk instead?"},
+  {id:"f3", minW:15, prompt:"In one or two sentences, explain the difference between thinking about food in terms of nutrients and thinking about it in terms of morality."}
+];
+
+/* ---------- State ---------- */
+const KEY = "gvbfoods_v2";
+let S = {name:"", period:"", step:0, pre:{}, post:{}, mc:{}, multi:{}, multiLocked:{}, text:{}, sort:{}, sortChecked:false, seen:[]};
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
+let saveTimer;
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }, 250); }
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = t => String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- Name ---------- */
+["name","period"].forEach(k=>{ const el=$("#"+k); el.value=S[k]||""; el.addEventListener("input",()=>{S[k]=el.value;save();}); });
+
+/* ---------- Stepper ---------- */
+function stepDone(i){
+  if(i===0) return BELIEFS.every((_,j)=>S.pre[j]!=null);
+  if(i===1) return ["cp1","cp2","cp3","cp4"].every(c=>CHECKPOINTS[c].every(answered));
+  if(i===2) return S.sortChecked && REFRAME.every(r=>metMin(r.id)) && S.seen.length===FOODS.length && CHECKPOINTS.cp5.every(answered);
+  if(i===3) return BELIEFS.every((_,j)=>S.post[j]!=null) && REFLECT.every(r=>metMin(r.id));
+  return false;
+}
+function wc(t){ return (String(t||"").trim().match(/\S+/g)||[]).length; }
+const MINW = {}; 
+function metMin(id){ return wc(S.text[id]) >= (MINW[id]||1); }
+function answered(q){
+  if(q.type==="mc") return S.mc[q.id]!=null;
+  if(q.type==="multi") return !!S.multiLocked[q.id];
+  return metMin(q.id);
+}
+function renderNav(){
+  $("#stepnav").innerHTML = STEPS.map((t,i)=>`<li><button data-go="${i}" class="${stepDone(i)?'done':''}" ${i===S.step?'aria-current="step"':''}>${i+1}. ${t}</button></li>`).join("");
+}
+function go(i){
+  S.step=i; save();
+  document.querySelectorAll("section.step").forEach(s=>s.classList.toggle("active", +s.dataset.step===i));
+  renderNav(); if(i===4) renderChecklist();
+  window.scrollTo({top: Math.max(0, document.querySelector("main").offsetTop - 70)});
+}
+document.addEventListener("click", e=>{ const b=e.target.closest("[data-go]"); if(b) go(+b.dataset.go); });
+
+/* ---------- Belief scales ---------- */
+function renderScale(container, which){
+  const el=$(container);
+  el.innerHTML = BELIEFS.map((b,j)=>`
+    <div class="q"><p class="prompt">${esc(b)}</p>
+      <div class="scale" role="group" aria-label="${esc(b)}">
+        ${SCALE.map((l,k)=>`<button type="button" data-b="${j}" data-v="${k}" class="${S[which][j]===k?'sel':''}" aria-pressed="${S[which][j]===k}">${l}</button>`).join("")}
+      </div>
+      ${which==="post" ? `<p class="was">Before you read: ${S.pre[j]!=null?SCALE[S.pre[j]]:"not answered"}</p>`:""}
+    </div>`).join("");
+  el.onclick = e=>{ const b=e.target.closest("button[data-b]"); if(!b) return;
+    S[which][b.dataset.b]=+b.dataset.v; save(); renderScale(container, which); renderNav(); };
+}
+
+/* ---------- Questions ---------- */
+function renderQs(cid){
+  const el=$("#"+cid);
+  el.innerHTML = CHECKPOINTS[cid].map(q=>{
+    if(q.type==="text"){
+      return `<div class="q"><p class="prompt"><label for="ta-${q.id}">${esc(q.prompt)}</label></p>
+        <p class="minnote">Write at least ${q.minW} words.</p><textarea id="ta-${q.id}" data-t="${q.id}">${esc(S.text[q.id]||"")}</textarea><div class="count" data-c="${q.id}"></div></div>`;
+    }
+    const multi=q.type==="multi";
+    const locked = multi ? !!S.multiLocked[q.id] : S.mc[q.id]!=null;
+    const chosen = multi ? (S.multi[q.id]||[]) : (S.mc[q.id]!=null?[S.mc[q.id]]:[]);
+    const opts = q.opts.map((o,k)=>{
+      let cls="opt";
+      if(chosen.includes(k)) cls+=" sel";
+      if(locked){
+        const isAns = multi ? q.answer.includes(k) : q.answer===k;
+        if(isAns) cls+=" right"; else if(chosen.includes(k)) cls+=" wrong";
+      }
+      return `<button type="button" class="${cls}" data-q="${q.id}" data-k="${k}" ${locked?"disabled":""} aria-pressed="${chosen.includes(k)}"><span class="box"></span><span>${esc(o)}</span></button>`;
+    }).join("");
+    let fb="";
+    if(locked){
+      const ok = multi ? (chosen.length===q.answer.length && q.answer.every(a=>chosen.includes(a))) : chosen[0]===q.answer;
+      fb=`<div class="fb show ${ok?'good':'meh'}"><strong>${ok?"Correct.":"Not quite."}</strong> ${esc(q.why)}</div>`;
+    }
+    return `<div class="q ${multi?'multi':''}"><p class="prompt">${esc(q.prompt)}</p><div class="opts">${opts}</div>
+      ${multi && !locked ? `<div class="row"><button class="btn" data-check="${q.id}" ${chosen.length?"":"disabled"}>Check answer</button></div>`:""}
+      ${!multi && !locked ? `<div class="row"><button class="btn" data-checkmc="${q.id}" disabled>Check answer</button></div>`:""}
+      ${fb}</div>`;
+  }).join("");
+  el.querySelectorAll("textarea").forEach(ta=>{ updCount(ta); ta.addEventListener("input",()=>{S.text[ta.dataset.t]=ta.value;save();updCount(ta);renderNav();}); });
+  const pending={};
+  el.onclick = e=>{
+    const o=e.target.closest(".opt"); const q=o && findQ(o.dataset.q);
+    if(o && !o.disabled){
+      const k=+o.dataset.k;
+      if(q.type==="multi"){ const arr=S.multi[q.id]||[]; const i=arr.indexOf(k); i>=0?arr.splice(i,1):arr.push(k); S.multi[q.id]=arr; save(); renderQs(cid); }
+      else { el.querySelectorAll(`.opt[data-q="${q.id}"]`).forEach(b=>{b.classList.toggle("sel", b===o); b.setAttribute("aria-pressed", b===o);}); pending[q.id]=k; el.querySelector(`[data-checkmc="${q.id}"]`).disabled=false; }
+      return;
+    }
+    const c=e.target.closest("[data-check]"); if(c){ S.multiLocked[c.dataset.check]=true; save(); renderQs(cid); renderNav(); return; }
+    const m=e.target.closest("[data-checkmc]"); if(m && pending[m.dataset.checkmc]!=null){ S.mc[m.dataset.checkmc]=pending[m.dataset.checkmc]; save(); renderQs(cid); renderNav(); }
+  };
+}
+function findQ(id){ for(const c in CHECKPOINTS){ const q=CHECKPOINTS[c].find(x=>x.id===id); if(q) return q; } }
+function updCount(ta){
+  const id=ta.dataset.t, n=wc(ta.value), min=MINW[id]||1, ok=n>=min;
+  const c=document.querySelector(`[data-c="${id}"]`); if(!c) return;
+  c.className="count "+(ok?"ok":"short");
+  c.textContent = ok ? `${n} words · Complete` : `${n} of ${min} words · Not complete yet (write at least ${min} words)`;
+  ta.classList.toggle("short", !ok && n>0);
+}
+
+/* ---------- Sort ---------- */
+function renderSort(){
+  $("#sort").innerHTML = SORT.map((it,i)=>{
+    const v=S.sort[i]; let cls="sortitem";
+    if(S.sortChecked) cls+=" checked "+(v===it.a?"right":"wrong");
+    return `<div class="${cls}"><span class="say">"${esc(it.s)}"</span>
+      <div class="pick" role="group" aria-label="Sort this statement">
+        <button type="button" data-si="${i}" data-v="shame" class="shame ${v==='shame'?'sel':''}" ${S.sortChecked?"disabled":""}>Label talk</button>
+        <button type="button" data-si="${i}" data-v="fact" class="fact ${v==='fact'?'sel':''}" ${S.sortChecked?"disabled":""}>Nutrient talk</button>
+      </div>
+      <p class="why">${v===it.a?"✓ ":"✗ "}${it.a==="shame"?"Label talk.":"Nutrient talk."} ${esc(it.why)}</p></div>`;
+  }).join("");
+  const done=SORT.every((_,i)=>S.sort[i]);
+  $("#checkSort").disabled = !done || S.sortChecked;
+  $("#checkSort").style.display = S.sortChecked?"none":"";
+  $("#sortScore").textContent = S.sortChecked ? `You sorted ${sortScore()} of ${SORT.length} correctly.` : (done?"":"Sort all 8 to check.");
+}
+function sortScore(){ return SORT.filter((it,i)=>S.sort[i]===it.a).length; }
+$("#sort").addEventListener("click",e=>{ const b=e.target.closest("button[data-si]"); if(!b||b.disabled) return; S.sort[b.dataset.si]=b.dataset.v; save(); renderSort(); });
+$("#checkSort").addEventListener("click",()=>{ S.sortChecked=true; save(); renderSort(); renderNav(); });
+
+/* ---------- Reframe & reflect ---------- */
+function renderTextList(cid, list, min){
+  $("#"+cid).innerHTML = list.map(r=>`<div class="q"><p class="prompt"><label for="ta-${r.id}">${r.s?`Original: <em>"${esc(r.s)}"</em>`:esc(r.prompt)}</label></p>
+    <p class="minnote">Write at least ${r.minW} words.</p><textarea id="ta-${r.id}" data-t="${r.id}" ${r.s?'placeholder="Your rewrite..."':''}>${esc(S.text[r.id]||"")}</textarea><div class="count" data-c="${r.id}"></div></div>`).join("");
+  $("#"+cid).querySelectorAll("textarea").forEach(ta=>{ updCount(ta); ta.addEventListener("input",()=>{S.text[ta.dataset.t]=ta.value;save();updCount(ta);renderNav();}); });
+}
+
+/* ---------- Food explorer ---------- */
+function renderFoods(active){
+  $("#foods").innerHTML = FOODS.map((f,i)=>`<button type="button" class="food ${S.seen.includes(i)?'seen':''}" data-f="${i}" aria-pressed="${active===i}"><span class="em" aria-hidden="true">${f.em}</span><span class="nm">${esc(f.nm)}</span></button>`).join("");
+  $("#exploredCount").textContent = `Explored ${S.seen.length} of ${FOODS.length}`;
+  const p=$("#foodPanel");
+  if(active==null){ p.classList.remove("show"); return; }
+  const f=FOODS[active];
+  p.innerHTML=`<h4>${f.em} ${esc(f.nm)}</h4><dl><dt>What it brings</dt><dd>${esc(f.gives)}</dd><dt>Fits well</dt><dd>${esc(f.fit)}</dd><dt>Keep in mind</dt><dd>${esc(f.care)}</dd></dl>`;
+  p.classList.add("show");
+}
+$("#foods").addEventListener("click",e=>{ const b=e.target.closest(".food"); if(!b) return; const i=+b.dataset.f; if(!S.seen.includes(i)) S.seen.push(i); save(); renderFoods(i); renderNav(); });
+
+/* ---------- Checklist & PDF ---------- */
+function renderChecklist(){
+  const items=[
+    ["Name and class period", !!(S.name.trim()&&S.period.trim())],
+    ["Step 1: Before you read", stepDone(0)],
+    ["Step 2: All four checkpoints", stepDone(1)],
+    ["Step 3: Sort, reframe, and food explorer", stepDone(2)],
+    ["Step 4: Reflection", stepDone(3)]
+  ];
+  $("#checklist").innerHTML = items.map(([t,ok])=>`<li class="${ok?'ok':'no'}">${t}${ok?"":" (not finished)"}</li>`).join("");
+  const short=Object.keys(MINW).filter(id=>!metMin(id)).length;
+  if(short) $("#checklist").insertAdjacentHTML("beforeend", `<li class="no">${short} written answer${short>1?"s are":" is"} too short or blank. Look for red word counters and add more detail.</li>`);
+}
+function mcScore(){
+  let right=0,total=0;
+  for(const c in CHECKPOINTS) CHECKPOINTS[c].forEach(q=>{
+    if(q.type==="mc"){ total++; if(S.mc[q.id]===q.answer) right++; }
+    if(q.type==="multi"){ total++; const ch=S.multi[q.id]||[]; if(S.multiLocked[q.id] && ch.length===q.answer.length && q.answer.every(a=>ch.includes(a))) right++; }
+  });
+  return [right,total];
+}
+function buildPdf(){
+  const { jsPDF } = window.jspdf;
+  const doc=new jsPDF({unit:"pt",format:"letter"});
+  const M=54, W=612-2*M; let y=M;
+  const need=h=>{ if(y+h>792-M){ doc.addPage(); y=M; } };
+  const write=(txt,{size=11,bold=false,gap=4,indent=0}={})=>{
+    doc.setFont("helvetica", bold?"bold":"normal"); doc.setFontSize(size);
+    const lines=doc.splitTextToSize(String(txt), W-indent);
+    lines.forEach(l=>{ need(size*1.35); doc.text(l, M+indent, y); y+=size*1.35; });
+    y+=gap;
+  };
+  const head=t=>{ y+=8; need(30); write(t,{size:14,bold:true,gap:6}); };
+  const [r,t]=mcScore();
+  write("Food Isn't Good or Bad: Lesson Submission",{size:18,bold:true,gap:6});
+  write(`Name: ${S.name||"(blank)"}     Period: ${S.period||"(blank)"}     Date: ${new Date().toLocaleDateString()}`);
+  write(`Checkpoint score: ${r}/${t}     Sort activity: ${S.sortChecked?sortScore():0}/${SORT.length}`,{bold:true,gap:8});
+
+  head("Beliefs: before and after");
+  BELIEFS.forEach((b,j)=>{ write(`${j+1}. ${b}`,{bold:true,gap:1}); write(`Before: ${S.pre[j]!=null?SCALE[S.pre[j]]:"-"}   After: ${S.post[j]!=null?SCALE[S.post[j]]:"-"}`,{indent:14}); });
+
+  head("Reading checkpoints");
+  ["cp1","cp2","cp3","cp4","cp5"].forEach(c=>CHECKPOINTS[c].forEach(q=>{
+    write(q.prompt,{bold:true,gap:1});
+    if(q.type==="text") write(S.text[q.id]||"(no answer)",{indent:14});
+    else if(q.type==="mc"){ const a=S.mc[q.id]; write(a!=null?`${q.opts[a]}  [${a===q.answer?"correct":"incorrect"}]`:"(no answer)",{indent:14}); }
+    else { const ch=S.multi[q.id]||[]; const ok=S.multiLocked[q.id]&&ch.length===q.answer.length&&q.answer.every(x=>ch.includes(x)); write(ch.length?ch.map(k=>q.opts[k]).join("; ")+`  [${ok?"correct":"incorrect"}]`:"(no answer)",{indent:14}); }
+  }));
+
+  head("Label or nutrient?");
+  SORT.forEach((it,i)=>{ const v=S.sort[i]; write(`"${it.s}" - ${v?(v==="shame"?"Label talk":"Nutrient talk"):"-"} ${S.sortChecked?(v===it.a?"[correct]":"[incorrect]"):""}`,{gap:2}); });
+
+  head("Reframe it");
+  REFRAME.forEach(rf=>{ write(`Original: "${rf.s}"`,{bold:true,gap:1}); write(S.text[rf.id]||"(no answer)",{indent:14}); });
+  write(`Food explorer: ${S.seen.length} of ${FOODS.length} foods explored`,{gap:4});
+
+  head("Reflection");
+  REFLECT.forEach(rf=>{ write(rf.prompt,{bold:true,gap:1}); write(S.text[rf.id]||"(no answer)",{indent:14}); });
+  return doc;
+}
+function buildText(){
+  const L=[]; const [r,t]=mcScore();
+  L.push("FOOD ISN'T GOOD OR BAD: LESSON SUBMISSION");
+  L.push(`Name: ${S.name||"(blank)"}   Period: ${S.period||"(blank)"}   Date: ${new Date().toLocaleDateString()}`);
+  L.push(`Checkpoint score: ${r}/${t}   Label or nutrient sort: ${S.sortChecked?sortScore():0}/${SORT.length}`,"");
+  L.push("BELIEFS: BEFORE AND AFTER");
+  BELIEFS.forEach((b,j)=>{ L.push(`${j+1}. ${b}`, `   Before: ${S.pre[j]!=null?SCALE[S.pre[j]]:"-"}   After: ${S.post[j]!=null?SCALE[S.post[j]]:"-"}`); });
+  L.push("","READING CHECKPOINTS");
+  ["cp1","cp2","cp3","cp4","cp5"].forEach(c=>CHECKPOINTS[c].forEach(q=>{
+    L.push(q.prompt);
+    if(q.type==="text") L.push("   "+(S.text[q.id]||"(no answer)"));
+    else if(q.type==="mc"){ const a=S.mc[q.id]; L.push("   "+(a!=null?`${q.opts[a]} [${a===q.answer?"correct":"incorrect"}]`:"(no answer)")); }
+    else { const ch=S.multi[q.id]||[]; const ok=S.multiLocked[q.id]&&ch.length===q.answer.length&&q.answer.every(x=>ch.includes(x)); L.push("   "+(ch.length?ch.map(k=>q.opts[k]).join("; ")+` [${ok?"correct":"incorrect"}]`:"(no answer)")); }
+    L.push("");
+  }));
+  L.push("LABEL OR NUTRIENT?");
+  SORT.forEach((it,i)=>{ const v=S.sort[i]; L.push(`"${it.s}" - ${v?(v==="shame"?"Label talk":"Nutrient talk"):"-"} ${S.sortChecked?(v===it.a?"[correct]":"[incorrect]"):""}`); });
+  L.push("","REWRITE IT");
+  REFRAME.forEach(rf=>{ L.push(`Original: "${rf.s}"`, "   "+(S.text[rf.id]||"(no answer)")); });
+  L.push(`Food explorer: ${S.seen.length} of ${FOODS.length} foods explored`,"","REFLECTION");
+  REFLECT.forEach(rf=>{ L.push(rf.prompt, "   "+(S.text[rf.id]||"(no answer)"), ""); });
+  return L.join("\n");
+}
+$("#copyAns").addEventListener("click", async()=>{
+  const box=$("#copyBox"), st=$("#saveStatus");
+  box.value=buildText(); box.style.display="block"; box.focus(); box.select();
+  let ok=false;
+  try{ await navigator.clipboard.writeText(box.value); ok=true; }catch(e){ try{ ok=document.execCommand("copy"); }catch(e2){} }
+  st.textContent = ok ? "Copied! Open a Google Doc and paste (Ctrl+V, or Cmd+V on a Mac)."
+    : "Your answers are selected in the box below. Press Ctrl+C (or Cmd+C on a Mac) to copy, then paste into a Google Doc.";
+});
+let downloads=null;
+(async()=>{ try{ if(window.claude && window.claude.use) downloads=await window.claude.use("downloads"); }catch(e){} })();
+$("#savePdf").addEventListener("click", async()=>{
+  const st=$("#saveStatus");
+  if(!window.jspdf){ st.textContent="The PDF tool didn't load. Check your internet connection and reload the page. Your answers are saved."; return; }
+  const doc=buildPdf();
+  const fname=`GoodVsBadFoods_${(S.name||"student").trim().replace(/\s+/g,"_")}.pdf`;
+  if(downloads){
+    try{ await downloads.save({filename:fname, data:doc.output("blob")}); st.textContent="PDF saved. Upload it to Google Classroom to turn in."; }
+    catch(err){ st.textContent = err && err.code==="declined" ? "Save canceled. Select Save my PDF when you're ready." : err && err.code==="rate_limited" ? "A save window is already open. Finish or close it first." : "Saving isn't available here. Ask your teacher for help."; }
+  } else {
+    try{ doc.save(fname); st.textContent="PDF downloaded. Upload it to Google Classroom to turn in."; }
+    catch(e){ st.textContent="Saving isn't available here. Ask your teacher for help."; }
+  }
+});
+$("#resetAll").addEventListener("click",()=>{
+  if(!confirm("Erase all your answers and start over? This can't be undone.")) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  location.reload();
+});
+
+/* ---------- Init ---------- */
+[...Object.values(CHECKPOINTS).flat().filter(q=>q.type==="text"), ...REFRAME, ...REFLECT].forEach(q=>MINW[q.id]=q.minW||1);
+renderScale("#pre","pre");
+renderScale("#post","post");
+["cp1","cp2","cp3","cp4","cp5"].forEach(renderQs);
+renderSort();
+renderTextList("reframe", REFRAME);
+renderTextList("reflect", REFLECT);
+renderFoods(null);
+document.querySelectorAll("section.step").forEach(s=>s.classList.toggle("active", +s.dataset.step===S.step));
+renderNav();
+// refresh the "before" labels when moving to reflect
+document.addEventListener("click", e=>{ if(e.target.closest('[data-go="3"]')) renderScale("#post","post"); });
+</script>
+</body>
+</html>
