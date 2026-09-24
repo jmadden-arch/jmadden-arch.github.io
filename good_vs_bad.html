@@ -209,23 +209,14 @@ textarea.short{border-color:var(--berry)}
 <!-- STEP 3 -->
 <section class="step" data-step="2">
   <h2>3. Beyond the reading</h2>
-  <p class="intro">Health experts agree with the article's big idea. Here's what two major organizations say, followed by three activities.</p>
+  <p class="intro">Health experts agree with the article's big idea. Here's what two major organizations say, followed by an activity.</p>
 
   <div class="expert"><h4>Look at the pattern, not one food</h4>
     <p>The <em>Dietary Guidelines for Americans</em> (USDA and HHS) focus on your overall eating pattern over time. They encourage mostly <strong>nutrient-dense</strong> foods, meaning foods that pack a lot of vitamins, minerals, fiber, and protein into each bite, while leaving some room for foods with added sugar, saturated fat, or sodium in smaller amounts.</p></div>
   <div class="expert"><h4>The "total diet" approach</h4>
     <p>The <em>Academy of Nutrition and Dietetics</em>, the professional group for registered dietitians, says the healthfulness of your diet depends on what you eat overall. Rather than judging single foods, it looks at how all your food choices work together.</p></div>
 
-  <h3>Activity A: Label or nutrient?</h3>
-  <p class="intro">For each statement, decide if it's <strong>label talk</strong> (calls a food good or bad without any context) or <strong>nutrient talk</strong> (describes what a food does for your body or why it fits the situation).</p>
-  <div id="sort"></div>
-  <div class="row"><button class="btn" id="checkSort">Check my sort</button><span id="sortScore" class="small"></span></div>
-
-  <h3>Activity B: Reframe it</h3>
-  <p class="intro">Rewrite each label statement using nutrient talk. Say what the food provides or when it fits well.</p>
-  <div id="reframe"></div>
-
-  <h3>Activity C: What does this food bring?</h3>
+  <h3>Activity: What does this food bring?</h3>
   <p class="intro">Tap each food to see what it offers and when it fits well. Open all six before answering the question underneath.</p>
   <div class="foods" id="foods"></div>
   <div class="panel" id="foodPanel" aria-live="polite"></div>
@@ -319,22 +310,6 @@ const CHECKPOINTS = {
   ]
 };
 
-const SORT = [
-  {s:"Chips are bad.", a:"shame", why:"This labels the food without saying anything about its nutrients or the situation."},
-  {s:"Beans have a lot of fiber, which helps keep me full longer.", a:"fact", why:"This describes what a nutrient actually does."},
-  {s:"Fruit is good, so it's all I need to eat.", a:"shame", why:"Fruit is nutrient-dense, but calling it simply \"good\" ignores the need for protein, fats, and variety."},
-  {s:"This soup is pretty salty, so I'll pair it with some fruit and water.", a:"fact", why:"This notices a nutrient (sodium) and balances it with other foods."},
-  {s:"Carbs are bad.", a:"shame", why:"Carbohydrates are your body's main energy source. Labeling a whole nutrient this way comes from diet trends, not science."},
-  {s:"Milk and yogurt give me calcium and vitamin D for strong bones.", a:"fact", why:"This connects a food to what it does for your body."},
-  {s:"Pizza is junk food.", a:"shame", why:"This labels the food. Pizza provides carbohydrates, protein, and calcium, and it can be high in sodium."},
-  {s:"I want some protein after practice to help my muscles recover.", a:"fact", why:"This matches food to a real need in the moment."}
-];
-
-const REFRAME = [
-  {id:"r1", minW:8, s:"Chips are bad."},
-  {id:"r2", minW:8, s:"Carbs are bad."}
-];
-
 const FOODS = [
   {em:"🥬", nm:"Spinach", gives:"Vitamin K, vitamin A, folate, iron, and fiber in very few calories. Very nutrient-dense.", fit:"Easy to add to salads, smoothies, eggs, or pasta nearly any day.", care:"Doesn't provide much energy on its own, so it works best as part of a meal."},
   {em:"🎂", nm:"Birthday cake", gives:"Quick energy from carbohydrates and fat, plus celebration and time with people you care about.", fit:"Special occasions, where the social and cultural value is a big part of the point.", care:"High in added sugar with few vitamins or fiber, so it fits best as an occasional treat."},
@@ -366,7 +341,7 @@ const esc = t => String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&
 function stepDone(i){
   if(i===0) return BELIEFS.every((_,j)=>S.pre[j]!=null);
   if(i===1) return ["cp1","cp2","cp3","cp4"].every(c=>CHECKPOINTS[c].every(answered));
-  if(i===2) return S.sortChecked && REFRAME.every(r=>metMin(r.id)) && S.seen.length===FOODS.length && CHECKPOINTS.cp5.every(answered);
+  if(i===2) return S.seen.length===FOODS.length && CHECKPOINTS.cp5.every(answered);
   if(i===3) return BELIEFS.every((_,j)=>S.post[j]!=null) && REFLECT.every(r=>metMin(r.id));
   return false;
 }
@@ -456,27 +431,6 @@ function updCount(ta){
   ta.classList.toggle("short", !ok && n>0);
 }
 
-/* ---------- Sort ---------- */
-function renderSort(){
-  $("#sort").innerHTML = SORT.map((it,i)=>{
-    const v=S.sort[i]; let cls="sortitem";
-    if(S.sortChecked) cls+=" checked "+(v===it.a?"right":"wrong");
-    return `<div class="${cls}"><span class="say">"${esc(it.s)}"</span>
-      <div class="pick" role="group" aria-label="Sort this statement">
-        <button type="button" data-si="${i}" data-v="shame" class="shame ${v==='shame'?'sel':''}" ${S.sortChecked?"disabled":""}>Label talk</button>
-        <button type="button" data-si="${i}" data-v="fact" class="fact ${v==='fact'?'sel':''}" ${S.sortChecked?"disabled":""}>Nutrient talk</button>
-      </div>
-      <p class="why">${v===it.a?"✓ ":"✗ "}${it.a==="shame"?"Label talk.":"Nutrient talk."} ${esc(it.why)}</p></div>`;
-  }).join("");
-  const done=SORT.every((_,i)=>S.sort[i]);
-  $("#checkSort").disabled = !done || S.sortChecked;
-  $("#checkSort").style.display = S.sortChecked?"none":"";
-  $("#sortScore").textContent = S.sortChecked ? `You sorted ${sortScore()} of ${SORT.length} correctly.` : (done?"":"Sort all 8 to check.");
-}
-function sortScore(){ return SORT.filter((it,i)=>S.sort[i]===it.a).length; }
-$("#sort").addEventListener("click",e=>{ const b=e.target.closest("button[data-si]"); if(!b||b.disabled) return; S.sort[b.dataset.si]=b.dataset.v; save(); renderSort(); });
-$("#checkSort").addEventListener("click",()=>{ S.sortChecked=true; save(); renderSort(); renderNav(); });
-
 /* ---------- Reframe & reflect ---------- */
 function renderTextList(cid, list, min){
   $("#"+cid).innerHTML = list.map(r=>`<div class="q"><p class="prompt"><label for="ta-${r.id}">${r.s?`Original: <em>"${esc(r.s)}"</em>`:esc(r.prompt)}</label></p>
@@ -502,7 +456,7 @@ function renderChecklist(){
     ["Name and class period", !!(S.name.trim()&&S.period.trim())],
     ["Step 1: Before you read", stepDone(0)],
     ["Step 2: All four checkpoints", stepDone(1)],
-    ["Step 3: Sort, reframe, and food explorer", stepDone(2)],
+    ["Step 3: Food explorer and question", stepDone(2)],
     ["Step 4: Reflection", stepDone(3)]
   ];
   $("#checklist").innerHTML = items.map(([t,ok])=>`<li class="${ok?'ok':'no'}">${t}${ok?"":" (not finished)"}</li>`).join("");
@@ -532,7 +486,7 @@ function buildPdf(){
   const [r,t]=mcScore();
   write("Food Isn't Good or Bad: Lesson Submission",{size:18,bold:true,gap:6});
   write(`Name: ${S.name||"(blank)"}     Period: ${S.period||"(blank)"}     Date: ${new Date().toLocaleDateString()}`);
-  write(`Checkpoint score: ${r}/${t}     Sort activity: ${S.sortChecked?sortScore():0}/${SORT.length}`,{bold:true,gap:8});
+  write(`Checkpoint score: ${r}/${t}`,{bold:true,gap:8});
 
   head("Beliefs: before and after");
   BELIEFS.forEach((b,j)=>{ write(`${j+1}. ${b}`,{bold:true,gap:1}); write(`Before: ${S.pre[j]!=null?SCALE[S.pre[j]]:"-"}   After: ${S.post[j]!=null?SCALE[S.post[j]]:"-"}`,{indent:14}); });
@@ -545,11 +499,6 @@ function buildPdf(){
     else { const ch=S.multi[q.id]||[]; const ok=S.multiLocked[q.id]&&ch.length===q.answer.length&&q.answer.every(x=>ch.includes(x)); write(ch.length?ch.map(k=>q.opts[k]).join("; ")+`  [${ok?"correct":"incorrect"}]`:"(no answer)",{indent:14}); }
   }));
 
-  head("Label or nutrient?");
-  SORT.forEach((it,i)=>{ const v=S.sort[i]; write(`"${it.s}" - ${v?(v==="shame"?"Label talk":"Nutrient talk"):"-"} ${S.sortChecked?(v===it.a?"[correct]":"[incorrect]"):""}`,{gap:2}); });
-
-  head("Reframe it");
-  REFRAME.forEach(rf=>{ write(`Original: "${rf.s}"`,{bold:true,gap:1}); write(S.text[rf.id]||"(no answer)",{indent:14}); });
   write(`Food explorer: ${S.seen.length} of ${FOODS.length} foods explored`,{gap:4});
 
   head("Reflection");
@@ -560,7 +509,7 @@ function buildText(){
   const L=[]; const [r,t]=mcScore();
   L.push("FOOD ISN'T GOOD OR BAD: LESSON SUBMISSION");
   L.push(`Name: ${S.name||"(blank)"}   Period: ${S.period||"(blank)"}   Date: ${new Date().toLocaleDateString()}`);
-  L.push(`Checkpoint score: ${r}/${t}   Label or nutrient sort: ${S.sortChecked?sortScore():0}/${SORT.length}`,"");
+  L.push(`Checkpoint score: ${r}/${t}`,"");
   L.push("BELIEFS: BEFORE AND AFTER");
   BELIEFS.forEach((b,j)=>{ L.push(`${j+1}. ${b}`, `   Before: ${S.pre[j]!=null?SCALE[S.pre[j]]:"-"}   After: ${S.post[j]!=null?SCALE[S.post[j]]:"-"}`); });
   L.push("","READING CHECKPOINTS");
@@ -571,10 +520,6 @@ function buildText(){
     else { const ch=S.multi[q.id]||[]; const ok=S.multiLocked[q.id]&&ch.length===q.answer.length&&q.answer.every(x=>ch.includes(x)); L.push("   "+(ch.length?ch.map(k=>q.opts[k]).join("; ")+` [${ok?"correct":"incorrect"}]`:"(no answer)")); }
     L.push("");
   }));
-  L.push("LABEL OR NUTRIENT?");
-  SORT.forEach((it,i)=>{ const v=S.sort[i]; L.push(`"${it.s}" - ${v?(v==="shame"?"Label talk":"Nutrient talk"):"-"} ${S.sortChecked?(v===it.a?"[correct]":"[incorrect]"):""}`); });
-  L.push("","REWRITE IT");
-  REFRAME.forEach(rf=>{ L.push(`Original: "${rf.s}"`, "   "+(S.text[rf.id]||"(no answer)")); });
   L.push(`Food explorer: ${S.seen.length} of ${FOODS.length} foods explored`,"","REFLECTION");
   REFLECT.forEach(rf=>{ L.push(rf.prompt, "   "+(S.text[rf.id]||"(no answer)"), ""); });
   return L.join("\n");
@@ -609,12 +554,10 @@ $("#resetAll").addEventListener("click",()=>{
 });
 
 /* ---------- Init ---------- */
-[...Object.values(CHECKPOINTS).flat().filter(q=>q.type==="text"), ...REFRAME, ...REFLECT].forEach(q=>MINW[q.id]=q.minW||1);
+[...Object.values(CHECKPOINTS).flat().filter(q=>q.type==="text"), ...REFLECT].forEach(q=>MINW[q.id]=q.minW||1);
 renderScale("#pre","pre");
 renderScale("#post","post");
 ["cp1","cp2","cp3","cp4","cp5"].forEach(renderQs);
-renderSort();
-renderTextList("reframe", REFRAME);
 renderTextList("reflect", REFLECT);
 renderFoods(null);
 document.querySelectorAll("section.step").forEach(s=>s.classList.toggle("active", +s.dataset.step===S.step));
