@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cardiovascular Health: Resting Heart Rate</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f8fb;--card:#fff;--ink:#1c2430;--mute:#5b6675;--accent:#c62f4b;--line:#dde3ea;--ok:#1f8a4c;--bad:#b3261e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--card:#1b212a;--ink:#e8edf3;--mute:#9aa6b5;--accent:#ff6b85;--line:#2c3541;--ok:#5fd18a;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#12161c;--card:#1b212a;--ink:#e8edf3;--mute:#9aa6b5;--accent:#ff6b85;--line:#2c3541;--ok:#5fd18a;--bad:#ff8a80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;margin:.2em 0}h2{font-size:1.2rem;margin:0 0 .5em;color:var(--accent)}
+.sub{color:var(--mute);margin:0 0 20px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0}
+ul{padding-left:1.2em;margin:.4em 0}li{margin:.3em 0}
+.goals li{margin:.2em 0}
+button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;cursor:pointer}
+button.alt{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+input{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:110px}
+label{display:inline-block;margin:6px 12px 6px 0}
+.big{font-size:2.4rem;font-weight:700;text-align:center;margin:.2em 0}
+.out{background:var(--bg);border-radius:8px;padding:12px;margin-top:12px}
+pre{background:var(--bg);padding:12px;border-radius:8px;overflow-x:auto;margin:.6em 0}
+.q{margin:14px 0}.q button{display:block;width:100%;text-align:left;margin:6px 0;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.q button.right{border-color:var(--ok);color:var(--ok)}.q button.wrong{border-color:var(--bad);color:var(--bad)}
+.fb{font-size:.92rem;color:var(--mute)}
+a{color:var(--accent)}
+textarea{font:inherit;width:100%;min-height:90px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);box-sizing:border-box}
+#name{width:100%;max-width:340px}
+.msg{margin-top:10px;font-size:.95rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Cardiovascular Health: Resting Heart Rate</h1>
+<p class="sub">A self-paced lesson. Work through each part in order (about 20 minutes).</p>
+
+<section>
+<h2>Your name</h2>
+<label>Type your full name (it will appear on your results PDF)<br><input id="name" type="text" autocomplete="name" placeholder="First and last name"></label>
+</section>
+
+<section>
+<h2>Learning goals</h2>
+<ul class="goals">
+<li>Explain what resting heart rate (RHR) tells you about heart health</li>
+<li>Measure your own RHR accurately</li>
+<li>Use the Karvonen formula to find your personal target heart rate zone</li>
+</ul>
+</section>
+
+<section>
+<h2>Part 1: What is resting heart rate?</h2>
+<p>Your resting heart rate is how many times your heart beats per minute while your body is at rest.</p>
+<ul>
+<li>A <b>lower RHR</b> generally means a more efficient heart and better cardiovascular fitness.</li>
+<li>A normal RHR for most adults is about <b>60 to 100 beats per minute</b> (Mayo Clinic).</li>
+<li><b>Factors that influence heart rate:</b> age, fitness level, smoking, medication, emotions, and body position when it is taken.</li>
+<li>An unusually high or low RHR can point to an underlying health concern. Warning signs include <b>fainting, dizziness, and shortness of breath</b>. If you notice these, talk to a doctor.</li>
+</ul>
+<p class="fb">Source: <a href="https://www.mayoclinic.org/healthy-lifestyle/fitness/expert-answers/heart-rate/faq-20057979" target="_blank" rel="noopener">Mayo Clinic: What's a normal resting heart rate?</a></p>
+<h2 style="margin-top:1.2em">Check your understanding</h2>
+<div id="quiz1"></div>
+</section>
+
+<section>
+<h2>Part 2: Measure your own RHR</h2>
+<ol>
+<li>Find a comfortable spot to sit or lie down. Stay in that same position the whole time, and do not sit up. This gives the most accurate reading.</li>
+<li>Watch the relaxation video: <a href="https://youtu.be/_e0-tGQgshM" target="_blank" rel="noopener">youtu.be/_e0-tGQgshM</a>. At the end, take your pulse.</li>
+<li>Find your pulse on your wrist (below the thumb) or neck. Press the button below, then count beats for <b>10 seconds</b>.</li>
+<li>Multiply your count by <b>6</b> to get beats per minute.</li>
+</ol>
+<div class="big" id="clock">10</div>
+<div style="text-align:center"><button id="go">Start 10-second count</button></div>
+<div class="out">
+<label>Beats counted <input id="beats" type="number" min="0" max="60" inputmode="numeric"></label>
+<div id="rhrOut">Enter your count to see your RHR.</div>
+</div>
+</section>
+
+<section>
+<h2>Part 3: Find your target heart rate zone</h2>
+<p>The <b>Karvonen formula</b> uses your resting heart rate to build a personal zone. (The heart rate monitor zone used in class is 145 to 185 bpm.)</p>
+<ul>
+<li><b>Step 1:</b> 220 − age − RHR = <b>C</b></li>
+<li><b>Step 2:</b> C × 0.60 = <b>A</b> and C × 0.85 = <b>B</b></li>
+<li><b>Step 3:</b> A + RHR = <b>bottom of your zone</b>; B + RHR = <b>top of your zone</b></li>
+</ul>
+<p><b>Worked example</b> (age 18, RHR 52):</p>
+<pre>Step 1: 220 − 18 − 52 = 150
+Step 2: 150 × 0.60 = 90 (A)
+        150 × 0.85 = 127.5 (B)
+Step 3: 90 + 52 = 142 (bottom)
+        127.5 + 52 = 179.5 (top)</pre>
+<p><b>Now try it with your own numbers:</b></p>
+<label>Age <input id="age" type="number" min="5" max="100" inputmode="numeric"></label>
+<label>RHR <input id="rhr" type="number" min="30" max="150" inputmode="numeric"></label>
+<div><button id="calc">Calculate my zone</button></div>
+<div class="out" id="zoneOut">Enter your age and RHR, then press the button.</div>
+</section>
+
+<section>
+<h2>Part 4: Check your understanding</h2>
+<div id="quiz"></div>
+</section>
+
+<section>
+<h2>Reflect</h2>
+<p>Where does your heart health stand? Write 2 to 3 sentences: how does your RHR compare to the typical adult range, and what is one habit that could help improve it over time?</p>
+<textarea id="reflect" placeholder="Type your reflection here"></textarea>
+</section>
+
+<section>
+<h2>Turn in your work</h2>
+<p>When you have finished every part, enter your name at the top and download your results as a PDF. Then upload the PDF to Google Classroom.</p>
+<button id="pdf">Download my results (PDF)</button>
+<div class="msg" id="pdfMsg"></div>
+<p class="fb" style="margin-top:18px">Your answers save automatically in this browser, so you can leave and come back later. Use the same device and browser to pick up where you left off.</p>
+<button id="clear" class="alt">Clear my answers and start over</button>
+</section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var KEY='rhrLesson_v1';
+var t=null;var ST={rhr:null,beats:null,zone:null};var RES={quiz1:[],quiz:[]};var UI={quiz1:[],quiz:[]};
+var loading=true;
+
+function save(){
+  if(loading)return;
+  try{localStorage.setItem(KEY,JSON.stringify({
+    name:$('name').value,beats:$('beats').value,age:$('age').value,rhr:$('rhr').value,
+    zone:ST.zone,reflect:$('reflect').value,quiz1:RES.quiz1,quiz:RES.quiz}));}catch(e){}
+}
+
+$('go').onclick=function(){
+  if(t)return;var n=10;$('clock').textContent=n;$('go').textContent='Counting... keep still';
+  t=setInterval(function(){n--;$('clock').textContent=n;
+    if(n<=0){clearInterval(t);t=null;$('clock').textContent='Stop!';$('go').textContent='Start again';}},1000);
+};
+
+function updateBeats(){
+  var b=parseFloat($('beats').value);
+  $('rhrOut').textContent=isNaN(b)?'Enter your count to see your RHR.':
+    'Your RHR: '+Math.round(b*6)+' beats per minute ('+b+' × 6)';
+  if(!isNaN(b)){$('rhr').value=Math.round(b*6);ST.beats=b;ST.rhr=Math.round(b*6);}
+  else{ST.beats=null;ST.rhr=null;}
+}
+$('beats').oninput=function(){updateBeats();save();};
+
+function fmt(n){return String(Math.round(n*10)/10);}
+function drawZone(z){
+  var a=z.age,r=z.rhr,c=z.c,A=z.A,B=z.B;
+  $('zoneOut').innerHTML='Step 1: 220 − '+a+' − '+r+' = <b>'+fmt(c)+'</b><br>Step 2: '+fmt(c)+' × 0.60 = <b>'+fmt(A)+'</b>; '+fmt(c)+' × 0.85 = <b>'+fmt(B)+'</b><br>Step 3: '+fmt(A)+' + '+r+' = <b>'+fmt(A+r)+'</b> (bottom); '+fmt(B)+' + '+r+' = <b>'+fmt(B+r)+'</b> (top)<br><br><b>Your personal zone: '+Math.round(A+r)+' to '+Math.round(B+r)+' bpm</b>';
+}
+$('calc').onclick=function(){
+  var a=parseFloat($('age').value),r=parseFloat($('rhr').value),o=$('zoneOut');
+  if(isNaN(a)||isNaN(r)){o.textContent='Please enter both age and RHR.';return;}
+  var c=220-a-r;
+  if(c<=0){o.textContent='Those numbers do not work. Check your entries.';return;}
+  ST.zone={age:a,rhr:r,c:c,A:c*0.60,B:c*0.85};
+  drawZone(ST.zone);save();
+};
+
+['name','age','rhr','reflect'].forEach(function(id){$(id).addEventListener('input',save);});
+
+function showAnswer(key,i){
+  var u=UI[key][i],r=RES[key][i];
+  u.btns.forEach(function(k){k.className=''});
+  if(r.chosenIdx===null||r.chosenIdx===undefined)return;
+  var ok=r.chosenIdx===u.x.a;
+  u.btns[r.chosenIdx].className=ok?'right':'wrong';
+  u.f.textContent=(ok?'Correct. ':'Not quite. ')+u.x.e;
+}
+function render(box,Q,key){
+Q.forEach(function(x,i){
+  var d=document.createElement('div');d.className='q';
+  d.innerHTML='<b>'+(i+1)+'. '+x.q+'</b>';
+  var f=document.createElement('div');f.className='fb';
+  RES[key][i]={q:x.q,chosen:null,chosenIdx:null,ok:false,firstOk:false,tries:0,correct:x.o[x.a]};
+  var btns=[];
+  x.o.forEach(function(txt,j){
+    var b=document.createElement('button');b.textContent=txt;
+    b.onclick=function(){
+      var r=RES[key][i];r.tries++;r.chosen=txt;r.chosenIdx=j;r.ok=(j===x.a);if(r.tries===1)r.firstOk=r.ok;
+      showAnswer(key,i);save();
+    };
+    btns.push(b);d.appendChild(b);
+  });
+  UI[key][i]={x:x,btns:btns,f:f};
+  d.appendChild(f);box.appendChild(d);
+});}
+render($('quiz1'),[
+ {q:'What does a lower resting heart rate generally indicate?',o:['A less efficient heart','More efficient heart function and better cardiovascular fitness','That you are about to faint'],a:1,e:'A lower RHR usually reflects a more efficient heart and better fitness.'},
+ {q:'What is the normal resting heart rate range for most adults?',o:['30 to 50 bpm','60 to 100 bpm','120 to 160 bpm'],a:1,e:'Mayo Clinic gives about 60 to 100 beats per minute for adults.'},
+ {q:'Which of these is NOT listed as a factor that influences heart rate?',o:['Smoking','Body position when it is taken','Eye color'],a:2,e:'Age, fitness level, smoking, medication, emotions and position all matter.'},
+ {q:'Which set of signs suggests an unusual heart rate may be a health concern?',o:['Hunger, thirst and yawning','Fainting, dizziness and shortness of breath','Sweating after a run'],a:1,e:'Fainting, dizziness and shortness of breath are warning signs. See a doctor.'},
+ {q:'An unusually high or low RHR could indicate...',o:['An underlying health concern','That you measured perfectly','Nothing at all, ever'],a:0,e:'Unusual readings can point to an underlying health concern.'},
+ {q:'Which change could raise your heart rate reading?',o:['Feeling nervous or stressed','Lying calmly still','Being well rested'],a:0,e:'Emotions influence heart rate, which is why you stay calm and still when measuring.'}
+],'quiz1');
+render($('quiz'),[
+ {q:'You count 11 beats in 10 seconds. What is your RHR?',o:['66 bpm','110 bpm','21 bpm'],a:0,e:'11 × 6 = 66 beats per minute.'},
+ {q:'A student is 16 with an RHR of 60. What is C in Step 1?',o:['144','160','104'],a:0,e:'220 − 16 − 60 = 144.'},
+ {q:'Using the worked example (C = 150, RHR = 52), what is the bottom of the zone?',o:['90','142','179.5'],a:1,e:'150 × 0.60 = 90, then 90 + 52 = 142.'},
+ {q:'In Step 2, which multiplier gives the TOP of your zone?',o:['0.60','0.75','0.85'],a:2,e:'C × 0.85 = B, and B + RHR is the top of your zone.'}
+],'quiz');
+
+// Restore saved progress
+(function(){
+  var s=null;try{s=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(!s)return;
+  if(s.name)$('name').value=s.name;
+  if(s.beats!==undefined&&s.beats!==''){$('beats').value=s.beats;updateBeats();}
+  if(s.age)$('age').value=s.age;
+  if(s.rhr)$('rhr').value=s.rhr;
+  if(s.zone&&typeof s.zone.c==='number'){ST.zone=s.zone;drawZone(s.zone);}
+  if(s.reflect)$('reflect').value=s.reflect;
+  ['quiz1','quiz'].forEach(function(key){
+    var arr=s[key];if(!Array.isArray(arr))return;
+    RES[key].forEach(function(r,i){
+      var o=arr[i];
+      if(!o||o.q!==r.q||o.chosenIdx===null||o.chosenIdx===undefined)return;
+      if(!UI[key][i].btns[o.chosenIdx])return;
+      r.chosenIdx=o.chosenIdx;r.chosen=UI[key][i].x.o[o.chosenIdx];
+      r.ok=(o.chosenIdx===UI[key][i].x.a);r.tries=o.tries||1;r.firstOk=!!o.firstOk;
+      showAnswer(key,i);
+    });
+  });
+})();
+loading=false;
+
+$('clear').onclick=function(){
+  if(!confirm('This erases all of your answers on this device. Continue?'))return;
+  try{localStorage.removeItem(KEY);}catch(e){}
+  location.reload();
+};
+
+function clean(t){return String(t).replace(/[\u2212\u2013\u2014]/g,'-').replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/\u00D7/g,'x').replace(/[^\x20-\x7E\n]/g,'');}
+function makePdf(name){
+  var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
+  var d=new J({unit:'pt',format:'letter'}),M=50,W=512,y=56;
+  function line(t,sz,b,gap){d.setFont('helvetica',b?'bold':'normal');d.setFontSize(sz);
+    d.splitTextToSize(clean(t),W).forEach(function(l){if(y>740){d.addPage();y=56;}d.text(l,M,y);y+=sz*1.35;});y+=gap||0;}
+  function quiz(title,arr){
+    var n=arr.length,ft=arr.filter(function(r){return r.firstOk}).length;
+    line(title+' (first-try score: '+ft+' of '+n+')',13,true,4);
+    arr.forEach(function(r,i){
+      line((i+1)+'. '+r.q,10.5,true);
+      if(r.chosen===null)line('Not answered',10,false,6);
+      else line('Final answer: '+r.chosen+(r.ok?' (correct)':' (incorrect; correct answer: '+r.correct+')')+'  |  Attempts: '+r.tries,10,false,6);
+    });y+=6;
+  }
+  line('Cardiovascular Health: Resting Heart Rate',18,true,2);
+  line('Lesson results',12,false,8);
+  line('Name: '+name,12,true);
+  line('Date: '+new Date().toLocaleDateString(),11,false,12);
+  quiz('Part 1 check',RES.quiz1);
+  line('Part 2: My resting heart rate',13,true,4);
+  if(ST.beats===null)line('Not measured',10.5,false,10);
+  else line('Beats counted in 10 seconds: '+ST.beats+'\nResting heart rate: '+ST.rhr+' bpm ('+ST.beats+' x 6)',10.5,false,10);
+  line('Part 3: My target heart rate zone (Karvonen)',13,true,4);
+  var z=ST.zone;
+  if(!z)line('Not calculated',10.5,false,10);
+  else line('Age: '+z.age+'   RHR: '+z.rhr+'\nStep 1: 220 - '+z.age+' - '+z.rhr+' = '+fmt(z.c)+'\nStep 2: '+fmt(z.c)+' x 0.60 = '+fmt(z.A)+';  '+fmt(z.c)+' x 0.85 = '+fmt(z.B)+'\nStep 3: '+fmt(z.A)+' + '+z.rhr+' = '+fmt(z.A+z.rhr)+' (bottom);  '+fmt(z.B)+' + '+z.rhr+' = '+fmt(z.B+z.rhr)+' (top)\nMy zone: '+Math.round(z.A+z.rhr)+' to '+Math.round(z.B+z.rhr)+' bpm',10.5,false,10);
+  quiz('Part 4 check',RES.quiz);
+  line('Reflection',13,true,4);
+  line($('reflect').value.trim()||'No reflection written',10.5,false,0);
+  return d;
+}
+$('pdf').onclick=function(){
+  var m=$('pdfMsg');m.textContent='';
+  var name=$('name').value.trim();
+  if(!name){m.textContent='Please type your name at the top of the page first.';$('name').focus();return;}
+  try{
+    var d=makePdf(name);
+    if(!d){m.textContent='The PDF tool did not load. Check your internet connection and reload the page.';return;}
+    var fn=name.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'')+'_Resting_HR_Lesson.pdf';
+    d.save(fn);
+    var un=RES.quiz1.concat(RES.quiz).filter(function(r){return r.chosen===null}).length;
+    m.textContent='Downloaded. Upload the PDF to Google Classroom.'+(un?' Note: '+un+' question(s) were left unanswered.':'');
+  }catch(e){
+    m.textContent='The download did not work. Please try again.';
+  }
+};
+})();
+</script>
+</body>
+</html>
