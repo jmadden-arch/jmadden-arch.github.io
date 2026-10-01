@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Food Label Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#E9F4F9; --surface:#FFFFFF; --ink:#000; --muted:#4A5560; --line:#C9D9E2;
+  --accent:#C8176F; --accent-ink:#fff; --less:#FFDC8C; --more:#DDE7C8;
+  --ok:#1F7A3A; --ok-bg:#E3F3E7; --bad:#A3271A; --bad-bg:#FBE7E4;
+  --font:"Libre Franklin","Helvetica Neue",Helvetica,Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1A20; --surface:#17252D; --ink:#F2F6F8; --muted:#A9BAC4; --line:#2C3F4A;
+    --accent:#FF5FA8; --accent-ink:#000; --ok:#7FD596; --ok-bg:#163223; --bad:#FF9C8E; --bad-bg:#3A1C18;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1A20; --surface:#17252D; --ink:#F2F6F8; --muted:#A9BAC4; --line:#2C3F4A;
+  --accent:#FF5FA8; --accent-ink:#000; --ok:#7FD596; --ok-bg:#163223; --bad:#FF9C8E; --bad-bg:#3A1C18;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 20px 64px}
+h1{font-weight:900;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;letter-spacing:-.02em;margin:0}
+h2{font-weight:900;font-size:1.7rem;line-height:1.15;margin:0 0 .3em}
+h3{font-weight:800;font-size:1.15rem;margin:1.4em 0 .4em}
+p{margin:.4em 0 .8em;max-width:68ch}
+.lede{color:var(--muted);max-width:60ch}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* header */
+header.top{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end;border-bottom:8px solid var(--ink);padding-bottom:16px;margin-bottom:18px}
+.who{display:flex;gap:10px;flex-wrap:wrap}
+.who label{font-size:.8rem;color:var(--muted);display:flex;flex-direction:column}
+.who input{font:inherit;font-size:1rem;padding:6px 8px;border:2px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);width:170px}
+.save-note{font-size:.8rem;color:var(--muted);margin-top:4px;max-width:340px}
+.save-note.warn{color:var(--bad);font-weight:600}
+
+/* step nav */
+nav.steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:22px}
+nav.steps button{flex:0 0 auto;border:2px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.92rem;display:flex;align-items:center;gap:8px}
+nav.steps button .n{font-weight:900}
+nav.steps button[aria-current="step"]{background:var(--ink);color:var(--bg)}
+nav.steps button .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+nav.steps button.done .dot{background:var(--ok)}
+
+section.panel{display:none}
+section.panel.active{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+
+/* the label */
+.nf{background:#fff;color:#000;border:1px solid #000;padding:6px 8px 8px;font-family:var(--font);width:100%;max-width:330px;font-size:14px;line-height:1.25}
+.nf .ttl{font-weight:900;font-size:2.15em;line-height:1;letter-spacing:-.01em;margin:0 0 2px}
+.nf .thick{border-top:10px solid #000;margin:3px 0}
+.nf .med{border-top:5px solid #000;margin:2px 0}
+.nf .r{display:flex;justify-content:space-between;border-top:1px solid #000;padding:2px 0}
+.nf .r.first{border-top:0}
+.nf .ind{padding-left:14px}.nf .ind2{padding-left:28px}
+.nf b{font-weight:800}
+.nf .cal{display:flex;justify-content:space-between;align-items:end;font-weight:900}
+.nf .cal .w{font-size:2em;line-height:1}.nf .cal .v{font-size:2.6em;line-height:1}
+.nf .small{font-size:.72em;line-height:1.3;border-top:1px solid #000;padding-top:3px}
+.nf .z{cursor:pointer;border-radius:2px}
+.nf.explore .z:hover{background:#F2E1EA}
+.nf .z.on{background:#FFC7E2;box-shadow:inset 3px 0 0 #C8176F}
+.nf .z.less.tint{background:var(--less)}
+.nf .z.more.tint{background:var(--more)}
+
+.explore-grid{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:28px;align-items:start}
+.zone-list{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.zone-list button{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:4px 10px;font-size:.85rem}
+.zone-list button.seen{border-color:var(--ok)}
+.zone-list button.cur{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.zone-title{font-weight:900;font-size:1.5rem;color:var(--accent);margin:0}
+.hint{color:var(--muted);font-size:.9rem}
+
+/* MCQ */
+.q{margin:14px 0 6px}
+.q .prompt{font-weight:600;margin-bottom:8px}
+.opts{display:grid;gap:6px}
+.opts button{text-align:left;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:9px 12px}
+.opts button:hover{border-color:var(--ink)}
+.opts button.picked.right{border-color:var(--ok);background:var(--ok-bg)}
+.opts button.picked.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.fb{font-size:.95rem;margin-top:8px;padding:8px 12px;border-radius:6px;display:none}
+.fb.show{display:block}
+.fb.right{background:var(--ok-bg);color:var(--ok)}
+.fb.wrong{background:var(--bad-bg);color:var(--bad)}
+.fb .ex{color:var(--ink);display:block;margin-top:2px}
+
+/* numeric */
+.num{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.num input{font:inherit;width:120px;padding:7px 10px;border:2px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.btn{border:2px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.mini-cap{font-weight:800;margin:0 0 6px}
+
+/* sort */
+.sort-row{display:grid;grid-template-columns:minmax(150px,1fr) auto auto;gap:10px 16px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.sort-row:first-child{border-top:0}
+.nut{font-weight:800}.nut span{font-weight:400;color:var(--muted)}
+.seg{display:inline-flex;justify-self:start;width:max-content;border:2px solid var(--ink);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--ink);padding:6px 10px;font-size:.88rem;border-left:1px solid var(--line)}
+.seg button:first-child{border-left:0}
+.seg button.sel{background:var(--ink);color:var(--bg)}
+.seg button.sel.right{background:var(--ok);color:#fff}
+.seg button.sel.wrong{background:var(--bad);color:#fff}
+.verdict{grid-column:1/-1;font-size:.92rem;color:var(--muted);min-height:0}
+.rule{display:flex;gap:0;border:2px solid var(--ink);border-radius:8px;overflow:hidden;margin:10px 0 16px;max-width:560px}
+.rule div{flex:1;padding:8px 10px;font-size:.9rem}
+.rule div+div{border-left:2px solid var(--ink)}
+.rule strong{display:block;font-size:1.3rem;font-weight:900}
+
+/* ingredients */
+.ing{background:#fff;color:#000;border:1px solid #000;padding:10px 12px;font-size:.92rem;line-height:1.9;max-width:560px}
+.chip{display:inline;border:0;background:transparent;color:#000;padding:1px 1px;margin:0 -1px;border-radius:3px;font:inherit;font-weight:600;text-transform:uppercase;letter-spacing:.01em}
+.chip:hover{background:#F2E1EA}
+.chip.tag{background:#FFDC8C;box-shadow:inset 0 -2px 0 #C8176F}
+.chip.hit{background:#BFE6C9}.chip.miss{background:#fff;box-shadow:0 0 0 2px #C8176F}.chip.extra{background:#F6C9C2;text-decoration:line-through}
+
+textarea{font:inherit;width:100%;min-height:90px;padding:10px;border:2px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.navrow{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
+.fda-link{display:inline-block;background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:800;padding:12px 18px;border-radius:8px}
+.score{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.score input{width:80px}
+
+#report{display:none}
+@media (max-width:760px){
+  .explore-grid,.two{grid-template-columns:1fr}
+  header.top{grid-template-columns:1fr}
+  .sort-row{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:no-preference){
+  .nf .z{transition:background .15s}
+}
+@media print{
+  body{background:#fff;color:#000;font-size:12pt}
+  .wrap > *:not(#report){display:none !important}
+  #report{display:block !important}
+  #report h2{font-size:18pt}
+  #report table{width:100%;border-collapse:collapse}
+  #report td,#report th{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top;font-size:10.5pt}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <h1>Food Label Lab</h1>
+    <p class="lede" style="margin-top:10px">Learn to read a Nutrition Facts label the way the FDA intends: serving size first, then calories, then the %DV of the nutrients that matter.</p>
+  </div>
+  <div>
+    <div class="who">
+      <label>Name<input id="sName" autocomplete="off"></label>
+      <label>Period<input id="sPeriod" autocomplete="off" style="width:80px"></label>
+    </div>
+    <div class="save-note" id="saveNote">Your work saves automatically.</div>
+  </div>
+</header>
+
+<nav class="steps" id="steps" aria-label="Lesson parts"></nav>
+
+<!-- PART 1 -->
+<section class="panel" data-part="0">
+  <h2>Explore the label</h2>
+  <p>Tap any part of the label (or use the buttons) to learn what it means, then answer the check question. Explore all seven parts.</p>
+  <div class="explore-grid">
+    <div>
+      <div class="nf explore" id="mainLabel"></div>
+      <div class="zone-list" id="zoneList"></div>
+    </div>
+    <div class="card" id="zonePanel" aria-live="polite">
+      <p class="zone-title">Start anywhere</p>
+      <p>Tap <b>4 servings per container</b> at the top of the label — that's where the FDA says to start reading.</p>
+    </div>
+  </div>
+  <div class="navrow"><span></span><button class="btn" data-go="1">Next: Serving size math</button></div>
+</section>
+
+<!-- PART 2 -->
+<section class="panel" data-part="1">
+  <h2>Serving size math</h2>
+  <p>Everything on a label is for <b>one serving</b>. Eat two servings and you double every number, including the %DV. This is the most common label mistake.</p>
+  <div class="card">
+    <h3 style="margin-top:0">Scenario A: the FDA example food</h3>
+    <div class="two">
+      <div><div class="nf" id="mathLabel1"></div></div>
+      <div id="mathA"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Scenario B: boxed mac and cheese</h3>
+    <div class="two">
+      <div><div class="nf" id="mathLabel2"></div></div>
+      <div id="mathB"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Scenario C: a pint of ice cream</h3>
+    <div class="two">
+      <div><div class="nf" id="mathLabel3"></div></div>
+      <div id="mathC"></div>
+    </div>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-go="0">Back</button><button class="btn" data-go="2">Next: The 5/20 rule</button></div>
+</section>
+
+<!-- PART 3 -->
+<section class="panel" data-part="2">
+  <h2>The 5/20 rule</h2>
+  <p>You don't need to memorize Daily Values. Just look at the %DV:</p>
+  <div class="rule">
+    <div><strong>5% or less</strong>Low</div>
+    <div><strong>6–19%</strong>Moderate</div>
+    <div><strong>20% or more</strong>High</div>
+  </div>
+  <p>Then ask: is this a nutrient I want <b>more</b> of (fiber, vitamin D, calcium, iron, potassium) or <b>less</b> of (saturated fat, sodium, added sugars)? For each line below, choose both.</p>
+  <div class="card" id="sortBox"></div>
+  <div class="navrow"><button class="btn ghost" data-go="1">Back</button><button class="btn" data-go="3">Next: Label showdown</button></div>
+</section>
+
+<!-- PART 4 -->
+<section class="panel" data-part="3">
+  <h2>Label showdown</h2>
+  <p>Compare two products. Remember the FDA's tip: check that serving sizes match before you compare anything else.</p>
+  <div class="card">
+    <h3 style="margin-top:0">Round 1: two breakfast cereals</h3>
+    <div class="two">
+      <div><p class="mini-cap">Cereal A</p><div class="nf" id="cerA"></div></div>
+      <div><p class="mini-cap">Cereal B</p><div class="nf" id="cerB"></div></div>
+    </div>
+    <div id="sd1"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Round 2: two yogurts</h3>
+    <div class="two">
+      <div><p class="mini-cap">Plain Greek yogurt</p><div class="nf" id="yoA"></div></div>
+      <div><p class="mini-cap">Strawberry yogurt</p><div class="nf" id="yoB"></div></div>
+    </div>
+    <div id="sd2"></div>
+    <h3>Your call</h3>
+    <p>Which yogurt would you pick for an after-school snack? Explain using at least two numbers from the labels.</p>
+    <textarea id="t_yogurt" data-save="yogurtWhy" placeholder="I would pick… because…"></textarea>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-go="2">Back</button><button class="btn" data-go="4">Next: Ingredient detective</button></div>
+</section>
+
+<!-- PART 5 -->
+<section class="panel" data-part="4">
+  <h2>Ingredient detective</h2>
+  <p>Ingredients are listed in <b>descending order by weight</b>: the heaviest ingredient comes first, the lightest comes last. Ingredients in parentheses are what a sub-ingredient is made of.</p>
+  <div class="card">
+    <h3 style="margin-top:0">Warm-up: the FDA example food</h3>
+    <div class="ing" style="line-height:1.5;text-transform:uppercase;font-weight:600">Ingredients: bulgur wheat, sauce (water, half and half [milk, cream], parmesan cheese [pasteurized skim milk, cultures, salt, enzymes], cheddar cheese [pasteurized milk, cultures, salt, enzymes], olive oil, butter, sugar, xanthan gum, spice), lentils, corn, green beans, red beans, potatoes.<br>Contains: wheat, milk.</div>
+    <div id="ingQ0"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Case file: Crunchy Oat &amp; Berry Bar</h3>
+    <p><b>Mission:</b> Tap every ingredient that is a <b>sweetener</b> (a form of sugar). Then press Check.</p>
+    <div class="ing" id="barIng"></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="checkSweet">Check</button><button class="btn ghost" id="resetSweet">Clear</button></div>
+    <div class="fb" id="sweetFb"></div>
+    <div id="ingQ"></div>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-go="3">Back</button><button class="btn" data-go="5">Next: FDA quiz &amp; wrap-up</button></div>
+</section>
+
+<!-- PART 6 -->
+<section class="panel" data-part="5">
+  <h2>FDA quiz &amp; wrap-up</h2>
+  <div class="card">
+    <h3 style="margin-top:0">Take the FDA's label quiz</h3>
+    <p>The FDA built its own interactive quiz on the Nutrition Facts label. It opens in a new tab — keep this tab open and come back when you finish.</p>
+    <p><a class="fda-link" href="https://www.accessdata.fda.gov/scripts/interactivenutritionfactslabel/quiz/" target="_blank" rel="noopener">Open the FDA quiz</a></p>
+    <div class="score">
+      <span>My score:</span>
+      <input class="numin" id="fdaScore" data-save="fdaScore" inputmode="numeric" style="font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:70px">
+      <span>out of</span>
+      <input class="numin" id="fdaTotal" data-save="fdaTotal" inputmode="numeric" style="font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:70px">
+    </div>
+    <h3>One question I missed (or found tricky), and what the right answer taught me</h3>
+    <textarea data-save="fdaMissed" placeholder="The question asked… I learned that…"></textarea>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Exit reflection</h3>
+    <p>Think of a packaged food or drink you have often. Name it, then describe the <b>first three things</b> you'll check on its label from now on, and why.</p>
+    <textarea data-save="reflection" style="min-height:120px"></textarea>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Your progress</h3>
+    <div id="progressSummary"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="printBtn">Download PDF of my work</button>
+      <button class="btn ghost" id="copyBtn">Copy my answers</button>
+      <button class="btn ghost" id="resetAll">Start over</button>
+      <span id="resetConfirm" class="row" hidden><span style="font-weight:700;color:var(--bad)">Erase all your answers?</span><button class="btn" id="resetYes" style="background:var(--bad);border-color:var(--bad);color:#fff">Yes, erase everything</button><button class="btn ghost" id="resetNo">Cancel</button></span>
+    </div>
+    <p class="hint" id="copyNote" style="margin-top:8px">Turn in the PDF on Google Classroom. If the download doesn't work on your device, use “Copy my answers” and paste them into the assignment.</p>
+    <textarea id="copyFallback" style="display:none;min-height:160px" readonly></textarea>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-go="4">Back</button><span></span></div>
+</section>
+
+<div id="report"></div>
+</div>
+
+<script>
+/* ---------- state + autosave ---------- */
+const KEY = "foodLabelLab_v1";
+const BLANK = () => ({name:"",period:"",mcq:{},first:{},num:{},numTries:{},sort:{},sweet:[],sweetChecked:false,text:{},seen:[],part:0,updatedAt:0});
+let S = BLANK();
+let localOK = true, cloud = null; // cloud = {ref} when the viewer is signed in
+try{ const raw = localStorage.getItem(KEY); if(raw){ S = Object.assign(BLANK(), JSON.parse(raw)); } }catch(e){ localOK = false; }
+
+function note(t, warn){ const n=document.getElementById("saveNote"); n.textContent=t; n.classList.toggle("warn",!!warn); }
+function statusText(){
+  if(cloud) return note("Saved to your account — you can pick up on any device.");
+  if(localOK) return note("Saved in this browser. Come back on the same device and browser to keep going.");
+  note("This browser can't save your work. Finish in one sitting, or download your PDF before you close.", true);
+}
+let cloudT, cloudBusy=false, cloudPending=false;
+async function pushCloud(){
+  if(!cloud) return;
+  if(cloudBusy){ cloudPending=true; return; }
+  cloudBusy=true;
+  try{ await cloud.ref.set(JSON.parse(JSON.stringify(S))); statusText(); }
+  catch(e){ note("Couldn't reach your account — your work is still saved in this browser.", !localOK); }
+  cloudBusy=false;
+  if(cloudPending){ cloudPending=false; pushCloud(); }
+}
+function save(){
+  S.updatedAt = Date.now();
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); localOK = true; }catch(e){ localOK = false; }
+  if(!cloud) statusText();
+  clearTimeout(cloudT); cloudT = setTimeout(pushCloud, 1200);
+}
+function flush(){ clearTimeout(cloudT); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} pushCloud(); }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") flush(); });
+window.addEventListener("pagehide", flush);
+
+async function connectCloud(){
+  try{
+    if(!window.claude || !window.claude.use) return;
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if(!db || !user) return;
+    const uid = await user.id(); if(!uid) return;
+    const ref = db.doc("data/users/" + uid + "/progress");
+    const snap = await ref.get();
+    cloud = {ref};
+    if(snap.exists && (snap.data().updatedAt||0) > (S.updatedAt||0)){
+      S = Object.assign(BLANK(), JSON.parse(JSON.stringify(snap.data())));
+      try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+      renderAll();
+    } else if(S.updatedAt) { pushCloud(); }
+    statusText();
+  }catch(e){ cloud = null; statusText(); }
+}
+
+/* file helpers: claude.ai download capability, else a normal browser download */
+async function offerFile(filename, data, mime){
+  try{
+    if(window.claude && window.claude.use){
+      const dl = await Promise.race([claude.use("downloads"), new Promise(r=>setTimeout(()=>r(null),1500))]);
+      if(dl){ await dl.save({filename, data}); return "saved"; }
+    }
+  }catch(e){ if(e && e.code==="declined") return "declined"; }
+  try{
+    const blob = data instanceof Blob ? data : new Blob([data],{type:mime});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},2000);
+    return "saved";
+  }catch(e){ return "failed"; }
+}
+function safeName(){ return (S.name||"student").trim().replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"") || "student"; }
+
+/* ---------- label builder ---------- */
+function label(d, opts={}){
+  const z = (zone, cls, html) => opts.zones ? `<div class="r z ${cls||""}" data-zone="${zone}">${html}</div>` : `<div class="r ${cls||""}">${html}</div>`;
+  const rows = d.rows.map(r=>{
+    const cls = (r.ind?"ind":"")+(r.ind2?" ind2":"")+(r.cat?" "+r.cat:"");
+    const name = r.bold ? `<span><b>${r.n}</b> ${r.amt}</span>` : `<span>${r.n} ${r.amt}</span>`;
+    return z(r.zone||"dv", cls, `${name}<b>${r.dv??""}</b>`);
+  }).join("");
+  const vits = (d.vits||[]).map(v=> z("more","more",`<span>${v.n} ${v.amt}</span><span>${v.dv}</span>`)).join("");
+  const top = opts.zones
+    ? `<div class="z" data-zone="servings">${d.servings} servings per container</div>
+       <div class="z" data-zone="size" style="font-weight:800;font-size:1.15em">Serving size <span style="float:right">${d.size}</span></div>`
+    : `<div>${d.servings} servings per container</div><div style="font-weight:800;font-size:1.15em">Serving size <span style="float:right">${d.size}</span></div>`;
+  const cal = `<div class="cal ${opts.zones?"z":""}" data-zone="calories"><div><div style="font-size:.6em;font-weight:800">Amount per serving</div><div class="w">Calories</div></div><div class="v">${d.cal}</div></div>`;
+  const dvh = `<div class="r first ${opts.zones?"z":""}" data-zone="dv" style="justify-content:flex-end;font-size:.8em;font-weight:800">% Daily Value*</div>`;
+  const foot = `<div class="small ${opts.zones?"z":""}" data-zone="foot">* The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.</div>`;
+  return `<div class="ttl">Nutrition Facts</div>${top}<div class="thick"></div>${cal}<div class="med"></div>${dvh}${rows}<div class="thick"></div>${vits}<div class="med"></div>${foot}`;
+}
+const FDA = {servings:4,size:"1½ cup (208g)",cal:240,rows:[
+  {n:"Total Fat",amt:"4g",dv:"5%",bold:1},
+  {n:"Saturated Fat",amt:"1.5g",dv:"8%",ind:1,zone:"less",cat:"less"},
+  {n:"<i>Trans</i> Fat",amt:"0g",ind:1},
+  {n:"Cholesterol",amt:"5mg",dv:"2%",bold:1},
+  {n:"Sodium",amt:"430mg",dv:"19%",bold:1,zone:"less",cat:"less"},
+  {n:"Total Carbohydrate",amt:"46g",dv:"17%",bold:1},
+  {n:"Dietary Fiber",amt:"7g",dv:"25%",ind:1,zone:"more",cat:"more"},
+  {n:"Total Sugars",amt:"4g",ind:1},
+  {n:"Includes 2g Added Sugars",amt:"",dv:"4%",ind2:1,zone:"less",cat:"less"},
+  {n:"Protein",amt:"11g",bold:1}],
+  vits:[{n:"Vitamin D",amt:"2mcg",dv:"10%"},{n:"Calcium",amt:"260mg",dv:"20%"},{n:"Iron",amt:"6mg",dv:"35%"},{n:"Potassium",amt:"240mg",dv:"6%"}]};
+
+const MAC = {servings:3,size:"1 cup (70g dry)",cal:350,rows:[
+  {n:"Total Fat",amt:"11g",dv:"14%",bold:1},{n:"Saturated Fat",amt:"4.5g",dv:"23%",ind:1},
+  {n:"Sodium",amt:"720mg",dv:"31%",bold:1},{n:"Total Carbohydrate",amt:"48g",dv:"17%",bold:1},
+  {n:"Dietary Fiber",amt:"2g",dv:"7%",ind:1},{n:"Includes 6g Added Sugars",amt:"",dv:"12%",ind2:1},{n:"Protein",amt:"11g",bold:1}],
+  vits:[{n:"Calcium",amt:"130mg",dv:"10%"},{n:"Iron",amt:"2mg",dv:"10%"}]};
+const ICE = {servings:3,size:"⅔ cup (95g)",cal:270,rows:[
+  {n:"Total Fat",amt:"14g",dv:"18%",bold:1},{n:"Saturated Fat",amt:"9g",dv:"45%",ind:1},
+  {n:"Sodium",amt:"60mg",dv:"3%",bold:1},{n:"Total Carbohydrate",amt:"32g",dv:"12%",bold:1},
+  {n:"Total Sugars",amt:"27g",ind:1},{n:"Includes 20g Added Sugars",amt:"",dv:"40%",ind2:1},{n:"Protein",amt:"4g",bold:1}],
+  vits:[{n:"Calcium",amt:"130mg",dv:"10%"}]};
+const CA = {servings:12,size:"1 cup (30g)",cal:110,rows:[
+  {n:"Total Fat",amt:"1g",dv:"1%",bold:1},{n:"Sodium",amt:"160mg",dv:"7%",bold:1},
+  {n:"Total Carbohydrate",amt:"26g",dv:"9%",bold:1},{n:"Dietary Fiber",amt:"3g",dv:"11%",ind:1},
+  {n:"Includes 9g Added Sugars",amt:"",dv:"18%",ind2:1},{n:"Protein",amt:"2g",bold:1}],
+  vits:[{n:"Iron",amt:"8mg",dv:"45%"}]};
+const CB = {servings:8,size:"¾ cup (55g)",cal:210,rows:[
+  {n:"Total Fat",amt:"3g",dv:"4%",bold:1},{n:"Sodium",amt:"210mg",dv:"9%",bold:1},
+  {n:"Total Carbohydrate",amt:"44g",dv:"16%",bold:1},{n:"Dietary Fiber",amt:"7g",dv:"25%",ind:1},
+  {n:"Includes 12g Added Sugars",amt:"",dv:"24%",ind2:1},{n:"Protein",amt:"6g",bold:1}],
+  vits:[{n:"Iron",amt:"4mg",dv:"20%"}]};
+const YA = {servings:1,size:"1 container (150g)",cal:90,rows:[
+  {n:"Total Fat",amt:"0g",dv:"0%",bold:1},{n:"Sodium",amt:"55mg",dv:"2%",bold:1},
+  {n:"Total Carbohydrate",amt:"5g",dv:"2%",bold:1},{n:"Total Sugars",amt:"5g",ind:1},
+  {n:"Includes 0g Added Sugars",amt:"",dv:"0%",ind2:1},{n:"Protein",amt:"15g",bold:1}],
+  vits:[{n:"Calcium",amt:"150mg",dv:"10%"},{n:"Potassium",amt:"210mg",dv:"4%"}]};
+const YB = {servings:1,size:"1 container (150g)",cal:140,rows:[
+  {n:"Total Fat",amt:"2g",dv:"3%",bold:1},{n:"Sodium",amt:"70mg",dv:"3%",bold:1},
+  {n:"Total Carbohydrate",amt:"22g",dv:"8%",bold:1},{n:"Total Sugars",amt:"19g",ind:1},
+  {n:"Includes 14g Added Sugars",amt:"",dv:"28%",ind2:1},{n:"Protein",amt:"8g",bold:1}],
+  vits:[{n:"Calcium",amt:"200mg",dv:"15%"},{n:"Potassium",amt:"280mg",dv:"6%"}]};
+// single-serving containers read "1 serving per container"
+function fixOne(id){ const el=document.getElementById(id); el.innerHTML = el.innerHTML.replace("1 servings per container","1 serving per container"); }
+
+/* ---------- MCQ component ---------- */
+const Q = {};
+function mcq(q){
+  Q[q.id]=q;
+  const pick = S.mcq[q.id];
+  const opts = q.o.map((t,i)=>{
+    let c = ""; if(pick===i) c = "picked " + (i===q.c?"right":"wrong");
+    return `<button class="${c}" data-mcq="${q.id}" data-i="${i}">${t}</button>`;
+  }).join("");
+  let fb = "";
+  if(pick!==undefined){
+    const ok = pick===q.c;
+    fb = `<div class="fb show ${ok?"right":"wrong"}"><b>${ok?"Correct.":"Not quite — try another answer."}</b>${ok?`<span class="ex">${q.ex}</span>`:""}</div>`;
+  }
+  return `<div class="q" id="q_${q.id}"><div class="prompt">${q.p}</div><div class="opts">${opts}</div>${fb}</div>`;
+}
+document.addEventListener("click",e=>{
+  const b = e.target.closest("[data-mcq]"); if(!b) return;
+  const id=b.dataset.mcq, i=+b.dataset.i, q=Q[id];
+  S.mcq[id]=i; if(S.first[id]===undefined) S.first[id] = (i===q.c);
+  document.getElementById("q_"+id).outerHTML = mcq(q);
+  save(); updateNav();
+});
+
+/* ---------- PART 1: explore ---------- */
+const ZONES = [
+ {id:"servings",name:"Servings per container",body:"Shows the <b>total number of servings</b> in the whole package. It's common for one package to hold more than one serving. Some containers have two columns — one for a single serving, one for the whole package.",
+  q:{id:"z1",p:"This container holds 4 servings. If you eat the whole thing, you eat…",o:["1 serving — it's one package","4 servings, so 4× every number on the label","Half a serving"],c:1,ex:"Every number on the label (calories, sodium, %DV) gets multiplied by 4."}},
+ {id:"size",name:"Serving size",body:"Based on the amount of food <b>people typically eat at one time</b>. It is <b>not</b> a recommendation of how much you should eat. It's shown as a household measure (cup, piece, slice) followed by grams.",
+  q:{id:"z2",p:"The serving size is 1½ cups. That means…",o:["You should eat exactly 1½ cups","It's the amount people usually eat at once — not a recommendation","It's the size of the whole package"],c:1,ex:"Serving size describes typical eating, and it's the unit that every other number on the label is based on."}},
+ {id:"calories",name:"Calories",body:"The total energy from carbohydrate, fat, protein (and alcohol) in <b>one serving</b>. FDA general guide for an individual packaged food: <b>100 calories per serving is moderate</b>, <b>400 or more is high</b>.",
+  q:{id:"z3",p:"Using the FDA guide, 240 calories per serving falls…",o:["Below moderate","Between moderate (100) and high (400)","In the high range"],c:1,ex:"240 is above 100 but below 400. And remember: that's one serving of four."}},
+ {id:"dv",name:"% Daily Value",body:"Shows how much a nutrient in one serving <b>contributes to a whole day</b>, based on a 2,000-calorie diet. The column does <b>not</b> add up to 100%. Some nutrients (like trans fat, total sugars, and protein here) have no %DV — compare grams instead.",
+  q:{id:"z4",p:"Saturated fat shows 8% DV. What does that mean?",o:["8% of this food is saturated fat","One serving gives 8% of the most saturated fat an average person should have in a whole day","You should eat 8 servings a day"],c:1,ex:"The Daily Value for saturated fat is less than 20g a day. 1.5g is about 8% of that limit."}},
+ {id:"less",name:"Nutrients to get less of",body:"<b>Saturated fat, sodium, and added sugars.</b> Most Americans exceed the limits for these, and diets high in them are linked to cardiovascular disease and high blood pressure. Aim to stay <b>under 100% DV</b> of each per day.",
+  q:{id:"z5",p:"Of the three “get less” nutrients on this label, which is highest?",o:["Saturated fat (8%)","Sodium (19%)","Added sugars (4%)"],c:1,ex:"Sodium is at 19% — just under the 20% “high” mark, for a single serving."}},
+ {id:"more",name:"Nutrients to get more of",body:"<b>Dietary fiber, vitamin D, calcium, iron, and potassium.</b> Many Americans don't get enough, and diets higher in them can lower the risk of cardiovascular disease, osteoporosis, anemia, and high blood pressure. Aim for <b>100% DV</b> on most days.",
+  q:{id:"z6",p:"Which of these counts as HIGH (20% DV or more)?",o:["Vitamin D, 10%","Potassium, 6%","Iron, 35%"],c:2,ex:"Iron at 35% is high. Fiber (25%) and calcium (20%) are high on this label too — great for “get more of” nutrients."}},
+ {id:"foot",name:"The footnote",body:"Explains %DV and says <b>2,000 calories a day is used for general nutrition advice</b>. Your actual needs may be higher or lower depending on age, sex, height, weight, and physical activity. Teens who are active often need more.",
+  q:{id:"z7",p:"Why does the footnote mention 2,000 calories?",o:["Everyone should eat exactly 2,000 calories","It's a general reference point — real needs vary from person to person","It's the most anyone can eat in a day"],c:1,ex:"2,000 is a reference so %DVs can be calculated. You can find a personal estimate at myplate.gov/myplate-plan."}}
+];
+let curZone=null;
+function renderExplore(){
+  const L = document.getElementById("mainLabel");
+  L.innerHTML = label(FDA,{zones:true});
+  document.getElementById("zoneList").innerHTML = ZONES.map(z=>`<button data-zbtn="${z.id}" class="${S.seen.includes(z.id)?"seen":""} ${curZone===z.id?"cur":""}">${z.name}</button>`).join("");
+  L.querySelectorAll(".z").forEach(el=>{
+    el.tabIndex=0; el.setAttribute("role","button");
+    if(curZone && el.dataset.zone===curZone) el.classList.add("on");
+    if(curZone==="less" && el.classList.contains("less")) el.classList.add("tint");
+    if(curZone==="more" && el.classList.contains("more")) el.classList.add("tint");
+  });
+}
+function openZone(id){
+  curZone=id; const z = ZONES.find(x=>x.id===id);
+  if(!S.seen.includes(id)) S.seen.push(id);
+  document.getElementById("zonePanel").innerHTML = `<p class="zone-title">${z.name}</p><p>${z.body}</p>${mcq(z.q)}
+    <p class="hint" style="margin-top:14px">${S.seen.length} of 7 parts explored</p>`;
+  renderExplore(); save(); updateNav();
+}
+document.getElementById("mainLabel").addEventListener("click",e=>{ const z=e.target.closest("[data-zone]"); if(z) openZone(z.dataset.zone); });
+document.getElementById("mainLabel").addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ const z=e.target.closest("[data-zone]"); if(z){e.preventDefault();openZone(z.dataset.zone);} } });
+document.getElementById("zoneList").addEventListener("click",e=>{ const b=e.target.closest("[data-zbtn]"); if(b) openZone(b.dataset.zbtn); });
+
+/* ---------- PART 2: numeric ---------- */
+const NUMS = {
+  mA:[{id:"n1",p:"You eat 3 cups. How many servings is that?",a:2,unit:"servings",ex:"Serving size is 1½ cups, so 3 cups = 2 servings."},
+      {id:"n2",p:"How many calories are in those 3 cups?",a:480,unit:"calories",ex:"2 servings × 240 calories = 480 calories."},
+      {id:"n3",p:"How many calories are in the entire container?",a:960,unit:"calories",ex:"4 servings × 240 = 960 calories."}],
+  mB:[{id:"n4",p:"You eat 2 cups. How many milligrams of sodium?",a:1440,unit:"mg",ex:"2 servings × 720mg = 1,440mg."},
+      {id:"n5",p:"What %DV of sodium is that?",a:62,unit:"% DV",ex:"2 × 31% = 62% of the day's sodium limit — in one meal."}],
+  mC:[{id:"n6",p:"You finish the whole pint. How many grams of added sugars?",a:60,unit:"g",ex:"3 servings × 20g = 60g."},
+      {id:"n7",p:"What %DV of added sugars is that?",a:120,unit:"% DV",ex:"3 × 40% = 120%. A %DV can go over 100% — this pint alone is more than a full day's limit for added sugars."}]
+};
+function numHTML(n){
+  const v = S.num[n.id]??"", tries=S.numTries[n.id]||0;
+  const ok = v!=="" && Math.abs(parseFloat(String(v).replace(/,/g,""))-n.a) < 0.01;
+  let fb="";
+  if(tries>0){
+    fb = ok ? `<div class="fb show right"><b>Correct.</b><span class="ex">${n.ex}</span></div>`
+            : `<div class="fb show wrong"><b>Not yet.</b><span class="ex">${tries>=2?"Hint: "+n.ex.split("=")[0]+"= ?":"Check the serving size and servings per container, then try again."}</span></div>`;
+  }
+  return `<div class="q" id="nq_${n.id}"><div class="prompt">${n.p}</div><div class="num"><input id="ni_${n.id}" inputmode="decimal" value="${v}" aria-label="${n.p}"><span>${n.unit}</span><button class="btn" data-num="${n.id}">Check</button></div>${fb}</div>`;
+}
+const NUMIDX={}; Object.values(NUMS).flat().forEach(n=>NUMIDX[n.id]=n);
+function renderNums(){ for(const k in NUMS) document.getElementById({mA:"mathA",mB:"mathB",mC:"mathC"}[k]).innerHTML = NUMS[k].map(numHTML).join(""); }
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-num]"); if(!b) return;
+  const n=NUMIDX[b.dataset.num]; const v=document.getElementById("ni_"+n.id).value.trim();
+  S.num[n.id]=v; S.numTries[n.id]=(S.numTries[n.id]||0)+1;
+  const ok = Math.abs(parseFloat(v.replace(/,/g,""))-n.a)<0.01;
+  if(S.first[n.id]===undefined) S.first[n.id]=ok;
+  document.getElementById("nq_"+n.id).outerHTML = numHTML(n); save(); updateNav();
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Enter" && e.target.id && e.target.id.startsWith("ni_")){ document.querySelector(`[data-num="${e.target.id.slice(3)}"]`).click(); }});
+
+/* ---------- PART 3: sort ---------- */
+const SORT = [
+ {id:"s1",n:"Sodium",v:"31%",lvl:"high",t:"less"},
+ {id:"s2",n:"Dietary fiber",v:"25%",lvl:"high",t:"more"},
+ {id:"s3",n:"Saturated fat",v:"3%",lvl:"low",t:"less"},
+ {id:"s4",n:"Calcium",v:"2%",lvl:"low",t:"more"},
+ {id:"s5",n:"Added sugars",v:"40%",lvl:"high",t:"less"},
+ {id:"s6",n:"Iron",v:"15%",lvl:"mod",t:"more"},
+ {id:"s7",n:"Potassium",v:"22%",lvl:"high",t:"more"},
+ {id:"s8",n:"Vitamin D",v:"4%",lvl:"low",t:"more"}
+];
+const VERD = {
+ "high-less":"High in a nutrient to limit — a reason to eat less of this food, or balance it with lower-sodium/sugar/sat-fat foods later.",
+ "high-more":"High in a nutrient you want more of — a real plus for this food.",
+ "low-less":"Low in a nutrient to limit — a good sign.",
+ "low-more":"Low in a nutrient you want more of — not a strong source; get it from other foods.",
+ "mod-less":"Moderate — keep an eye on it, especially if you eat more than one serving.",
+ "mod-more":"Moderate — it helps, but it's not a standout source."
+};
+function renderSort(){
+  document.getElementById("sortBox").innerHTML = SORT.map(s=>{
+    const a=S.sort[s.id]||{};
+    const seg=(field,opts)=>`<div class="seg" role="group">${opts.map(([val,lab])=>{
+      let c=""; if(a[field]===val){ c="sel "+((field==="lvl"?s.lvl:s.t)===val?"right":"wrong"); }
+      return `<button class="${c}" data-sort="${s.id}" data-f="${field}" data-v="${val}">${lab}</button>`;}).join("")}</div>`;
+    const both = a.lvl===s.lvl && a.t===s.t;
+    const v = both ? `<b style="color:var(--ok)">✓</b> ${VERD[s.lvl+"-"+s.t]}` : (a.lvl&&a.t ? `<span style="color:var(--bad)">Check the red choice and try again.</span>`:"");
+    return `<div class="sort-row"><div class="nut">${s.n} <span>${s.v} DV</span></div>${seg("lvl",[["low","Low"],["mod","Moderate"],["high","High"]])}${seg("t",[["more","Want more"],["less","Want less"]])}<div class="verdict">${v}</div></div>`;
+  }).join("");
+}
+document.getElementById("sortBox").addEventListener("click",e=>{
+  const b=e.target.closest("[data-sort]"); if(!b) return;
+  const s=SORT.find(x=>x.id===b.dataset.sort); const a=S.sort[s.id]=S.sort[s.id]||{};
+  a[b.dataset.f]=b.dataset.v;
+  if(a.lvl&&a.t&&S.first[s.id]===undefined) S.first[s.id]=(a.lvl===s.lvl&&a.t===s.t);
+  renderSort(); save(); updateNav();
+});
+
+/* ---------- PART 4: showdown ---------- */
+const SD1=[
+ {id:"c1",p:"Cereal B has almost twice the calories of Cereal A. Before you decide anything, what should you check?",o:["Which brand is more popular","The serving size — B's serving is 55g, A's is only 30g","The color of the box"],c:1,ex:"B's serving weighs almost twice as much, so the calorie difference is mostly about portion size. Always compare equal serving sizes."},
+ {id:"c2",p:"Per serving, which cereal is the better source of dietary fiber?",o:["Cereal A (11% DV)","Cereal B (25% DV)"],c:1,ex:"25% is high (20% or more). Fiber is a “get more of” nutrient."},
+ {id:"c3",p:"Per serving, which cereal is lower in added sugars?",o:["Cereal A (18% DV)","Cereal B (24% DV)"],c:0,ex:"A is lower — but at 18% it's still close to high. Neither is low in added sugars."}
+];
+const SD2=[
+ {id:"y1",p:"The serving sizes match (150g each). Your goal is to cut back on added sugars. Which yogurt fits?",o:["Plain Greek (0% DV)","Strawberry (28% DV)"],c:0,ex:"0% is low; 28% is high — over a quarter of the day's added sugar limit in one cup."},
+ {id:"y2",p:"The strawberry yogurt has more calcium (15% vs 10%). How could you use a “dietary trade-off”?",o:["Never eat flavored yogurt again","Pick plain and add your own fruit — or enjoy the strawberry and keep added sugars lower the rest of the day","Eat both to get the most calcium"],c:1,ex:"The FDA says you don't have to give up favorite foods — balance them with other choices throughout the day."},
+ {id:"y3",p:"Which yogurt has more protein per serving?",o:["Plain Greek (15g)","Strawberry (8g)"],c:0,ex:"Protein has no %DV on this label, so you compare grams instead."}
+];
+
+/* ---------- PART 5: ingredients ---------- */
+const BAR = [
+ ["Whole grain rolled oats",0],["Brown rice syrup",1],["Almonds",0],["Cane sugar",1],
+ ["Dried cranberries",0,"("],["Cranberries",0],["Sugar",1],["Sunflower oil",0,")"],
+ ["Rice flour",0],["Honey",1],["Palm kernel oil",0],["Salt",0],["Natural flavor",0],["Molasses",1],["Soy lecithin",0]
+];
+function renderBar(){
+  let h="<b>INGREDIENTS:</b> ";
+  BAR.forEach((b,i)=>{
+    const tagged=S.sweet.includes(i); let c="chip";
+    if(S.sweetChecked){ if(b[1]&&tagged)c+=" hit"; else if(b[1]&&!tagged)c+=" miss"; else if(!b[1]&&tagged)c+=" extra"; }
+    else if(tagged) c+=" tag";
+    const pre = b[2]==="(" ? "" : "";
+    h+=`<button class="${c}" data-ing="${i}" aria-pressed="${tagged}">${b[0]}</button>`;
+    if(b[2]==="(") h+=" (";
+    else if(b[2]===")") h+=")"+(i<BAR.length-1?", ":"");
+    else if(BAR[i+1] && BAR[i+1][2]!==")" ) h+= (b[0]==="Cranberries"||b[0]==="Sugar") ? ", " : ", ";
+    else if(BAR[i+1]) h+=", ";
+  });
+  h+=".<br><b>CONTAINS: ALMONDS, SOY.</b>";
+  document.getElementById("barIng").innerHTML=h;
+  const fb=document.getElementById("sweetFb");
+  if(S.sweetChecked){
+    const total=BAR.filter(b=>b[1]).length, found=BAR.filter((b,i)=>b[1]&&S.sweet.includes(i)).length, extra=BAR.filter((b,i)=>!b[1]&&S.sweet.includes(i)).length;
+    const ok=found===total&&extra===0;
+    fb.className="fb show "+(ok?"right":"wrong");
+    fb.innerHTML = ok ? `<b>All 5 found.</b><span class="ex">Brown rice syrup, cane sugar, sugar (inside the cranberries), honey, and molasses are all added sweeteners. Green = found.</span>`
+      : `<b>You found ${found} of ${total}${extra?`, plus ${extra} that ${extra>1?"aren't sweeteners":"isn't a sweetener"} (red)`:""}.</b><span class="ex">Outlined = missed. Look for words like syrup, sugar, honey, and molasses — and don't skip the parentheses. Press Clear to try again.</span>`;
+  } else { fb.className="fb"; fb.innerHTML=""; }
+}
+document.getElementById("barIng").addEventListener("click",e=>{
+  const b=e.target.closest("[data-ing]"); if(!b) return;
+  if(S.sweetChecked) return;
+  const i=+b.dataset.ing; S.sweet = S.sweet.includes(i)?S.sweet.filter(x=>x!==i):[...S.sweet,i];
+  renderBar(); save();
+});
+document.getElementById("checkSweet").onclick=()=>{
+  S.sweetChecked=true;
+  if(S.first.sweet===undefined){ S.first.sweet = BAR.every((b,i)=>!!b[1]===S.sweet.includes(i)); }
+  renderBar(); save(); updateNav();
+};
+document.getElementById("resetSweet").onclick=()=>{ S.sweet=[]; S.sweetChecked=false; renderBar(); save(); };
+const ING0={id:"i0",p:"Bulgur wheat is listed first. What does that tell you?",o:["It's the ingredient that weighs the most in this food","It's the healthiest ingredient","It's the cheapest ingredient"],c:0,ex:"First = heaviest. Potatoes, listed last, weigh the least."};
+const INGQ=[
+ {id:"i1",p:"Which ingredient weighs the most in the bar?",o:["Brown rice syrup","Whole grain rolled oats","Almonds"],c:1,ex:"It's first on the list, so it's the heaviest single ingredient."},
+ {id:"i2",p:"Why might a company use five different sweeteners instead of one?",o:["Each one is a smaller amount, so each appears lower on the list and sugar doesn't look like a main ingredient","The FDA requires at least five sweeteners","Sweeteners add protein"],c:0,ex:"Splitting sweeteners spreads them down the list. The Added Sugars line on the Nutrition Facts label adds them all up for you, so check it too."},
+ {id:"i3",p:"A classmate has a tree nut allergy. Is this bar safe for them?",o:["Yes, nuts aren't in the name of the bar","No — the CONTAINS line lists almonds","Only if they eat half"],c:1,ex:"Always read the ingredient list and the CONTAINS statement, not just the front of the package."}
+];
+
+/* ---------- textareas ---------- */
+document.querySelectorAll("[data-save]").forEach(el=>{
+  el.addEventListener("input",()=>{ S.text[el.dataset.save]=el.value; save(); updateNav(); });
+});
+["sName","sPeriod"].forEach(id=>{
+  const el=document.getElementById(id), k=id==="sName"?"name":"period";
+  el.addEventListener("input",()=>{S[k]=el.value; save();});
+});
+function fillInputs(){
+  document.querySelectorAll("[data-save]").forEach(el=>{ el.value = S.text[el.dataset.save]||""; });
+  document.getElementById("sName").value=S.name||""; document.getElementById("sPeriod").value=S.period||"";
+}
+
+/* ---------- nav + progress ---------- */
+const PARTS=[
+ {t:"Explore the label",done:()=>ZONES.every(z=>S.mcq[z.q.id]===z.q.c)},
+ {t:"Serving math",done:()=>Object.values(NUMIDX).every(n=>Math.abs(parseFloat(String(S.num[n.id]||"").replace(/,/g,""))-n.a)<.01)},
+ {t:"5/20 rule",done:()=>SORT.every(s=>S.sort[s.id]&&S.sort[s.id].lvl===s.lvl&&S.sort[s.id].t===s.t)},
+ {t:"Showdown",done:()=>[...SD1,...SD2].every(q=>S.mcq[q.id]===q.c)&&(S.text.yogurtWhy||"").trim().length>10},
+ {t:"Ingredients",done:()=>[ING0,...INGQ].every(q=>S.mcq[q.id]===q.c)&&S.first.sweet!==undefined},
+ {t:"FDA quiz & wrap-up",done:()=>(S.text.fdaScore||"")!==""&&(S.text.reflection||"").trim().length>10}
+];
+function updateNav(){
+  document.getElementById("steps").innerHTML = PARTS.map((p,i)=>`<button data-go="${i}" class="${p.done()?"done":""}" ${S.part===i?'aria-current="step"':""}><span class="n">${i+1}</span>${p.t}<span class="dot" aria-label="${p.done()?"complete":"not complete"}"></span></button>`).join("");
+  const firstKeys=Object.keys(S.first), firstRight=firstKeys.filter(k=>S.first[k]).length;
+  const ps=document.getElementById("progressSummary");
+  if(ps) ps.innerHTML = `<p>Parts complete: <b>${PARTS.filter(p=>p.done()).length} of 6</b></p><p>Correct on the first try: <b>${firstRight} of ${firstKeys.length}</b> questions answered so far.</p>`+
+    PARTS.map((p,i)=>`<div>${p.done()?"✓":"○"} ${i+1}. ${p.t}</div>`).join("");
+}
+function go(i){
+  S.part=i; document.querySelectorAll("section.panel").forEach(s=>s.classList.toggle("active",+s.dataset.part===i));
+  updateNav(); save(); window.scrollTo({top:0});
+  const cur=document.querySelector('nav.steps button[aria-current="step"]'); if(cur) cur.scrollIntoView({block:"nearest",inline:"center"});
+}
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-go]"); if(b) go(+b.dataset.go); });
+
+/* ---------- report / print / copy ---------- */
+function esc(s){return String(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function allQs(){ return [...ZONES.map(z=>z.q),...SD1,...SD2,ING0,...INGQ]; }
+function buildReport(){
+  const qs=allQs(), firstKeys=Object.keys(S.first), firstRight=firstKeys.filter(k=>S.first[k]).length;
+  const rowQ=q=>`<tr><td>${q.p}</td><td>${S.mcq[q.id]!==undefined?esc(q.o[S.mcq[q.id]].replace(/<[^>]+>/g,"")):"—"}</td><td>${S.first[q.id]===undefined?"—":S.first[q.id]?"Yes":"No"}</td></tr>`;
+  const rowN=n=>`<tr><td>${n.p}</td><td>${esc(S.num[n.id]||"—")} ${n.unit}</td><td>${S.first[n.id]===undefined?"—":S.first[n.id]?"Yes":"No"}</td></tr>`;
+  const rowS=s=>{const a=S.sort[s.id]||{};return `<tr><td>${s.n} ${s.v}</td><td>${a.lvl||"—"} / ${a.t?("want "+a.t):"—"}</td><td>${S.first[s.id]===undefined?"—":S.first[s.id]?"Yes":"No"}</td></tr>`;};
+  const found=BAR.filter((b,i)=>b[1]&&S.sweet.includes(i)).length;
+  document.getElementById("report").innerHTML=`
+    <h2>Food Label Lab — ${esc(S.name)||"(no name)"} ${S.period?"· Period "+esc(S.period):""}</h2>
+    <p>Parts complete: ${PARTS.filter(p=>p.done()).length} of 6. Correct on first try: ${firstRight} of ${firstKeys.length}. Sweeteners found: ${found} of 5${S.first.sweet===undefined?"":(S.first.sweet?" (all correct on first check)":"")}.</p>
+    <table><tr><th>Question</th><th>Final answer</th><th>First try correct</th></tr>
+    ${qs.map(rowQ).join("")}${Object.values(NUMIDX).map(rowN).join("")}${SORT.map(rowS).join("")}</table>
+    <h3>Yogurt choice</h3><p>${esc(S.text.yogurtWhy)||"—"}</p>
+    <h3>FDA quiz</h3><p>Score: ${esc(S.text.fdaScore)||"—"} out of ${esc(S.text.fdaTotal)||"—"}</p><p>${esc(S.text.fdaMissed)||"—"}</p>
+    <h3>Exit reflection</h3><p>${esc(S.text.reflection)||"—"}</p>`;
+}
+function textReport(){
+  const L=[], lv={low:"Low",mod:"Moderate",high:"High"};
+  const mark=v=> v===undefined?"":(v?" (correct first try)":" (corrected after retry)");
+  const firstKeys=Object.keys(S.first), firstRight=firstKeys.filter(k=>S.first[k]).length;
+  const q=x=>{ L.push("Q: "+plain(x.p)); L.push("   "+(S.mcq[x.id]!==undefined?plain(x.o[S.mcq[x.id]]):"(not answered)")+mark(S.first[x.id])); };
+  L.push("FOOD LABEL LAB", `Name: ${S.name||"—"}   Period: ${S.period||"—"}   Date: ${new Date().toLocaleDateString()}`,
+    `Parts complete: ${PARTS.filter(p=>p.done()).length} of 6   Correct on first try: ${firstRight} of ${firstKeys.length}`,"");
+  L.push("1. EXPLORE THE LABEL", `Parts explored: ${S.seen.length} of 7`); ZONES.forEach(z=>q(z.q)); L.push("");
+  L.push("2. SERVING SIZE MATH"); Object.values(NUMIDX).forEach(n=>{ L.push("Q: "+n.p); L.push(`   ${S.num[n.id]||"(not answered)"} ${n.unit}`+mark(S.first[n.id])); }); L.push("");
+  L.push("3. THE 5/20 RULE"); SORT.forEach(x=>{ const a=S.sort[x.id]||{}; L.push(`${x.n} ${x.v} DV: ${lv[a.lvl]||"—"} / ${a.t?"want "+a.t:"—"}`+mark(S.first[x.id])); }); L.push("");
+  L.push("4. LABEL SHOWDOWN"); [...SD1,...SD2].forEach(q); L.push("Which yogurt would you pick and why?", "   "+(S.text.yogurtWhy||"(no response)"), "");
+  const found=BAR.filter((b,i)=>b[1]&&S.sweet.includes(i)).length;
+  L.push("5. INGREDIENT DETECTIVE"); q(ING0); L.push(`Sweeteners found: ${found} of 5`+mark(S.first.sweet)); INGQ.forEach(q); L.push("");
+  L.push("6. FDA QUIZ & REFLECTION", `FDA quiz score: ${S.text.fdaScore||"—"} out of ${S.text.fdaTotal||"—"}`,
+    "A question I missed and what I learned:", "   "+(S.text.fdaMissed||"(no response)"), "Exit reflection:", "   "+(S.text.reflection||"(no response)"));
+  return L.join("\n");
+}
+
+function plain(h){ const d=document.createElement("div"); d.innerHTML=String(h||""); return d.textContent; }
+function buildPdf(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:"pt", format:"letter"});
+  const M=50, W=612-2*M, PH=792; let y=M;
+  const need=h=>{ if(y+h>PH-M){ doc.addPage(); y=M; } };
+  const text=(t,size=10,style="normal",gap=4,indent=0)=>{
+    doc.setFont("helvetica",style); doc.setFontSize(size);
+    doc.splitTextToSize(plain(t), W-indent).forEach(line=>{ need(size+gap); doc.text(line, M+indent, y+size); y+=size+gap; });
+  };
+  const head=t=>{ y+=8; need(30); text(t,13,"bold",4); doc.setLineWidth(1); doc.line(M,y,M+W,y); y+=6; };
+  const mark=v=> v===undefined?"":(v?"  [correct first try]":"  [corrected after retry]");
+  const firstKeys=Object.keys(S.first), firstRight=firstKeys.filter(k=>S.first[k]).length;
+
+  text("Food Label Lab", 22, "bold", 6);
+  text(`Name: ${S.name||"—"}     Period: ${S.period||"—"}     Date: ${new Date().toLocaleDateString()}`, 11);
+  text(`Parts complete: ${PARTS.filter(p=>p.done()).length} of 6     Correct on first try: ${firstRight} of ${firstKeys.length}`, 11, "bold");
+
+  const qBlock=q=>{
+    const ans = S.mcq[q.id]!==undefined ? q.o[S.mcq[q.id]] : "(not answered)";
+    need(40); text(q.p,10,"bold",3); text("Answer: "+ans+mark(S.first[q.id]),10,"normal",3,12); y+=4;
+  };
+  head("1. Explore the label"); text(`Parts explored: ${S.seen.length} of 7`,10); y+=2; ZONES.forEach(z=>qBlock(z.q));
+  head("2. Serving size math");
+  Object.values(NUMIDX).forEach(n=>{ need(40); text(n.p,10,"bold",3); text(`Answer: ${S.num[n.id]||"(not answered)"} ${n.unit}`+mark(S.first[n.id]),10,"normal",3,12); y+=4; });
+  head("3. The 5/20 rule");
+  SORT.forEach(s=>{ const a=S.sort[s.id]||{}; const lv={low:"Low",mod:"Moderate",high:"High"};
+    text(`${s.n} ${s.v} DV — ${lv[a.lvl]||"—"} / ${a.t?"want "+a.t:"—"}`+mark(S.first[s.id]),10,"normal",4); });
+  head("4. Label showdown"); [...SD1,...SD2].forEach(qBlock);
+  text("Which yogurt would you pick and why?",10,"bold",3); text(S.text.yogurtWhy||"(no response)",10,"normal",3,12);
+  head("5. Ingredient detective"); qBlock(ING0);
+  const found=BAR.filter((b,i)=>b[1]&&S.sweet.includes(i)).length, extra=BAR.filter((b,i)=>!b[1]&&S.sweet.includes(i)).length;
+  text(`Sweeteners found: ${found} of 5${extra?` (plus ${extra} incorrect)`:""}`+mark(S.first.sweet),10,"bold",4); y+=4;
+  INGQ.forEach(qBlock);
+  head("6. FDA quiz & reflection");
+  text(`FDA quiz score: ${S.text.fdaScore||"—"} out of ${S.text.fdaTotal||"—"}`,10,"bold",4);
+  text("A question I missed and what I learned:",10,"bold",3); text(S.text.fdaMissed||"(no response)",10,"normal",3,12); y+=4;
+  text("Exit reflection:",10,"bold",3); text(S.text.reflection||"(no response)",10,"normal",3,12);
+  return doc;
+}
+window.addEventListener("beforeprint",buildReport);
+document.getElementById("copyBtn").onclick=async()=>{
+  const n=document.getElementById("copyNote"), ta=document.getElementById("copyFallback");
+  const t=textReport();
+  ta.value=t; ta.style.display="block";
+  let ok=false;
+  // 1) classic copy from the visible box: works inside the published page
+  try{ ta.focus(); ta.select(); ta.setSelectionRange(0,t.length); ok=document.execCommand("copy"); }catch(e){}
+  // 2) modern clipboard API, with a time limit so it can't hang
+  if(!ok && navigator.clipboard){
+    try{ await Promise.race([navigator.clipboard.writeText(t), new Promise((_,r)=>setTimeout(()=>r(0),1500))]); ok=true; }catch(e){}
+  }
+  ta.focus(); ta.select();
+  n.textContent = ok ? "Copied! Paste your answers (Ctrl+V) into your Google Classroom assignment. They're also shown in the box below."
+    : "Your answers are selected in the box below. Press Ctrl+C (or ⌘+C) to copy, then paste into Google Classroom.";
+};
+document.getElementById("printBtn").onclick=async()=>{
+  const n=document.getElementById("copyNote"), btn=document.getElementById("printBtn");
+  flush();
+  if(!window.jspdf){ n.textContent="The PDF tool didn't load (check your internet connection). Use “Copy my answers” instead."; return; }
+  btn.disabled=true; btn.textContent="Making your PDF…";
+  try{
+    const blob = buildPdf().output("blob");
+    const r = await offerFile(`Food-Label-Lab-${safeName()}.pdf`, blob, "application/pdf");
+    n.textContent = r==="saved" ? "PDF downloaded. Upload it to your Google Classroom assignment."
+      : r==="declined" ? "Download canceled. Press the button again when you're ready."
+      : "The download was blocked on this device. Use “Copy my answers” instead.";
+  }catch(e){ n.textContent="Something went wrong making the PDF. Use “Copy my answers” instead."; }
+  btn.disabled=false; btn.textContent="Download PDF of my work";
+};
+
+const rAll=document.getElementById("resetAll"), rBox=document.getElementById("resetConfirm");
+rAll.onclick=()=>{ rAll.hidden=true; rBox.hidden=false; document.getElementById("resetNo").focus(); };
+document.getElementById("resetNo").onclick=()=>{ rBox.hidden=true; rAll.hidden=false; };
+document.getElementById("resetYes").onclick=()=>{
+  S=BLANK(); S.updatedAt=Date.now();
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  if(cloud) pushCloud();
+  document.getElementById("copyFallback").style.display="none";
+  document.getElementById("copyNote").textContent="Turn in the PDF on Google Classroom. If the download doesn't work on your device, use “Copy my answers” and paste them into the assignment.";
+  rBox.hidden=true; rAll.hidden=false;
+  renderAll(); statusText(); window.scrollTo({top:0});
+  note("Started over — all answers erased.");
+};
+
+/* ---------- init ---------- */
+document.getElementById("mathLabel1").innerHTML=label(FDA);
+document.getElementById("mathLabel2").innerHTML=label(MAC);
+document.getElementById("mathLabel3").innerHTML=label(ICE);
+document.getElementById("cerA").innerHTML=label(CA);
+document.getElementById("cerB").innerHTML=label(CB);
+document.getElementById("yoA").innerHTML=label(YA); fixOne("yoA");
+document.getElementById("yoB").innerHTML=label(YB); fixOne("yoB");
+function renderAll(){
+  curZone=null;
+  document.getElementById("zonePanel").innerHTML='<p class="zone-title">Start anywhere</p><p>Tap <b>4 servings per container</b> at the top of the label — that\'s where the FDA says to start reading.</p>';
+  document.getElementById("sd1").innerHTML=SD1.map(mcq).join("");
+  document.getElementById("sd2").innerHTML=SD2.map(mcq).join("");
+  document.getElementById("ingQ0").innerHTML=mcq(ING0);
+  document.getElementById("ingQ").innerHTML=INGQ.map(mcq).join("");
+  fillInputs(); renderExplore(); renderNums(); renderSort(); renderBar();
+  const p=S.part||0; S.part=p;
+  document.querySelectorAll("section.panel").forEach(s=>s.classList.toggle("active",+s.dataset.part===p));
+  updateNav();
+}
+renderAll(); statusText();
+connectCloud();
+</script>
+</body>
+</html>
