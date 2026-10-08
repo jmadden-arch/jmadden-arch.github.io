@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Who Am I? True Colors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#ffffff; --surface:#f5f6f8; --line:#d9dce3; --ink:#1d1d24; --muted:#5b5f6b;
+  --orange:#ee6c12; --green:#3f8f22; --blue:#2360b5; --gold:#d79a00;
+  --orange-t:#fff1e6; --green-t:#ecf7e6; --blue-t:#e8f0fb; --gold-t:#fff7dc;
+  --focus:#2360b5;
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16171c; --surface:#202229; --line:#373a44; --ink:#f1f1f4; --muted:#a9adb8;
+    --orange:#ff8a3d; --green:#6cc04a; --blue:#6fa3ef; --gold:#f2c230;
+    --orange-t:#3a2414; --green-t:#1c3015; --blue-t:#172640; --gold-t:#342a0c; --focus:#8fb8f5;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16171c; --surface:#202229; --line:#373a44; --ink:#f1f1f4; --muted:#a9adb8;
+  --orange:#ff8a3d; --green:#6cc04a; --blue:#6fa3ef; --gold:#f2c230;
+  --orange-t:#3a2414; --green-t:#1c3015; --blue-t:#172640; --gold-t:#342a0c; --focus:#8fb8f5;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.06rem;line-height:1.55}
+.wrap{max-width:780px;margin:0 auto;padding:1.25rem 1.1rem 4rem}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0 0 .5rem}
+h1{font-size:clamp(2.6rem,9vw,4.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.7rem,5vw,2.3rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.25rem;font-weight:700}
+p{margin:0 0 1rem;max-width:68ch}
+.muted{color:var(--muted)}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+img{max-width:100%}
+
+/* Color band: the signature element */
+.band{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:.25rem 0 1.5rem}
+.band span{flex:1}
+.band .o{background:var(--orange)}.band .g{background:var(--green)}.band .b{background:var(--blue)}.band .y{background:var(--gold)}
+
+/* Stepper */
+nav.steps{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+nav.steps ol{list-style:none;margin:0 auto;padding:.6rem 1.1rem;max-width:780px;display:flex;gap:.4rem;overflow-x:auto}
+nav.steps button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:.35rem .8rem;font-size:.9rem;white-space:nowrap;cursor:pointer}
+nav.steps button[aria-current="step"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+nav.steps button .n{font-weight:700;margin-right:.3rem}
+
+section[hidden]{display:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.2rem;margin:0 0 1.2rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between;margin-top:1.5rem}
+.btn{border:2px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:10px;padding:.65rem 1.2rem;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Toolbox */
+.tools{list-style:none;padding:0;margin:0;display:grid;gap:.5rem}
+.tools li{display:flex;gap:.8rem;align-items:baseline;padding:.6rem .8rem;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.tools li.now{border:2px solid var(--ink)}
+.tools b{font-family:var(--display);font-size:1.1rem;min-width:5.2rem}
+.tag{font-size:.8rem;font-weight:700;background:var(--ink);color:var(--bg);border-radius:6px;padding:.1rem .45rem;margin-left:auto;white-space:nowrap}
+.norms{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.norms div{border-left:5px solid var(--ink);padding:.3rem .8rem}
+.norms div:nth-child(1){border-color:var(--orange)}.norms div:nth-child(2){border-color:var(--green)}.norms div:nth-child(3){border-color:var(--blue)}
+
+/* Cup */
+.cups{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.cup{border-radius:14px;padding:1rem;border:2px solid var(--line)}
+.cup.fill{border-color:var(--green);background:var(--green-t)}
+.cup.spill{border-color:var(--orange);background:var(--orange-t)}
+.adder{display:flex;gap:.4rem;margin:.6rem 0}
+.adder input{flex:1;min-width:0;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+.adder button{border:0;border-radius:8px;padding:.55rem .9rem;font-weight:700;cursor:pointer;color:#fff}
+.fill .adder button{background:var(--green)} .spill .adder button{background:var(--orange)}
+.notes{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:.45rem}
+.notes li{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem .35rem .7rem;display:flex;gap:.4rem;align-items:center;box-shadow:2px 2px 0 var(--line)}
+.notes li button{border:0;background:none;cursor:pointer;font-size:1.1rem;line-height:1;color:var(--muted);padding:0 .2rem}
+.empty{color:var(--muted);font-style:italic;font-size:.95rem}
+
+/* Survey */
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;font-size:.95rem}
+.legend b{display:inline-grid;place-items:center;width:1.7rem;height:1.7rem;border-radius:6px;background:var(--ink);color:var(--bg);margin-right:.3rem}
+.progress{height:10px;background:var(--line);border-radius:5px;overflow:hidden;margin:.4rem 0 1rem}
+.progress div{height:100%;background:var(--ink);width:0;transition:width .25s}
+.q{border:1px solid var(--line);border-radius:14px;padding:1rem 1rem .6rem;margin:0 0 1rem;background:var(--bg)}
+.q.done{border-color:var(--ink)}
+.q h3{font-size:1.15rem;display:flex;gap:.5rem}
+.q h3 .num{color:var(--muted)}
+.check{margin-left:auto;font-size:.85rem;font-family:var(--body);font-weight:700;color:var(--green)}
+.opt{display:flex;align-items:center;gap:.8rem;padding:.55rem 0;border-top:1px solid var(--line)}
+.opt:first-of-type{border-top:0}
+.opt p{margin:0;flex:1}
+.ranks{display:flex;gap:.3rem;flex-shrink:0}
+.ranks button{width:2.4rem;height:2.4rem;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer}
+.ranks button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ranks button.taken{opacity:.45}
+@media (max-width:520px){.opt{flex-direction:column;align-items:stretch;gap:.4rem}.ranks{justify-content:flex-end}}
+
+/* Results */
+.reveal{border-radius:16px;padding:1.4rem 1.3rem;color:#fff;margin-bottom:1.2rem}
+.reveal h2{font-size:clamp(2.2rem,8vw,3.6rem);font-weight:800;margin:.2rem 0}
+.reveal p{margin:0;opacity:.95}
+.mix{display:flex;height:46px;border-radius:12px;overflow:hidden;margin:.6rem 0 .4rem}
+.mix div{display:grid;place-items:center;color:#fff;font-weight:700;font-size:.95rem;transition:flex-grow .8s ease;min-width:0}
+.scores{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1rem}
+.scores div{text-align:center;padding:.5rem .3rem;border-radius:10px;border:2px solid}
+.scores b{display:block;font-family:var(--display);font-size:1.6rem}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
+.tabs button{border:2px solid;border-radius:999px;padding:.4rem 1rem;font-weight:700;cursor:pointer;background:transparent}
+.tabs button[aria-selected="true"]{color:#fff}
+.card{border-radius:14px;padding:1.1rem 1.2rem;border:2px solid}
+.card h3{font-size:1.5rem}
+.keys{columns:2 210px;padding-left:1.1rem;margin:.2rem 0 1rem}
+dl.tend{display:grid;grid-template-columns:max-content 1fr;gap:.25rem .9rem;margin:0}
+dl.tend dt{font-weight:700}
+dl.tend dd{margin:0}
+
+textarea{width:100%;min-height:110px;padding:.7rem;border-radius:10px;border:1px solid var(--line);background:var(--bg);resize:vertical}
+.choice{display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0 .8rem}
+.choice button{border:2px solid var(--ink);border-radius:10px;padding:.5rem 1rem;background:transparent;cursor:pointer;font-weight:700}
+.choice button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.dq{padding-left:1.3rem;margin:.3rem 0 0}
+.dq li{margin-bottom:.45rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(1rem + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:10px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.linkbtn{border:0;background:none;padding:0;color:var(--blue);text-decoration:underline;cursor:pointer;font:inherit}
+.alert{border:2px solid var(--orange);background:var(--orange-t);border-radius:10px;padding:.6rem .8rem;margin-top:.8rem}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<nav class="steps" aria-label="Lesson steps"><ol id="stepNav"></ol></nav>
+<main class="wrap">
+
+<!-- STEP 3 -->
+<section data-step="0">
+  <h1>True Colors</h1>
+  <div class="band" aria-hidden="true"><span class="o"></span><span class="g"></span><span class="b"></span><span class="y"></span></div>
+  <p>Everyone has a mix of four personality colors: Orange, Green, Blue, and Gold. This survey shows which one shines brightest in you. Knowing how you're wired helps you understand what fills and spills your cup.</p>
+  <label for="nameIn"><b>Your first name</b> <span class="muted">(only used on your copied results)</span></label>
+  <div class="adder" style="max-width:340px"><input id="nameIn" autocomplete="given-name" placeholder="First name"></div>
+  <p style="margin-top:1rem">For each question, rank all four answers. Use each number once per question.</p>
+  <div class="legend panel"><span><b>4</b>Most like you</span><span><b>3</b>Often, sometimes</span><span><b>2</b>Maybe, occasionally</span><span><b>1</b>Least like you, never</span></div>
+  <p class="muted" style="font-size:.95rem">Tip: tapping a number that's already used in that question swaps the two answers. Go with your gut; there are no wrong answers.</p>
+  <div aria-live="polite" id="progLabel" class="muted" style="font-size:.95rem">0 of 10 questions ranked</div>
+  <div class="progress"><div id="progBar"></div></div>
+  <div id="survey"></div>
+  <div id="surveyMsg" class="alert" hidden></div>
+  <div class="btnrow"><span></span><button class="btn" id="seeResults">See my colors</button></div>
+</section>
+
+<!-- STEP 4 -->
+<section data-step="1" hidden>
+  <div id="results"></div>
+  <h3 style="margin-top:1.4rem">Explore all four colors</h3>
+  <p class="muted">Everyone has all four colors. Your brightest is just the one you lean on most. Read your top two, then look at a color that's different from yours.</p>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div id="colorCard" role="tabpanel"></div>
+  <div class="btnrow"><button class="btn ghost" data-go="0">Back to survey</button><button class="btn" data-go="2">Go to debrief</button></div>
+</section>
+
+<!-- STEP 5 -->
+<section data-step="2" hidden>
+  <h2>Debrief</h2>
+  <div class="panel" id="groupQs"></div>
+  <div class="panel" id="cupLink"></div>
+  <div class="panel">
+    <h3>Reflection</h3>
+    <p>Do you agree or disagree with your personality results?</p>
+    <div class="choice" id="agreeBtns">
+      <button data-v="Agree" aria-pressed="false">Agree</button>
+      <button data-v="Partly agree" aria-pressed="false">Partly agree</button>
+      <button data-v="Disagree" aria-pressed="false">Disagree</button>
+    </div>
+    <label for="why"><b>Why or why not?</b> Point to a specific trait from your color that does or doesn't fit you.</label>
+    <textarea id="why" placeholder="I think my results are..."></textarea>
+  </div>
+  <div class="panel">
+    <h3>Turn it in</h3>
+    <ol class="dq">
+      <li>Finish your reflection above.</li>
+      <li>Download your results as a PDF.</li>
+      <li>Turn in the PDF where your teacher asks.</li>
+    </ol>
+    <div class="choice" style="margin-top:1rem"><button id="pdfBtn" class="btn" style="color:var(--bg)">Download PDF</button><button id="resetBtn" class="btn ghost">Start over</button></div>
+    <div id="pdfHelp" hidden>
+      <p class="muted" style="font-size:.95rem">Don't see the file in Downloads? <button id="pdfOpen" class="linkbtn">Open the PDF in a new tab</button>, then use the download arrow at the top of that tab.</p>
+    </div>
+    <div id="pdfMsg" class="alert" hidden></div>
+  </div>
+  <div class="btnrow"><button class="btn ghost" data-go="1">Back to results</button><span></span></div>
+</section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const STEPS=["Survey","My colors","Debrief"];
+const COLORS={
+ a:{name:"Orange",key:"orange",strength:"Skillfulness",
+   intro:"You need the freedom to take action right now. A zest for life and a desire to test the limits describe you best. You take pride in being skilled at lots of things, you're a strong negotiator, and adventure is your middle name. You like a hands-on approach to problems and love getting fast results.",
+   keys:["The impulse to really live","Need for variety","Seeking adventure","Being a natural entertainer","A love of tools","Bouncing back from defeats","Testing the limits","Excitement and light-heartedness","Spontaneous relationships","Acting well in a crisis","Charm, wit, and fun","Hating to wait"],
+   more:"Oranges see life as something to enjoy. They live in the here and now, love competition, and never miss an opportunity. They're symbolized by an eagle in flight, a motorcycle ride, and roaring rapids.",
+   tend:[["Dream of","Being free and spontaneous"],["Value","Skill, grace, and charisma"],["Regard","Opportunities, options, and competition"],["Dislike","Rigid rules and too much authority"],["Express","Optimism, eagerness, and confidence"],["Foster","Recreation, fun, and enjoyment"],["Respect","Skill and artistic expression"],["Promote","Stimulation and risk"]],
+   qs:["What activities make you feel the most alive? How often do you get to do them?","Which rules or routines are hardest for you? What helps you get through them?","When you're stressed, the survey says Oranges may get irritable. What does that look like for you, and what helps you cool down?","What strength does your group bring to a team project?"],
+   fills:"movement, competition, trying new things, hands-on challenges",
+   spills:"waiting, long lectures, rigid rules, doing the same thing over and over"},
+ b:{name:"Green",key:"green",strength:"Knowledge",
+   intro:"You feel best when you're solving problems and your ideas are recognized, especially when you feel clever. You like being an expert and using your know-how to create solutions. You're an independent thinker with strong analytical skills. You may not show your emotions openly, but you feel things deeply.",
+   keys:["Developing models","Analytical thinking","Variety of interests","Admiring intelligence","Being a perfectionist","Using precise language","Abstract thinking","Exploring ideas","Striving for competency","Storing knowledge","Avoiding repetition","Handling complexity"],
+   more:"Greens have curious minds. They explore every side of a problem or idea, look for big-picture truths, and work to perfect whatever they focus on. They're symbolized by the abstract thinker, outer space, smart design, and symmetry.",
+   tend:[["Dream of","Truth, perfection, and accuracy"],["Value","Answers, intelligence, and explanations"],["Regard","Efficiency and reduced waste"],["Dislike","Injustice and unfairness"],["Express","Calm, cool reserve"],["Foster","Inventions and technology"],["Respect","Knowledge and capability"],["Promote","Effectiveness and know-how"]],
+   qs:["What topics could you research or think about for hours?","Greens often keep feelings inside. Who or what helps you process things when they get heavy?","When you're stressed, do you tend to withdraw? How can you tell when thinking it through stops helping?","What strength does your group bring to a team project?"],
+   fills:"solving puzzles, learning something new, quiet time to think, getting things right",
+   spills:"busywork, being rushed, rules that don't make sense, being forced to share feelings before you're ready"},
+ c:{name:"Blue",key:"blue",strength:"Authenticity",
+   intro:"You want to express the real you. Being genuine and honest matter to you more than almost anything. You're tuned in to small details in how people feel, you enjoy close relationships, and making a difference comes naturally because you help bring out the best in yourself and others.",
+   keys:["Being authentic","Devotion to relationships","Seeking harmony","Self-reflection","Noticing subtle feelings","Making a difference","Seeking what's real","Bringing out others' potential","Creative expression","Writing and speaking with flair","Spirituality and meaning","A life of significance"],
+   more:"Blues are people of peace and caring. They're happiest helping others grow and bringing out the best in them. They're symbolized by the dove of peace, a love song, and the importance of a simple kind gesture.",
+   tend:[["Dream of","Love, connection, and authenticity"],["Value","Compassion, sympathy, and rapport"],["Regard","Meaning, significance, and identity"],["Dislike","Hypocrisy, lies, and fakeness"],["Express","Enthusiasm and inspiration"],["Foster","Growth in people and harmony"],["Respect","Empathy and shared feelings"],["Promote","Growth and development"]],
+   qs:["Who are the people you feel most like yourself around? What makes those relationships work?","Blues often take care of everyone else. How do you make sure you're taking care of you too?","When you're down, do you like to talk it out? Who's on your list of people to talk to?","What strength does your group bring to a team project?"],
+   fills:"deep conversations, helping someone, creative expression, feeling understood",
+   spills:"conflict, people being fake, feeling left out, carrying everyone else's problems"},
+ d:{name:"Gold",key:"gold",strength:"Duty",
+   intro:"You value order and care about traditions with family and community. You're steady, loyal, and dependable, and you work to make sure things get done the right way. Ignoring a responsibility would never occur to you.",
+   keys:["Generosity","Taking care of others","A sense of history","Carrying on traditions","Valuing order","Home and family","Strong work ethic","Ceremony and celebration","Dignity and culture","Steadiness","Predictability","Organizing groups"],
+   more:"Being prepared is the motto of Golds. They like the security that comes from being ready, keeping things running, and following the rules. They have a strong sense of right and wrong and are symbolized by pillars of strength, honored traditions, and family.",
+   tend:[["Dream of","Security, stability, and success"],["Value","Accountability and responsibility"],["Regard","Service and dedication"],["Dislike","Disobedience and disorder"],["Express","Concern, stability, and purpose"],["Foster","Institutions and tradition"],["Respect","Loyalty and commitment"],["Promote","Groups, bonds, and organization"]],
+   qs:["How do plans and routines help you feel calm? What happens when plans suddenly change?","Golds hold themselves to high standards. How do you handle it when something doesn't go perfectly?","When you're stressed, Golds try to find the problem and fix it. What do you do when a problem can't be fixed right away?","What strength does your group bring to a team project?"],
+   fills:"checking things off a list, having a plan, being appreciated, keeping promises",
+   spills:"last-minute changes, chaos and disorganization, people who don't follow through, feeling unprepared"}
+};
+const QUESTIONS=[
+ ["When I make decisions:",{a:"I do it quickly and go with my first impressions",b:"I think about it, consider the choices, and then decide",c:"I listen to my feelings and consider how my decisions will affect others",d:"I take it seriously and always try to make the right decision"}],
+ ["The best way for others to show me they care about me is to:",{a:"Do fun things with me",b:"Give me space to be myself",c:"Spend time with me doing whatever",d:"Do what I want to; not let me down or go back on their word"}],
+ ["When I am with my friends, I like to provide:",{a:"The excitement, the fun, the jokes",b:"Questions and answers, a logical way of looking at things",c:"Concern for others; a lot of caring",d:"The planning, a sense of security, a good standard"}],
+ ["I like to:",{a:"Act on a moment's notice; do risky things",b:"Provide answers or give thought to people's questions",c:"Help maintain a sense of harmony and togetherness",d:"Be responsible, dependable, and helpful to others"}],
+ ["One thing I'm really good at is:",{a:"Acting courageously",b:"Thinking",c:"Being sensitive",d:"Organizing"}],
+ ["Friends who know me best would say I am:",{a:"Competitive",b:"Reserved, thoughtful",c:"Emotional, friendly",d:"Neat, prepared"}],
+ ["My basic approach to life is:",{a:"To take one day at a time and have fun",b:"To figure out what life is all about",c:"To help others and be happy and succeed",d:"To plan for the future and make it as good as possible"}],
+ ["When I am feeling discouraged or \u201cdown in the dumps\u201d:",{a:"I often become rude, mad, or sometimes even mean",b:"I withdraw, don't talk much, and try to think my way out of the problem",c:"I feel emotional, sad, and usually like to talk it over with someone else",d:"I try to figure out what's causing the problem and fix it"}],
+ ["I feel good about myself when:",{a:"I can do things that are difficult",b:"I can solve problems or figure things out",c:"I can help other people",d:"I am appreciated or rewarded for things I do"}],
+ ["Teachers who like me (and in whose class I do pretty well) would probably describe me as:",{a:"Charming, a natural leader, clever, fun to be around",b:"Thoughtful, someone who has good answers, a problem-solver",c:"Nice, friendly, gets along with other students, helpful",d:"Neat, organized, prepared, does assignments, a good student"}]
+];
+const LS="trueColors_v2";
+let S={step:0,name:"",ranks:{},order:{},agree:"",why:"",tab:null};
+try{const raw=localStorage.getItem(LS);if(raw)S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+const $=s=>document.querySelector(s);
+function esc(t){return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1800)}
+
+/* order: shuffle answers once per student so the letter pattern isn't obvious */
+QUESTIONS.forEach((_,i)=>{if(!S.order[i]){const a=["a","b","c","d"];for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[a[j],a[k]]=[a[k],a[j]]}S.order[i]=a}});
+save();
+
+/* NAV */
+function renderNav(){
+  $("#stepNav").innerHTML=STEPS.map((s,i)=>`<li><button data-go="${i}" ${i===S.step?'aria-current="step"':''}><span class="n">${i+1}</span>${s}</button></li>`).join("");
+}
+function go(n){
+  if(n>=1&&!surveyDone()){n=0;toast("Finish ranking all 10 questions first")}
+  S.step=n;save();
+  document.querySelectorAll("section[data-step]").forEach(s=>s.hidden=+s.dataset.step!==n);
+  renderNav();
+  if(n===1)renderResults();
+  if(n===2)renderDebrief();
+  window.scrollTo({top:0});
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b)go(+b.dataset.go)});
+
+/* NAME */
+$("#nameIn").value=S.name;
+$("#nameIn").addEventListener("input",e=>{S.name=e.target.value.trim();save()});
+
+/* SURVEY */
+function qDone(i){const r=S.ranks[i]||{};return ["a","b","c","d"].every(l=>r[l])}
+function surveyDone(){return QUESTIONS.every((_,i)=>qDone(i))}
+function renderSurvey(){
+  $("#survey").innerHTML=QUESTIONS.map(([stem,opts],i)=>{
+    const r=S.ranks[i]||{},used=Object.values(r);
+    return `<div class="q ${qDone(i)?"done":""}" id="q${i}"><h3><span class="num">${i+1}.</span><span>${esc(stem)}</span>${qDone(i)?'<span class="check">Ranked \u2713</span>':""}</h3>`+
+    S.order[i].map(l=>`<div class="opt"><p>${esc(opts[l])}</p><div class="ranks" role="group" aria-label="Rank: ${esc(opts[l])}">`+
+      [4,3,2,1].map(n=>`<button data-q="${i}" data-l="${l}" data-n="${n}" aria-pressed="${r[l]===n}" class="${r[l]!==n&&used.includes(n)?"taken":""}" aria-label="${n}">${n}</button>`).join("")+
+    `</div></div>`).join("")+`</div>`;
+  }).join("");
+  const done=QUESTIONS.filter((_,i)=>qDone(i)).length;
+  $("#progLabel").textContent=`${done} of 10 questions ranked`;
+  $("#progBar").style.width=done*10+"%";
+}
+$("#survey").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-q]");if(!b)return;
+  const q=b.dataset.q,l=b.dataset.l,n=+b.dataset.n;
+  const r=S.ranks[q]=S.ranks[q]||{};
+  if(r[l]===n){delete r[l]}else{
+    const prev=r[l];const other=Object.keys(r).find(k=>r[k]===n&&k!==l);
+    if(other){if(prev)r[other]=prev;else delete r[other]}
+    r[l]=n;
+    /* auto-fill the last open slot */
+    const open=["a","b","c","d"].filter(k=>!r[k]),left=[1,2,3,4].filter(x=>!Object.values(r).includes(x));
+    if(open.length===1&&left.length===1)r[open[0]]=left[0];
+  }
+  save();
+  const y=window.scrollY;renderSurvey();window.scrollTo({top:y});
+  const fb=document.querySelector(`button[data-q="${q}"][data-l="${l}"][data-n="${n}"]`);if(fb)fb.focus({preventScroll:true});
+  $("#surveyMsg").hidden=true;
+});
+$("#seeResults").addEventListener("click",()=>{
+  const missing=QUESTIONS.map((_,i)=>i).filter(i=>!qDone(i));
+  if(missing.length){const m=$("#surveyMsg");m.hidden=false;m.textContent=`Still need rankings for question${missing.length>1?"s":""} ${missing.map(i=>i+1).join(", ")}.`;document.getElementById("q"+missing[0]).scrollIntoView({behavior:"smooth",block:"center"});return}
+  go(1);
+});
+
+/* RESULTS */
+function totals(){const t={a:0,b:0,c:0,d:0};QUESTIONS.forEach((_,i)=>{for(const l in t)t[l]+=(S.ranks[i]||{})[l]||0});return t}
+function ranked(){const t=totals();return Object.keys(t).sort((x,y)=>t[y]-t[x])}
+function topColors(){const t=totals(),max=Math.max(...Object.values(t));return Object.keys(t).filter(k=>t[k]===max)}
+function cv(l){return `var(--${COLORS[l].key})`}
+function renderResults(){
+  const t=totals(),order=ranked(),top=topColors(),tie=top.length>1;
+  const title=tie?top.map(l=>COLORS[l].name).join(" + "):COLORS[top[0]].name;
+  const bg=tie?`linear-gradient(110deg,${top.map(cv).join(",")})`:cv(top[0]);
+  $("#results").innerHTML=`
+   <div class="reveal" style="background:${bg}">
+     <p>${S.name?esc(S.name)+", your":"Your"} brightest color${tie?"s are":" is"}</p>
+     <h2>${title}</h2>
+     <p>${tie?"It's a tie! You draw equally on more than one style.":"Your strength is "+COLORS[top[0]].strength.toLowerCase()+"."} ${(()=>{const n=order.find(l=>!top.includes(l));return n?"Next comes "+COLORS[n].name+".":""})()}</p>
+   </div>
+   <h3>Your color mix</h3>
+   <div class="mix" aria-hidden="true">${order.map(l=>`<div style="background:${cv(l)};flex-grow:${t[l]}">${t[l]}</div>`).join("")}</div>
+   <div class="scores">${order.map(l=>`<div style="border-color:${cv(l)}"><b style="color:${cv(l)}">${t[l]}</b>${COLORS[l].name}</div>`).join("")}</div>
+   <p class="muted" style="font-size:.95rem">Scores range from 10 to 40. A close score between two colors means you use both a lot.</p>`;
+  if(!S.tab||!COLORS[S.tab])S.tab=top[0];
+  renderTabs();
+}
+function renderTabs(){
+  $("#tabs").innerHTML=["a","b","c","d"].map(l=>`<button role="tab" aria-selected="${S.tab===l}" data-tab="${l}" style="border-color:${cv(l)};${S.tab===l?`background:${cv(l)}`:`color:${cv(l)}`}">${COLORS[l].name}</button>`).join("");
+  const c=COLORS[S.tab];
+  $("#colorCard").style.cssText=`border-color:${cv(S.tab)};background:var(--${c.key}-t)`;
+  $("#colorCard").className="card";
+  $("#colorCard").innerHTML=`<h3 style="color:${cv(S.tab)}">${c.name}: your strength is ${c.strength.toLowerCase()}</h3>
+   <p>${c.intro}</p><p><b>Keys to personal success</b></p><ul class="keys">${c.keys.map(k=>`<li>${k}</li>`).join("")}</ul>
+   <p>${c.more}</p><p><b>With ${c.name} as your brightest color, you tend to:</b></p>
+   <dl class="tend">${c.tend.map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join("")}</dl>`;
+}
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;S.tab=b.dataset.tab;save();renderTabs();$(`[data-tab="${S.tab}"]`).focus()});
+$("#tabs").addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight"].includes(e.key))return;const k=["a","b","c","d"];let i=k.indexOf(S.tab)+(e.key==="ArrowRight"?1:-1);S.tab=k[(i+4)%4];save();renderTabs();$(`[data-tab="${S.tab}"]`).focus()});
+
+/* DEBRIEF */
+function renderDebrief(){
+  const top=topColors(),l=top[0],c=COLORS[l];
+  $("#groupQs").innerHTML=`<h3>Color group discussion: ${top.map(x=>COLORS[x].name).join(" / ")}</h3>
+   <p>Find your color group.${top.length>1?" You tied, so pick whichever group you relate to most.":""} Discuss these questions and be ready to share one answer with the class.</p>
+   <ol class="dq">${c.qs.map(q=>`<li>${q}</li>`).join("")}</ol>`;
+  $("#cupLink").innerHTML=`<h3>Back to your cup</h3>
+   <p>Many ${c.name}s say their cup gets filled by <b>${c.fills}</b>, and spilled by <b>${c.spills}</b>.</p>
+   <p>Look back at the sticky notes you wrote in the warm-up. Do they match your color? Knowing what fills and spills your cup is the first step to protecting your mental wellness.</p>`;
+  document.querySelectorAll("#agreeBtns button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===S.agree));
+  $("#why").value=S.why;
+}
+$("#agreeBtns").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.agree=b.dataset.v;save();renderDebrief()});
+$("#why").addEventListener("input",e=>{S.why=e.target.value;save()});
+
+const HEX={a:[238,108,18],b:[63,143,34],c:[35,96,181],d:[215,154,0]};
+let lastBlob=null,lastName="",dl=null;
+if(window.claude&&window.claude.use){window.claude.use("downloads").then(x=>{dl=x}).catch(()=>{})}
+function buildPDF(){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"pt",format:"letter"});
+  const W=612,M=54;let y=0;
+  ["a","b","c","d"].forEach((l,i)=>{doc.setFillColor(...HEX[l]);doc.rect(i*W/4,0,W/4,14,"F")});
+  y=60;doc.setFont("helvetica","bold");doc.setFontSize(24);doc.setTextColor(29,29,36);doc.text("True Colors Results",M,y);
+  y+=22;doc.setFont("helvetica","normal");doc.setFontSize(11);doc.setTextColor(90,95,107);
+  doc.text(`Name: ${S.name||"________________"}     Date: ${new Date().toLocaleDateString()}`,M,y);
+  const t=totals(),order=ranked(),top=topColors();
+  y+=40;doc.setFontSize(12);doc.setTextColor(29,29,36);doc.text(`My brightest color${top.length>1?"s are":" is"}:`,M,y);
+  y+=30;doc.setFont("helvetica","bold");doc.setFontSize(28);
+  let x=M;top.forEach((l,i)=>{doc.setTextColor(...HEX[l]);const w=COLORS[l].name+(i<top.length-1?" + ":"");doc.text(w,x,y);x+=doc.getTextWidth(w)});
+  if(top.length===1){y+=20;doc.setFont("helvetica","normal");doc.setFontSize(12);doc.setTextColor(29,29,36);doc.text(`Strength: ${COLORS[top[0]].strength}`,M,y)}
+  y+=34;doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(29,29,36);doc.text("My scores (10 to 40)",M,y);
+  y+=14;const barW=W-2*M-110;
+  order.forEach(l=>{y+=24;doc.setFont("helvetica","normal");doc.setFontSize(12);doc.setTextColor(29,29,36);doc.text(COLORS[l].name,M,y);
+    doc.setFillColor(230,232,236);doc.rect(M+70,y-11,barW,14,"F");doc.setFillColor(...HEX[l]);doc.rect(M+70,y-11,barW*t[l]/40,14,"F");
+    doc.setFont("helvetica","bold");doc.text(String(t[l]),M+80+barW,y)});
+  y+=44;doc.setFontSize(13);doc.text("Do I agree with my results?",M,y);
+  doc.setFont("helvetica","normal");doc.text(S.agree,M+200,y);
+  y+=26;doc.setFont("helvetica","bold");doc.text("Why or why not?",M,y);
+  y+=18;doc.setFont("helvetica","normal");doc.setFontSize(12);
+  doc.splitTextToSize(S.why.trim(),W-2*M).forEach(line=>{if(y>740){doc.addPage();y=60}doc.text(line,M,y);y+=17});
+  return doc.output("blob");
+}
+function safeName(){return (S.name||"Student").replace(/[^A-Za-z0-9_-]+/g,"")||"Student"}
+$("#pdfBtn").addEventListener("click",async()=>{
+  const m=$("#pdfMsg");m.hidden=true;
+  if(!S.agree||S.why.trim().length<15){m.hidden=false;m.textContent="Choose Agree, Partly agree, or Disagree and write at least a sentence explaining why before downloading.";$("#why").focus();return}
+  if(!window.jspdf){m.hidden=false;m.textContent="The PDF tool didn't load. Check your internet connection and refresh the page. Your answers are saved.";return}
+  lastBlob=buildPDF();lastName=`TrueColors_${safeName()}.pdf`;
+  if(dl){try{await dl.save({filename:lastName,data:lastBlob});toast("PDF saved");return}catch(e){if(e&&e.code==="declined")return}}
+  const url=URL.createObjectURL(lastBlob);const a=document.createElement("a");a.href=url;a.download=lastName;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  toast("Downloading "+lastName);$("#pdfHelp").hidden=false;
+});
+$("#pdfOpen").addEventListener("click",()=>{
+  if(!lastBlob)return;const url=URL.createObjectURL(lastBlob);
+  const w=window.open(url,"_blank");
+  if(!w){const m=$("#pdfMsg");m.hidden=false;m.textContent="Your browser blocked the new tab. Ask your teacher for help."}
+});
+$("#resetBtn").addEventListener("click",()=>{
+  const b=$("#resetBtn");
+  if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to clear everything";setTimeout(()=>{delete b.dataset.armed;b.textContent="Start over"},4000);return}
+  try{localStorage.removeItem(LS)}catch(e){}location.reload();
+});
+
+renderSurvey();go(S.step);
+</script>
+</body>
+</html>
