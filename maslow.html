@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maslow's Hierarchy: Independent Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f1;--ink:#1d2b26;--muted:#566860;--card:#fff;--line:#cfd9d2;--accent:#1f6f5c;--ok:#1f7a45;--okbg:#e2f3e8;--no:#a3412b;--nobg:#fbe9e3;
+--l1:#c9634a;--l2:#e0963c;--l3:#d9bf45;--l4:#6fa86a;--l5:#2f7f8f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14201c;--ink:#e8f0eb;--muted:#a3b5ac;--card:#1d2d27;--line:#33473f;--accent:#6fcfb4;--ok:#7fd9a0;--okbg:#1b3a29;--no:#f0a08a;--nobg:#3d2119}}
+:root[data-theme="dark"]{--bg:#14201c;--ink:#e8f0eb;--muted:#a3b5ac;--card:#1d2d27;--line:#33473f;--accent:#6fcfb4;--ok:#7fd9a0;--okbg:#1b3a29;--no:#f0a08a;--nobg:#3d2119}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Source Sans 3",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 18px 64px}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,6vw,2.9rem);font-weight:800}
+h2{font-size:1.6rem;font-weight:700}
+.intro{color:var(--muted);margin:10px 0 6px}
+.savenote{color:var(--muted);font-size:.92rem;margin:0 0 18px}
+.goals{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+.goals ul{margin:6px 0 0;padding-left:20px}
+.plan{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.plan li{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:.92rem}
+section{margin-top:40px}
+.time{display:inline-block;margin-left:8px;font:600 .9rem "Source Sans 3",sans-serif;color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:14px}
+.q{font-weight:600;margin:14px 0 6px}
+textarea{width:100%;min-height:84px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;resize:vertical}
+textarea:focus,select:focus,button:focus-visible,.lvl:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button,select{font:inherit}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#10201a}}
+:root[data-theme="dark"] .btn{color:#10201a}
+.pyramid{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:14px}
+.lvl{border:0;border-radius:6px;padding:12px 8px;color:#fff;font:700 1rem "Bricolage Grotesque",sans-serif;cursor:pointer;text-align:center}
+.lvl[aria-expanded="true"]{outline:3px solid var(--ink);outline-offset:1px}
+.l5{width:34%;background:var(--l5)}.l4{width:50%;background:var(--l4);color:#10201a}.l3{width:66%;background:var(--l3);color:#10201a}.l2{width:82%;background:var(--l2);color:#10201a}.l1{width:100%;background:var(--l1)}
+@media(max-width:520px){.l5{width:52%}.l4{width:64%}.l3{width:76%}.l2{width:88%}.lvl{font-size:.88rem}}
+#detail{min-height:96px}
+.lvl.seen::after{content:" \2713"}
+#lvlcount{color:var(--muted);font-size:.95rem;margin:8px 0 0;text-align:center}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:600;font-size:.88rem;background:var(--okbg);color:var(--ok)}
+.pill.g{background:var(--nobg);color:var(--no)}
+.scn{display:grid;gap:8px;padding:14px 0;border-bottom:1px solid var(--line)}
+.scn:last-of-type{border-bottom:0}
+select{padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);max-width:100%}
+.fb{font-size:.95rem;padding:6px 10px;border-radius:6px;display:none}
+.fb.ok{display:block;background:var(--okbg);color:var(--ok)}
+.fb.no{display:block;background:var(--nobg);color:var(--no)}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+.check input{margin-top:6px;width:18px;height:18px}
+#status{margin-left:10px;color:var(--ok);font-weight:600}
+.reset-row{margin-top:28px;padding-top:14px;border-top:1px solid var(--line)}
+#confirm{border-color:var(--no)}
+@media print{.btn,#status,.savenote,.reset-row{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<main>
+<h1>Maslow's Hierarchy of Needs</h1>
+<p class="intro">An independent lesson for health class. Work through it at your own pace. About 40 minutes total.</p>
+<p class="savenote" id="autosave" role="status">Your answers save automatically on this device.</p>
+
+<div class="goals">
+<strong>By the end, you will be able to:</strong>
+<ul>
+<li>Name and describe the 5 levels of Maslow's Hierarchy</li>
+<li>Apply the levels to real-life examples</li>
+</ul>
+</div>
+<ol class="plan">
+<li>Motivation (8 min)</li><li>Needs (5 min)</li><li>Hierarchy (10 min)</li><li>Practice (10 min)</li><li>Wrap-up (7 min)</li>
+</ol>
+
+<section>
+<h2>1. What motivates you?<span class="time">8 minutes</span></h2>
+<div class="card">
+<p><strong>Intrinsic motivation</strong> comes from inside you: you do something because you enjoy it or it matters to you.
+<strong>Extrinsic motivation</strong> comes from outside: you do something for a reward, a grade, or to avoid a consequence.</p>
+<p class="q">Think of one thing you did this week. Was it intrinsic or extrinsic? Explain.</p>
+<textarea data-label="1a. Something I did this week (intrinsic or extrinsic)" aria-label="Response 1a"></textarea>
+<p class="q">Which type do you primarily have? Which type do you think leads to more success, and why?</p>
+<textarea data-label="1b. My main type of motivation and which leads to more success" aria-label="Response 1b"></textarea>
+</div>
+</section>
+
+<section>
+<h2>2. Where motivation comes from<span class="time">5 minutes</span></h2>
+<div class="card">
+<p>Your motivation to act comes from your <strong>needs</strong>. You need to eat to survive, brush your teeth to keep them healthy, and work to earn money for food and rent. Some needs are biological, like drinking water when you are thirsty. Others are emotional, like wanting to do well on an exam.</p>
+<p>Your needs change over your lifetime. Your thoughts, beliefs, feelings, environment, culture, and relationships all affect what you need at a given moment.</p>
+<p>When needs are not met, you may feel like something is missing. You then try to fill that gap.</p>
+<p class="q">Name one need you have met today and one you are still working on.</p>
+<textarea data-label="2. A need I met today and one I'm working on" aria-label="Response 2"></textarea>
+</div>
+</section>
+
+<section>
+<h2>3. Maslow's Hierarchy<span class="time">10 minutes</span></h2>
+<div class="card">
+<p>Maslow's hierarchy says people are motivated to meet <strong>basic needs first</strong> before moving on to higher ones. For humans to reach their <em>total</em> potential, these needs must be met.</p>
+<p>Tap each level to learn more. Start at the bottom.</p>
+<div class="pyramid" id="pyr">
+<button class="lvl l5" data-i="5" aria-expanded="false">Self-actualization</button>
+<button class="lvl l4" data-i="4" aria-expanded="false">Esteem</button>
+<button class="lvl l3" data-i="3" aria-expanded="false">Love / Belonging</button>
+<button class="lvl l2" data-i="2" aria-expanded="false">Safety</button>
+<button class="lvl l1" data-i="1" aria-expanded="false">Physiological</button>
+</div>
+<p id="lvlcount" aria-live="polite">Levels explored: 0 of 5</p>
+<div id="detail" class="card" aria-live="polite">Select a level above.</div>
+<p><span class="pill g">Deficiency needs</span> The first four levels come from things we are <em>lacking</em>. They can only be met by outside sources: the environment, people, or things around us.</p>
+<p><span class="pill">Growth need</span> Self-actualization does not fill a lack. It gives you room to grow. It is always <strong>intrinsically motivated</strong>, because you do it out of pure enjoyment and a desire to grow.</p>
+<p><strong>Self-actualization</strong> is the top level. It means realizing your potential, self-fulfillment, seeking personal growth, and having peak experiences.</p>
+<p class="q">Which level do you think is hardest to reach, and why? What is one thing that could be self-actualization for you?</p>
+<textarea data-label="3. Hardest level to reach; my own self-actualization" aria-label="Response 3"></textarea>
+</div>
+</section>
+
+<section>
+<h2>4. Practice with real scenarios<span class="time">10 minutes</span></h2>
+<div class="card">
+<p>Match each scenario to the need being met (or not met). Choose an answer and check it right away. If you miss one, read the hint and try again.</p>
+<div id="scn"></div>
+<p id="score" aria-live="polite"><strong></strong></p>
+</div>
+</section>
+
+<section>
+<h2>5. Wrap-up<span class="time">7 minutes</span></h2>
+<div class="card">
+<p class="q">Summarize Maslow's hierarchy in your own words. Include at least 3 of the 5 levels.</p>
+<textarea data-label="5a. Summary in my own words" aria-label="Response 5a"></textarea>
+<p class="q">Think of a time a need at a lower level (like sleep or feeling safe) made it hard to focus on something higher (like school). What happened?</p>
+<textarea data-label="5b. When a lower need got in the way" aria-label="Response 5b"></textarea>
+<p class="q">Type your name below, then download your answers as a PDF to turn in.</p>
+<input id="nm" type="text" placeholder="Your name" aria-label="Your name" style="padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;width:100%;max-width:320px">
+<p><button class="btn" id="pdf" hidden>Download my answers (PDF)</button> <button class="btn" id="dl" hidden style="background:transparent;color:var(--accent);border:2px solid var(--accent)">Download as Word file</button><span id="status" role="status"></span></p>
+<p id="dlnote" style="color:var(--muted);font-size:.95rem" hidden>If your browser asks you to confirm the download, click Accept. Open the file to check it, then turn it in the way your teacher told you.</p>
+
+<div class="reset-row">
+<button class="btn" id="reset" style="background:transparent;color:var(--no);border:2px solid var(--no)">Start over</button>
+<div id="confirm" class="card" hidden>
+<p style="margin:0 0 10px"><strong>Erase all your answers?</strong> This clears everything on this page and can't be undone.</p>
+<button class="btn" id="yes" style="background:var(--no);color:var(--bg)">Yes, erase my answers</button>
+<button class="btn" id="no" style="background:transparent;color:var(--ink);border:2px solid var(--line)">Cancel</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
+<script>
+const LV={
+1:["Physiological","Basic survival: food, water, sleep, air, shelter, warmth. Example: eating lunch when you are hungry."],
+2:["Safety","Feeling secure and protected: a safe home, health, stable income, and rules that keep you safe. Example: locking your door at night."],
+3:["Love / Belonging","Friendship, family, and connection with others. Example: being invited to sit at a lunch table or getting a kind note from a friend."],
+4:["Esteem","Feeling respected, competent, and valued, both by yourself and by others. Example: seeing your grades improve and feeling proud."],
+5:["Self-actualization","Growth and reaching your full potential. Example: pursuing a creative passion or a cause you care about."]};
+const pyr=document.getElementById('pyr'),det=document.getElementById('detail');
+const seen=new Set(),lvlCount=document.getElementById('lvlcount');
+function markSeen(i){seen.add(String(i));const b=pyr.querySelector('.lvl[data-i="'+i+'"]');if(b)b.classList.add('seen');lvlCount.textContent='Levels explored: '+seen.size+' of 5'+(seen.size===5?'. All done.':'')}
+function seenText(){if(seen.size===5)return '5 of 5 (all levels)';const miss=[1,2,3,4,5].filter(i=>!seen.has(String(i))).map(i=>LV[i][0]);return seen.size+' of 5 (not opened: '+miss.join(', ')+')'}
+pyr.addEventListener('click',e=>{const b=e.target.closest('.lvl');if(!b)return;markSeen(b.dataset.i);if(typeof persist==='function')persist();
+pyr.querySelectorAll('.lvl').forEach(x=>x.setAttribute('aria-expanded',x===b));
+const [n,t]=LV[b.dataset.i];det.innerHTML='<strong>Level '+b.dataset.i+': '+n+'</strong><br>'+t;});
+
+const S=[
+["Terri learned basic kung fu in an effort to feel better about working the night shift at Jewel Osco.","Safety","She wants to feel protected while working at night."],
+["Jason's stomach was growling during class. He watched the clock tick toward lunchtime.","Physiological","Hunger is a basic survival need."],
+["As Tyrone studied in smaller chunks of time over a few weeks, his quiz grades improved. He began to see himself as a good student.","Esteem","He is gaining confidence and a sense of competence."],
+["Former Vice-President Al Gore's film An Inconvenient Truth won an Oscar. Then Gore won the 2007 Nobel Peace Prize.","Self-actualization","He pursued a cause he cared about and achieved his potential."],
+["On Valentine's Day, everyone in Health class exchanged valentines with a personalized message about why each student is a 'nice person'.","Love/Belonging","Everyone is receiving connection and acceptance from others."]];
+const OPT=["Physiological","Safety","Love/Belonging","Esteem","Self-actualization"];
+const box=document.getElementById('scn');let done=new Set();
+const scoreEl=document.querySelector('#score strong');
+S.forEach((s,i)=>{const d=document.createElement('div');d.className='scn';
+d.innerHTML='<div><strong>'+(i+1)+'.</strong> '+s[0]+'</div><label>Need: <select aria-label="Answer for scenario '+(i+1)+'"><option value="">Choose one</option>'+OPT.map(o=>'<option>'+o+'</option>').join('')+'</select></label><div class="fb"></div>';
+const sel=d.querySelector('select'),fb=d.querySelector('.fb');
+sel.onchange=()=>{if(!sel.value){fb.className='fb';done.delete(i);scoreEl.textContent=done.size?done.size+' of 5 correct':'';return}
+if(sel.value===s[1]){fb.className='fb ok';fb.textContent='Correct. '+s[2];done.add(i)}
+else{fb.className='fb no';fb.textContent='Not quite. Reread the level descriptions in Part 3 and try again.';done.delete(i)}
+scoreEl.textContent=done.size+' of 5 correct'+(done.size===5?'. Nice work.':'')};
+box.appendChild(d)});
+
+/* ---------- Autosave ---------- */
+const KEY='maslow-independent-lesson-v1';
+const saveNote=document.getElementById('autosave');
+const areas=()=>[...document.querySelectorAll('textarea')];
+const sels=()=>[...box.querySelectorAll('select')];
+const nmEl=document.getElementById('nm');
+let saveTimer=null,storageOK=true;
+function persist(){
+clearTimeout(saveTimer);
+saveTimer=setTimeout(()=>{
+try{localStorage.setItem(KEY,JSON.stringify({t:areas().map(a=>a.value),n:nmEl.value,s:sels().map(x=>x.value),v:[...seen]}));
+const tm=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+saveNote.textContent='Saved at '+tm+'. Your answers save automatically on this device.'}
+catch(e){storageOK=false;saveNote.textContent='Autosave is not working in this browser. Download your answers before you close this page.'}
+},500)}
+function restore(){
+let d=null;
+try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){storageOK=false;saveNote.textContent='Autosave is not working in this browser. Download your answers before you close this page.';return}
+if(!d)return;
+areas().forEach((a,i)=>{if(d.t&&typeof d.t[i]==='string')a.value=d.t[i]});
+if(typeof d.n==='string')nmEl.value=d.n;
+if(Array.isArray(d.v))d.v.forEach(i=>{if(LV[i])markSeen(i)});
+sels().forEach((x,i)=>{if(d.s&&d.s[i]&&OPT.includes(d.s[i])){x.value=d.s[i];x.onchange()}});
+saveNote.textContent='Welcome back. Your saved answers have been restored.'}
+restore();
+document.addEventListener('input',e=>{if(e.target.matches('textarea,#nm'))persist()});
+document.addEventListener('change',e=>{if(e.target.matches('select'))persist()});
+window.addEventListener('pagehide',()=>{if(!storageOK)return;try{localStorage.setItem(KEY,JSON.stringify({t:areas().map(a=>a.value),n:nmEl.value,s:sels().map(x=>x.value),v:[...seen]}))}catch(e){}});
+
+/* ---------- Start over (inline confirm, no browser pop-up) ---------- */
+const resetBtn=document.getElementById('reset'),conf=document.getElementById('confirm');
+resetBtn.onclick=()=>{conf.hidden=false;resetBtn.hidden=true;document.getElementById('no').focus()};
+document.getElementById('no').onclick=()=>{conf.hidden=true;resetBtn.hidden=false;resetBtn.focus()};
+document.getElementById('yes').onclick=()=>{
+clearTimeout(saveTimer);
+try{localStorage.removeItem(KEY)}catch(e){}
+areas().forEach(a=>a.value='');nmEl.value='';
+sels().forEach(x=>{x.value='';x.onchange()});
+done.clear();scoreEl.textContent='';
+pyr.querySelectorAll('.lvl').forEach(x=>{x.setAttribute('aria-expanded','false');x.classList.remove('seen')});seen.clear();lvlCount.textContent='Levels explored: 0 of 5';det.textContent='Select a level above.';
+document.getElementById('status').textContent='';
+conf.hidden=true;resetBtn.hidden=false;
+saveNote.textContent='Your answers were erased. You can start fresh.';
+window.scrollTo({top:0,behavior:'smooth'})};
+
+/* ---------- Downloads ---------- */
+const nameVal=()=>nmEl.value.trim()||'Student';
+const items=()=>areas().map(a=>[a.dataset.label,a.value.trim()||'(no answer)']);
+
+async function saveFile(filename,blob){
+if(DL){return DL.save({filename:filename,data:blob})}
+const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return {status:'saved'}}
+let DL=null;
+(async()=>{try{DL=await claude.use('downloads')}catch(e){DL=null}
+if(window.jspdf)document.getElementById('pdf').hidden=false;if(window.docx)document.getElementById('dl').hidden=false;document.getElementById('dlnote').hidden=false})();
+
+const clean=t=>t.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...').replace(/[^\x09\x0A\x0D\x20-\xFF]/g,'?');
+document.getElementById('pdf').onclick=async()=>{
+const st=document.getElementById('status');const n=nameVal();
+try{const doc=new window.jspdf.jsPDF({unit:'pt',format:'letter'});
+const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),M=54,TW=W-2*M;let y=M;
+const need=h=>{if(y+h>H-M){doc.addPage();y=M}};
+const write=(t,size,bold,gap)=>{doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);
+clean(t).split('\n').forEach(par=>{doc.splitTextToSize(par||' ',TW).forEach(l=>{need(size*1.35);doc.text(l,M,y+size);y+=size*1.35})});y+=gap||0};
+write("Maslow's Hierarchy: Independent Lesson",18,true,8);
+write('Name: '+n,12,false,0);
+write('Hierarchy levels explored: '+seenText(),12,false,0);
+write('Practice scenarios correct: '+done.size+' of 5',12,false,10);
+items().forEach(([l,a])=>{need(40);write(l,11,true,2);write(a,11,false,12)});
+await saveFile('Maslow - '+n.replace(/[\\/:*?"<>|]/g,'')+'.pdf',doc.output('blob'));st.textContent='Saved.'}
+catch(e){st.textContent=(e&&e.code==='declined')?'Download canceled.':'Download did not work. Please tell your teacher.'}};
+document.getElementById('dl').onclick=async()=>{
+const st=document.getElementById('status');const D=window.docx;const n=nameVal();
+const kids=[new D.Paragraph({heading:D.HeadingLevel.HEADING_1,children:[new D.TextRun("Maslow's Hierarchy: Independent Lesson")]}),
+new D.Paragraph({children:[new D.TextRun({text:'Name: ',bold:true}),new D.TextRun(n)]}),
+new D.Paragraph({children:[new D.TextRun({text:'Hierarchy levels explored: ',bold:true}),new D.TextRun(seenText())]}),
+new D.Paragraph({children:[new D.TextRun({text:'Practice scenarios correct: ',bold:true}),new D.TextRun(done.size+' of 5')]})];
+items().forEach(([l,a])=>{kids.push(new D.Paragraph({spacing:{before:240},children:[new D.TextRun({text:l,bold:true})]}));
+a.split('\n').forEach(x=>kids.push(new D.Paragraph({children:[new D.TextRun(x)]})))});
+try{const blob=await D.Packer.toBlob(new D.Document({sections:[{children:kids}]}));
+await saveFile('Maslow - '+n.replace(/[\\/:*?"<>|]/g,'')+'.docx',blob);st.textContent='Saved.'}
+catch(e){st.textContent=(e&&e.code==='declined')?'Download canceled.':'Download did not work. Please tell your teacher.'}};
+</script>
+</body>
+</html>
