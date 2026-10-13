@@ -40,6 +40,8 @@ button,select{font:inherit}
 .l5{width:34%;background:var(--l5)}.l4{width:50%;background:var(--l4);color:#10201a}.l3{width:66%;background:var(--l3);color:#10201a}.l2{width:82%;background:var(--l2);color:#10201a}.l1{width:100%;background:var(--l1)}
 @media(max-width:520px){.l5{width:52%}.l4{width:64%}.l3{width:76%}.l2{width:88%}.lvl{font-size:.88rem}}
 #detail{min-height:96px}
+.lvl.seen::after{content:" \2713"}
+#lvlcount{color:var(--muted);font-size:.95rem;margin:8px 0 0;text-align:center}
 .pill{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:600;font-size:.88rem;background:var(--okbg);color:var(--ok)}
 .pill.g{background:var(--nobg);color:var(--no)}
 .scn{display:grid;gap:8px;padding:14px 0;border-bottom:1px solid var(--line)}
@@ -108,6 +110,7 @@ select{padding:8px;border-radius:8px;border:1px solid var(--line);background:var
 <button class="lvl l2" data-i="2" aria-expanded="false">Safety</button>
 <button class="lvl l1" data-i="1" aria-expanded="false">Physiological</button>
 </div>
+<p id="lvlcount" aria-live="polite">Levels explored: 0 of 5</p>
 <div id="detail" class="card" aria-live="polite">Select a level above.</div>
 <p><span class="pill g">Deficiency needs</span> The first four levels come from things we are <em>lacking</em>. They can only be met by outside sources: the environment, people, or things around us.</p>
 <p><span class="pill">Growth need</span> Self-actualization does not fill a lack. It gives you room to grow. It is always <strong>intrinsically motivated</strong>, because you do it out of pure enjoyment and a desire to grow.</p>
@@ -160,7 +163,10 @@ const LV={
 4:["Esteem","Feeling respected, competent, and valued, both by yourself and by others. Example: seeing your grades improve and feeling proud."],
 5:["Self-actualization","Growth and reaching your full potential. Example: pursuing a creative passion or a cause you care about."]};
 const pyr=document.getElementById('pyr'),det=document.getElementById('detail');
-pyr.addEventListener('click',e=>{const b=e.target.closest('.lvl');if(!b)return;
+const seen=new Set(),lvlCount=document.getElementById('lvlcount');
+function markSeen(i){seen.add(String(i));const b=pyr.querySelector('.lvl[data-i="'+i+'"]');if(b)b.classList.add('seen');lvlCount.textContent='Levels explored: '+seen.size+' of 5'+(seen.size===5?'. All done.':'')}
+function seenText(){if(seen.size===5)return '5 of 5 (all levels)';const miss=[1,2,3,4,5].filter(i=>!seen.has(String(i))).map(i=>LV[i][0]);return seen.size+' of 5 (not opened: '+miss.join(', ')+')'}
+pyr.addEventListener('click',e=>{const b=e.target.closest('.lvl');if(!b)return;markSeen(b.dataset.i);if(typeof persist==='function')persist();
 pyr.querySelectorAll('.lvl').forEach(x=>x.setAttribute('aria-expanded',x===b));
 const [n,t]=LV[b.dataset.i];det.innerHTML='<strong>Level '+b.dataset.i+': '+n+'</strong><br>'+t;});
 
@@ -192,7 +198,7 @@ let saveTimer=null,storageOK=true;
 function persist(){
 clearTimeout(saveTimer);
 saveTimer=setTimeout(()=>{
-try{localStorage.setItem(KEY,JSON.stringify({t:areas().map(a=>a.value),n:nmEl.value,s:sels().map(x=>x.value)}));
+try{localStorage.setItem(KEY,JSON.stringify({t:areas().map(a=>a.value),n:nmEl.value,s:sels().map(x=>x.value),v:[...seen]}));
 const tm=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 saveNote.textContent='Saved at '+tm+'. Your answers save automatically on this device.'}
 catch(e){storageOK=false;saveNote.textContent='Autosave is not working in this browser. Download your answers before you close this page.'}
@@ -203,12 +209,13 @@ try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){storageOK=false;sav
 if(!d)return;
 areas().forEach((a,i)=>{if(d.t&&typeof d.t[i]==='string')a.value=d.t[i]});
 if(typeof d.n==='string')nmEl.value=d.n;
+if(Array.isArray(d.v))d.v.forEach(i=>{if(LV[i])markSeen(i)});
 sels().forEach((x,i)=>{if(d.s&&d.s[i]&&OPT.includes(d.s[i])){x.value=d.s[i];x.onchange()}});
 saveNote.textContent='Welcome back. Your saved answers have been restored.'}
 restore();
 document.addEventListener('input',e=>{if(e.target.matches('textarea,#nm'))persist()});
 document.addEventListener('change',e=>{if(e.target.matches('select'))persist()});
-window.addEventListener('pagehide',()=>{if(!storageOK)return;try{localStorage.setItem(KEY,JSON.stringify({t:areas().map(a=>a.value),n:nmEl.value,s:sels().map(x=>x.value)}))}catch(e){}});
+window.addEventListener('pagehide',()=>{if(!storageOK)return;try{localStorage.setItem(KEY,JSON.stringify({t:areas().map(a=>a.value),n:nmEl.value,s:sels().map(x=>x.value),v:[...seen]}))}catch(e){}});
 
 /* ---------- Start over (inline confirm, no browser pop-up) ---------- */
 const resetBtn=document.getElementById('reset'),conf=document.getElementById('confirm');
@@ -220,7 +227,7 @@ try{localStorage.removeItem(KEY)}catch(e){}
 areas().forEach(a=>a.value='');nmEl.value='';
 sels().forEach(x=>{x.value='';x.onchange()});
 done.clear();scoreEl.textContent='';
-pyr.querySelectorAll('.lvl').forEach(x=>x.setAttribute('aria-expanded','false'));det.textContent='Select a level above.';
+pyr.querySelectorAll('.lvl').forEach(x=>{x.setAttribute('aria-expanded','false');x.classList.remove('seen')});seen.clear();lvlCount.textContent='Levels explored: 0 of 5';det.textContent='Select a level above.';
 document.getElementById('status').textContent='';
 conf.hidden=true;resetBtn.hidden=false;
 saveNote.textContent='Your answers were erased. You can start fresh.';
@@ -247,6 +254,7 @@ const write=(t,size,bold,gap)=>{doc.setFont('helvetica',bold?'bold':'normal');do
 clean(t).split('\n').forEach(par=>{doc.splitTextToSize(par||' ',TW).forEach(l=>{need(size*1.35);doc.text(l,M,y+size);y+=size*1.35})});y+=gap||0};
 write("Maslow's Hierarchy: Independent Lesson",18,true,8);
 write('Name: '+n,12,false,0);
+write('Hierarchy levels explored: '+seenText(),12,false,0);
 write('Practice scenarios correct: '+done.size+' of 5',12,false,10);
 items().forEach(([l,a])=>{need(40);write(l,11,true,2);write(a,11,false,12)});
 await saveFile('Maslow - '+n.replace(/[\\/:*?"<>|]/g,'')+'.pdf',doc.output('blob'));st.textContent='Saved.'}
@@ -255,6 +263,7 @@ document.getElementById('dl').onclick=async()=>{
 const st=document.getElementById('status');const D=window.docx;const n=nameVal();
 const kids=[new D.Paragraph({heading:D.HeadingLevel.HEADING_1,children:[new D.TextRun("Maslow's Hierarchy: Independent Lesson")]}),
 new D.Paragraph({children:[new D.TextRun({text:'Name: ',bold:true}),new D.TextRun(n)]}),
+new D.Paragraph({children:[new D.TextRun({text:'Hierarchy levels explored: ',bold:true}),new D.TextRun(seenText())]}),
 new D.Paragraph({children:[new D.TextRun({text:'Practice scenarios correct: ',bold:true}),new D.TextRun(done.size+' of 5')]})];
 items().forEach(([l,a])=>{kids.push(new D.Paragraph({spacing:{before:240},children:[new D.TextRun({text:l,bold:true})]}));
 a.split('\n').forEach(x=>kids.push(new D.Paragraph({children:[new D.TextRun(x)]})))});
