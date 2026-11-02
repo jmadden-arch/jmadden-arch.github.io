@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mental Health Unit: Review Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4F9; --surface:#FFFFFF; --ink:#18203A; --muted:#55608A; --line:#D6DBEA;
+  --accent:#3447C4; --accent-ink:#FFFFFF; --accent-soft:#E6E9FA;
+  --good:#17683F; --good-bg:#E0F3E8; --bad:#A22E33; --bad-bg:#FBE6E7;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12162A; --surface:#1B2140; --ink:#EEF0FA; --muted:#A5AED0; --line:#323B66;
+    --accent:#8F9DFF; --accent-ink:#12162A; --accent-soft:#2A3263;
+    --good:#7FDBA6; --good-bg:#17382A; --bad:#FF9DA1; --bad-bg:#43202B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12162A; --surface:#1B2140; --ink:#EEF0FA; --muted:#A5AED0; --line:#323B66;
+  --accent:#8F9DFF; --accent-ink:#12162A; --accent-soft:#2A3263;
+  --good:#7FDBA6; --good-bg:#17382A; --bad:#FF9DA1; --bad-bg:#43202B;
+}
+*{box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:18px;line-height:1.55}
+h1,h2,h3{font-family:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;line-height:1.1;margin:0}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 80px}
+header h1{font-size:clamp(2rem,5.5vw,3.3rem);font-weight:800;letter-spacing:-.02em}
+header p{color:var(--muted);max-width:60ch;margin:12px 0 0}
+
+/* stepper */
+.steps{display:flex;gap:8px;margin:26px 0 26px;overflow-x:auto;padding-bottom:4px}
+.step{flex:1 0 auto;min-width:128px;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:10px 14px;color:var(--ink);font:inherit;cursor:pointer}
+.step b{display:block;font-size:.98rem}
+.step span{font-size:.85rem;color:var(--muted)}
+.step[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.step.done b::after{content:" ✓";color:var(--good)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+section.panel{display:none}
+section.panel.on{display:block}
+h2{font-size:clamp(1.5rem,3.8vw,2.1rem);font-weight:800;margin-bottom:6px}
+.lede{color:var(--muted);margin:0 0 20px;max-width:62ch}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:8px solid var(--c);border-radius:6px 14px 14px 6px;padding:16px 16px 14px;display:flex;flex-direction:column;min-height:270px}
+.card h3{font-size:1.35rem}
+.card .tag{color:var(--muted);font-size:.95rem;margin:4px 0 0}
+.card .face{flex:1;display:flex;flex-direction:column;margin-top:10px}
+.card .face p{margin:0 0 8px;font-size:.95rem}
+.card ul{margin:0 0 8px;padding-left:18px;font-size:.93rem}
+.row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+button.btn{font:inherit;font-weight:700;border-radius:10px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:9px 16px;cursor:pointer}
+button.btn.ghost{background:transparent;color:var(--accent)}
+button.btn.small{padding:6px 12px;font-size:.9rem}
+button.btn[aria-pressed="true"]{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+button.btn:disabled{opacity:.5;cursor:default}
+.meter{margin:0 0 18px;font-weight:700}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+
+/* quiz */
+.qbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
+.qcount{color:var(--muted);font-size:.95rem;margin-bottom:8px}
+.qtext{font-size:1.2rem;margin:0 0 16px;max-width:60ch}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--good);background:var(--good-bg);color:var(--good);font-weight:700}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--accent-soft)}
+.fb b{display:block}
+.score{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:3rem;font-weight:800}
+
+/* wrap-up */
+.rate{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px;border-left:8px solid var(--c)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:.88rem;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:99px;padding:4px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+textarea,input[type=text]{width:100%;font:inherit;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+textarea{min-height:110px;resize:vertical}
+label{font-weight:700;display:block;margin:18px 0 6px}
+.note{background:var(--accent-soft);border-radius:12px;padding:12px 16px;margin-top:22px;font-size:.95rem}
+.weak{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
+.chip{border:2px solid var(--c);border-radius:99px;padding:3px 12px;font-size:.92rem;background:var(--surface)}
+.nav{display:flex;justify-content:space-between;margin-top:28px;gap:10px}
+.savenote{color:var(--muted);font-size:.9rem;margin:-14px 0 20px}
+body{position:relative}
+.cue{position:absolute;left:50%;transform:translateX(-50%);width:min(92%,640px);background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:16px 18px;font-weight:700;font-size:1.05rem;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:5}
+.cue span{display:block;font-size:1.8rem;line-height:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Review day: 10 topics, 30 minutes</h1>
+  <p>Work through the four parts below in order and at your own pace. They will help you identify what to study for the quiz.</p>
+  <p>Some topics, including suicide and self-harm, can be hard to read about. If anything feels heavy, take a break and talk with your school counselor or a trusted adult. You can call or text 988 any time.</p>
+</header>
+
+<nav class="steps" id="steps" aria-label="Review parts"></nav>
+<p class="savenote" id="saveNote" aria-live="polite"></p>
+
+<!-- 1 -->
+<section class="panel on" id="p0">
+  <h2>Part 1: Study the cards</h2>
+  <p class="lede">Read each card. Then say it out loud in your own words without looking. When you know it without looking, press “I’ve got this.” Your goal is to mark every card.</p>
+  <div class="meter" id="cardMeter" aria-live="polite">0 of 10 marked
+    <div class="bar"><i id="cardBar"></i></div></div>
+  <div class="cards" id="cards"></div>
+  <div class="nav"><span></span><button class="btn" data-go="1">Next: Spot the condition</button></div>
+</section>
+
+<!-- 3 -->
+<section class="panel" id="p2">
+  <h2>Part 2: Spot the condition</h2>
+  <p class="lede">Each short story in this section is fictional. Use the description and symptoms to pick the best match. Only a professional can diagnose these illnesses, but you can identify the patterns so you can help yourself or someone you care about.</p>
+  <div id="quizScen"></div>
+</section>
+
+<!-- 4 -->
+<section class="panel" id="p3">
+  <h2>Part 3: Myth or fact?</h2>
+  <p class="lede">Myths about mental health cause real harm. Decide which are true.</p>
+  <div id="quizMyth"></div>
+</section>
+
+<!-- 5 -->
+<section class="panel" id="p4">
+  <h2>Part 4: Wrap up</h2>
+  <p class="lede">Check your results and make a plan for tonight.</p>
+  <div class="qbox">
+    <h3>Your scores</h3>
+    <div id="scoreList" style="margin-top:10px"></div>
+    <h3 style="margin-top:20px">Review these first</h3>
+    <div class="weak" id="weak"></div>
+  </div>
+
+  <label>How confident are you with each condition?</label>
+  <div id="rates"></div>
+
+  <label for="reflect">Explain it: pick one condition and explain it to a friend in 2 to 3 sentences. Include one myth you’d correct.</label>
+  <textarea id="reflect" placeholder="Type here…"></textarea>
+
+  <label for="sname">Your name (so your teacher knows the PDF is yours)</label>
+  <input type="text" id="sname" autocomplete="name">
+  <div class="row"><button class="btn" id="dlPdf">Download my results (PDF)</button></div>
+  <p id="dlStatus" aria-live="polite" style="margin:10px 0 0"></p>
+  <label for="summary" id="sumLabel" hidden>Your device couldn’t save a PDF here. Copy this text instead, or take a screenshot of this page.</label>
+  <textarea id="summary" hidden readonly></textarea>
+
+  <div class="note">If something in this unit feels close to home for you or someone you know, talk to a trusted adult, your school counselor, or call or text 988 (Suicide &amp; Crisis Lifeline, or chat at 988lifeline.org), or text HOME to 741741 (Crisis Text Line), any time. Both are free, confidential, and open 24/7. In an emergency, call 911. Asking for help is a strength.</div>
+  <div class="row" style="margin-top:22px"><button class="btn ghost small" id="resetAll">Start over (erase my answers)</button></div>
+</section>
+</div>
+
+<script>
+const C = [
+ {id:'anxiety',name:'Anxiety',color:'#C47A00',tag:'Worry that’s hard to control',
+  what:'Ongoing, excessive worry or fear that’s out of proportion and gets in the way of daily life.',
+  signs:['Restless, on edge, tired','Racing heart, tight muscles, stomach trouble','Trouble sleeping or concentrating; avoiding situations'],
+  helps:'Therapy (like CBT), sometimes medication, coping skills like 5-4-3-2-1 grounding',
+  conf:['ocd','ptsd','depression']},
+ {id:'depression',name:'Depression',color:'#2F5FA8',tag:'Low mood or lost interest that lasts',
+  what:'A persistent low or irritable mood, or loss of interest in things you used to enjoy, lasting at least two weeks.',
+  signs:['Sadness, emptiness, or hopelessness','Changes in sleep, appetite, or energy','Feeling worthless; pulling away from people'],
+  helps:'Therapy, medication, support from others, healthy routines',
+  conf:['bipolar','anxiety','ptsd']},
+ {id:'bipolar',name:'Bipolar disorder',color:'#7A44B8',tag:'Mood swings between highs and lows',
+  what:'A mood disorder with episodes of mania (or milder hypomania) and episodes of depression.',
+  signs:['High: little need for sleep, racing thoughts, big plans, risky choices','Low: depressed mood and low energy','Episodes last days to weeks, not hours'],
+  helps:'Mood-stabilizing medication, therapy, steady sleep and routines',
+  conf:['depression','schizophrenia','anxiety']},
+ {id:'ocd',name:'OCD',color:'#0F8A8A',tag:'Obsessions plus compulsions',
+  what:'Unwanted, intrusive thoughts (obsessions) and repeated behaviors or mental acts (compulsions) done to ease the distress.',
+  signs:['Obsessions: fears of germs, harm, or things being “not right”','Compulsions: checking, washing, counting, repeating','Takes a lot of time and disrupts life'],
+  helps:'ERP therapy (exposure and response prevention), medication',
+  conf:['anxiety','ptsd','anorexia']},
+ {id:'ptsd',name:'PTSD',color:'#B3452F',tag:'Lasting effects after trauma',
+  what:'Develops after experiencing or witnessing a traumatic event. Symptoms last more than a month and affect daily life.',
+  signs:['Flashbacks, nightmares, unwanted memories','Avoiding reminders of the event','Jumpy, always on guard, negative mood changes'],
+  helps:'Trauma-focused therapy, medication, social support',
+  conf:['anxiety','depression','ocd']},
+ {id:'bulimia',name:'Bulimia nervosa',color:'#B23A78',tag:'Binge, then compensate, in a cycle',
+  what:'An eating disorder with repeated episodes of binge eating (feeling out of control) followed by behaviors to “make up for it.”',
+  signs:['Binge episodes plus compensating behaviors','Shame, secrecy, and preoccupation with weight and shape','Weight is often in a typical range, so it can go unnoticed'],
+  helps:'Therapy, nutrition and medical support, treatment team',
+  conf:['anorexia','depression','anxiety']},
+ {id:'anorexia',name:'Anorexia nervosa',color:'#6A7A1E',tag:'Restricting food, fear of weight gain',
+  what:'An eating disorder with severe restriction of food, intense fear of gaining weight, and a distorted view of one’s body, leading to dangerously low weight.',
+  signs:['Eating very little; rigid food rules','Intense fear of gaining weight','Distorted body image; serious medical risks'],
+  helps:'Early treatment, family and individual therapy, medical and nutrition care',
+  conf:['bulimia','ocd','depression']},
+ {id:'schizophrenia',name:'Schizophrenia',color:'#2D7D46',tag:'Changes in thinking and perception',
+  what:'A condition that affects how a person thinks, perceives reality, and behaves. It is not “split personality.”',
+  signs:['Hallucinations (hearing or seeing things others don’t)','Delusions (strong false beliefs); disorganized speech','Withdrawal, less emotion or motivation','Often don’t realize they’re ill, so family and friends may need to help them get care'],
+  helps:'Medication, therapy, and support. Proper treatment lowers suicide risk, and many people live full lives',
+  conf:['bipolar','ptsd','depression']},
+ {id:'suicide',name:'Suicide',color:'#8A3D5C',tag:'Thoughts of ending one’s life',
+  what:'Suicide is death caused by intentionally ending one’s own life. Suicidal thoughts are a sign of serious pain, not a weakness, and they can improve with support and treatment.',
+  signs:['Talking about wanting to die, feeling hopeless, or being a burden','Pulling away, giving away belongings, saying goodbye','Big mood or behavior changes. Risk is higher with depression, bipolar disorder, or schizophrenia'],
+  helps:'Therapy, medication when needed, safety planning, and connection. If you’re worried about someone: ask directly, listen, stay with them, and get a trusted adult or call or text 988',
+  conf:['depression','selfharm','bipolar']},
+ {id:'selfharm',name:'Self-harm',color:'#4F6D7A',tag:'Hurting your own body, usually not to die',
+  what:'Deliberately hurting your own body, usually without meaning to die. It’s a response to overwhelming feelings, but it doesn’t solve what’s causing the pain and it can cause serious injury.',
+  signs:['Frequent injuries with unclear explanations','Covering up with long sleeves or pants even in warm weather','Secrecy, withdrawal, and big emotional swings'],
+  helps:'Therapy (like CBT and DBT) to build healthier ways to handle strong emotions. If you’re worried about someone: stay calm, don’t judge, and help them reach a counselor or trusted adult',
+  conf:['suicide','depression','anxiety']}
+];
+const byId = Object.fromEntries(C.map(c=>[c.id,c]));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+/* ---------- autosave ---------- */
+const SKEY='mhReview_v1';
+const qstate={};
+let canSave=true;
+function showSaveNote(){
+  document.getElementById('saveNote').textContent=canSave?'Your progress saves automatically on this device.':'Autosave isn’t available here, so try to finish in one sitting.';
+}
+function save(){
+  if(!canSave) return;
+  try{
+    localStorage.setItem(SKEY,JSON.stringify({current:current,known:[...known],flipped:[...flipped],done:done,missed:missed,rating:rating,q:qstate,
+      reflect:document.getElementById('reflect').value,sname:document.getElementById('sname').value}));
+  }catch(e){ canSave=false; showSaveNote(); }
+}
+
+/* ---------- stepper ---------- */
+const stepNames=[['Study cards','9 min'],['Spot the condition','10 min'],['Myth or fact','6 min'],['Wrap up','5 min']];
+const done=[false,false,false,false];
+const stepsEl=document.getElementById('steps');
+function drawSteps(cur){
+  stepsEl.innerHTML='';
+  stepNames.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='step'+(done[i]?' done':'');
+    b.setAttribute('aria-current',i===cur?'true':'false');
+    b.innerHTML='<b>'+(i+1)+'. '+s[0]+'</b><span>about '+s[1]+'</span>';
+    b.onclick=()=>go(i,true,b);
+    stepsEl.appendChild(b);
+  });
+}
+let current=0;
+function hideCue(){
+  const c=document.getElementById('jumpCue');
+  if(c) c.remove();
+  document.body.style.minHeight='';
+}
+function showCue(i,y){
+  const c=document.createElement('div');
+  c.id='jumpCue'; c.className='cue'; c.setAttribute('role','status');
+  c.innerHTML='<span aria-hidden="true">↑</span>Part '+(i+1)+': '+stepNames[i][0]+' is ready at the top of this activity. Scroll up to start.';
+  const top=Math.max(0,y-60);
+  c.style.top=top+'px';
+  document.body.style.minHeight=(top+160)+'px';
+  document.body.appendChild(c);
+}
+function go(i,jump,fromEl){
+  const y=fromEl?fromEl.getBoundingClientRect().top+window.scrollY:0;
+  hideCue();
+  current=i;
+  document.querySelectorAll('.panel').forEach((p,k)=>p.classList.toggle('on',k===i));
+  drawSteps(i);
+  if(i===3) renderWrap();
+  save();
+  if(jump!==false){
+    window.scrollTo({top:0});
+    try{ stepsEl.scrollIntoView({block:'start'}); }catch(e){}
+    if(y>400&&window.self!==window.top) showCue(i,y);
+  }
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go,true,b));
+
+/* ---------- Part 1 cards ---------- */
+const known=new Set(), flipped=new Set();
+function drawCards(){
+  const el=document.getElementById('cards'); el.innerHTML='';
+  C.forEach(c=>{
+    const d=document.createElement('div'); d.className='card'; d.style.setProperty('--c',c.color);
+    const open=flipped.has(c.id);
+    let h='<h3>'+c.name+'</h3><p class="tag">'+c.tag+'</p><div class="face">';
+    if(open){
+      h+='<p>'+c.what+'</p><ul>'+c.signs.map(s=>'<li>'+s+'</li>').join('')+'</ul><p><b>What helps:</b> '+c.helps+'</p>';
+    } else {
+      h+='<p style="color:var(--muted)">Try it first: what is it, and what are 2 signs? Then reveal the answer.</p>';
+    }
+    h+='</div><div class="row"><button class="btn ghost small" data-f="'+c.id+'">'+(open?'Hide answer':'Show answer')+'</button>'
+      +'<button class="btn small" aria-pressed="'+known.has(c.id)+'" data-k="'+c.id+'">'+(known.has(c.id)?'Got it ✓':'I’ve got this')+'</button></div>';
+    d.innerHTML=h; el.appendChild(d);
+  });
+  el.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const k=b.dataset.f;flipped.has(k)?flipped.delete(k):flipped.add(k);drawCards();el.querySelector('[data-f="'+k+'"]').focus();});
+  el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;known.has(k)?known.delete(k):known.add(k);drawCards();el.querySelector('[data-k="'+k+'"]').focus();});
+  document.getElementById('cardMeter').firstChild.textContent=known.size+' of '+C.length+' marked';
+  document.getElementById('cardBar').style.width=(known.size/C.length*100)+'%';
+  done[0]=known.size===C.length; drawSteps(current); save();
+}
+
+/* ---------- quiz engine ---------- */
+const results={}; // key -> {right,total,first,second,shown,log,multi}
+const missed={};  // condition id -> count
+function quiz(rootId,key,idx,qs,nextIdx,nextLabel,restore,maxTries){
+  maxTries=maxTries||1;
+  const root=document.getElementById(rootId);
+  const r=restore;
+  const ok0=!!(r&&Array.isArray(r.order)&&r.order.length===qs.length&&r.order.every(n=>qs[n]));
+  const num=v=>ok0?(+v||0):0;
+  let order=ok0?r.order.map(n=>qs[n]):shuffle(qs);
+  let i=ok0?Math.min(Math.max(+r.i||0,0),qs.length):0;
+  let right=num(r&&r.right), first=num(r&&r.first), second=num(r&&r.second), shown=num(r&&r.shown);
+  let picked=ok0&&typeof r.picked==='string'?r.picked:null;
+  let wrong=ok0&&Array.isArray(r.wrong)?r.wrong.filter(x=>typeof x==='string'):[];
+  let log=ok0&&Array.isArray(r.log)?r.log.filter(e=>e&&qs[e.n]):[];
+  results[key]={right:0,total:qs.length,first:0,second:0,shown:0,log:[],multi:maxTries>1};
+  if(i<qs.length) done[idx]=false;
+  function persist(){ qstate[key]={order:order.map(q=>qs.indexOf(q)),i:i,right:right,first:first,second:second,shown:shown,picked:picked,wrong:wrong,log:log}; save(); }
+  function showClue(focus){
+    const q=order[i], box=root.querySelector('.opts');
+    box.querySelectorAll('.opt').forEach(x=>{ if(wrong.includes(x.textContent)){ x.disabled=true; x.classList.add('wrong'); } });
+    root.querySelector('#fb').innerHTML='<div class="fb"><b>Not quite. Here’s a clue:</b>'+q.clue+' Try once more.</div>';
+    if(focus){ const nx=box.querySelector('.opt:not(:disabled)'); if(nx) nx.focus(); }
+  }
+  function reveal(o,focus){
+    const q=order[i], box=root.querySelector('.opts');
+    box.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(x.textContent===q.answer) x.classList.add('right'); else if(x.textContent===o||wrong.includes(x.textContent)) x.classList.add('wrong');});
+    const head=o===q.answer?(wrong.length?'Correct on your second try.':'Correct.'):'Not quite. The answer is '+q.answer+'.';
+    const fb=root.querySelector('#fb');
+    fb.innerHTML='<div class="fb"><b>'+head+'</b>'+q.why+'</div><div class="row"><button class="btn" id="nq">'+(i+1<order.length?'Next question':'See my score')+'</button></div>';
+    const nq=fb.querySelector('#nq'); nq.onclick=()=>{i++;picked=null;wrong=[];persist();render();}; if(focus) nq.focus();
+  }
+  function choose(o){
+    const q=order[i];
+    if(picked!==null||wrong.includes(o)) return;
+    const n=qs.indexOf(q);
+    if(o===q.answer){
+      picked=o; right++;
+      if(wrong.length) second++; else first++;
+      log.push({n:n,r:wrong.length+1});
+      persist(); reveal(o,true); return;
+    }
+    if(!wrong.length&&q.tag) missed[q.tag]=(missed[q.tag]||0)+1;
+    wrong.push(o);
+    if(wrong.length<maxTries){ persist(); showClue(true); }
+    else { picked=o; shown++; log.push({n:n,r:0}); persist(); reveal(o,true); }
+  }
+  function render(){
+    if(i>=order.length){
+      Object.assign(results[key],{right:right,first:first,second:second,shown:shown,log:log.slice()});
+      done[idx]=true; drawSteps(current);
+      const n=order.length, multi=maxTries>1;
+      const pct=Math.round((multi?first:right)/n*100);
+      const sub=multi?'<p style="margin:0;font-weight:700">correct on the first try</p><p>'+second+' more on the second try, '+shown+' answer'+(shown===1?'':'s')+' shown.</p>':'';
+      root.innerHTML='<div class="qbox"><div class="score">'+(multi?first:right)+' / '+n+'</div>'+sub+'<p>'+(pct>=85?'Strong. Keep this up for the quiz.':pct>=60?'Good start. Your wrap-up page will show what to review.':'This is useful information. Go back to the cards for the ones you missed.')+'</p>'
+        +'<div class="row"><button class="btn ghost" id="again">Try again</button><button class="btn" id="nx">'+nextLabel+'</button></div></div>';
+      root.querySelector('#again').onclick=()=>quiz(rootId,key,idx,qs,nextIdx,nextLabel,null,maxTries);
+      const nxb=root.querySelector('#nx'); nxb.onclick=()=>go(nextIdx,true,nxb);
+      return;
+    }
+    const q=order[i];
+    root.innerHTML='<div class="qbox"><div class="qcount">Question '+(i+1)+' of '+order.length+'</div><p class="qtext">'+q.text+'</p><div class="opts"></div><div aria-live="polite" id="fb"></div></div>';
+    const box=root.querySelector('.opts');
+    q.opts.forEach(o=>{
+      const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+      b.onclick=()=>choose(o);
+      box.appendChild(b);
+    });
+    if(picked!==null) reveal(picked,false);
+    else if(wrong.length) showClue(false);
+  }
+  render(); persist();
+}
+
+/* ---------- question banks ---------- */
+const optsFor=(id)=>shuffle([byId[id].name,...byId[id].conf.slice(0,3).map(x=>byId[x].name)]);
+
+const scen=[
+ ['anxiety','Maya has worried almost every day for more than six months, about grades, friends, and “what if” disasters. Her muscles are tense, she can’t fall asleep, and she has started avoiding class presentations.','Excessive, hard-to-control worry lasting months, with physical symptoms and avoidance, points to anxiety.','Notice how long Maya has been worrying, and how the worry is affecting her body and her choices.','Maya'],
+ ['depression','For the past month, Jordan has felt sad and empty most days. He quit the soccer team he loved, sleeps a lot but is always tired, and says he feels worthless.','Low mood plus lost interest, changes in sleep and energy, and feeling worthless for 2+ weeks fits depression.','Focus on Jordan’s mood and what happened to the things he used to enjoy.','Jordan'],
+ ['bipolar','Alex slept two hours a night for a week, felt unstoppable, talked fast, and started ten new projects. Last month Alex could barely get out of bed for weeks.','Distinct high-energy (manic or hypomanic) episodes and depressive episodes make this bipolar disorder.','Compare how Alex was this week with how Alex was last month.','Alex'],
+ ['ocd','Sam keeps having a thought that something terrible will happen if the door isn’t locked “just right.” He checks it seven times and gets late for school. The checking calms him for a moment, then the thought returns.','Intrusive thoughts (obsessions) plus repeated rituals (compulsions) that take time and disrupt life is OCD.','Look at the thought that keeps coming back and what Sam does over and over to calm it.','Sam'],
+ ['ptsd','Riley was in a serious car accident three months ago. Now she has nightmares and flashbacks, avoids that road, and jumps at loud noises.','Symptoms that follow a traumatic event and last over a month (flashbacks, avoidance, being on guard) fit PTSD.','Think about what happened to Riley three months ago and how her symptoms connect to it.','Riley'],
+ ['bulimia','Taylor sometimes eats a huge amount while feeling out of control, then feels intense shame and does something drastic to “make up for it.” She hides it from everyone. Her weight looks typical.','The binge and compensate cycle with shame and secrecy is bulimia nervosa. Weight is often in a typical range.','Pay attention to the cycle: what Taylor does after eating a large amount, and how her weight looks.','Taylor'],
+ ['anorexia','Chris has cut his eating down to a tiny amount, follows strict food rules, and is terrified of gaining weight. He sees himself as larger even though he’s become dangerously thin.','Severe restriction, intense fear of weight gain, and distorted body image with very low weight is anorexia nervosa.','Focus on how much Chris eats and how he sees his own body compared to how he really looks.','Chris'],
+ ['schizophrenia','Devon has started hearing voices others can’t hear and believes strangers are watching him. His speech jumps between topics, and he’s withdrawn from friends.','Hallucinations, delusions, and disorganized speech are core symptoms of schizophrenia.','Focus on what Devon hears and believes. Are those things based in reality?','Devon'],
+ ['suicide','Over the past few weeks, Eli has told friends he feels like a burden and that everyone would be better off without him. He has been giving away his things and has stopped answering texts.','These are warning signs of suicide risk. Take them seriously: ask directly, stay with them, tell a trusted adult, and call or text 988 if you or someone else needs support.','Listen to what Eli is saying about himself and others, and notice what he is doing with his things.','Eli'],
+ ['selfharm','Nina wears long sleeves every day, even in warm weather, and pulls away when anyone gets close. A friend has noticed frequent injuries she can’t explain, and Nina says she just wants the overwhelming feelings to stop.','Frequent unexplained injuries, covering up, and withdrawal can be signs of self-harm. Respond without judgment and help the person reach a counselor or trusted adult.','Notice what Nina is covering up and what her friend has seen. Is she talking about wanting to die, or wanting the feelings to stop?','Nina']
+].map(s=>({text:s[1],answer:byId[s[0]].name,opts:optsFor(s[0]),tag:s[0],why:' '+s[2],clue:' '+s[3],who:s[4]}));
+const mythQ=(t,ans,why,tag)=>({text:t,answer:ans,opts:['Myth','Fact'],why:' '+why,tag});
+const mythQs=[
+ mythQ('“People with schizophrenia have multiple personalities.”','Myth','Schizophrenia affects thinking and perception. “Split personality” is a different condition (dissociative identity disorder).','schizophrenia'),
+ mythQ('“OCD just means being really neat and organized.”','Myth','OCD involves distressing obsessions and compulsions that take time and disrupt life. It’s not a personality quirk.','ocd'),
+ mythQ('“PTSD only happens to soldiers.”','Myth','Anyone who experiences or witnesses trauma can develop PTSD, including accidents, abuse, disasters, and violence.','ptsd'),
+ mythQ('“Depression is just sadness. People can snap out of it if they try.”','Myth','Depression is a medical condition that affects mood, energy, sleep, and thinking. Treatment helps.','depression'),
+ mythQ('“Bipolar disorder includes episodes of both high-energy states and depression.”','Fact','Bipolar disorder involves mania or hypomania and depressive episodes.','bipolar'),
+ mythQ('“Eating disorders are just a choice, and only girls get them.”','Myth','Eating disorders are serious mental illnesses with biological, psychological, and social causes, and they affect people of every gender.','anorexia'),
+ mythQ('“Anxiety disorders are different from everyday stress because they’re persistent and get in the way of daily life.”','Fact','Everyone feels stress sometimes. An anxiety disorder is excessive, lasting, and disrupts school, sleep, or relationships.','anxiety'),
+ mythQ('“Most people with schizophrenia are violent.”','Myth','Most people with schizophrenia are not violent. They are more likely to be victims of violence than to cause it.','schizophrenia'),
+ mythQ('“Bulimia is always easy to spot because of a person’s weight.”','Myth','People with bulimia often have a typical weight, so the disorder can go unnoticed for a long time.','bulimia'),
+ mythQ('“Therapy, medication, and support can help people with mental health conditions manage them.”','Fact','Treatment works for many people, and recovery looks different for everyone.',null),
+ mythQ('“Talking about suicide with someone puts the idea in their head.”','Myth','Asking directly shows you care and gives the person a chance to talk. Research does not show that asking causes suicide.','suicide'),
+ mythQ('“People who talk about suicide or self-harm are just trying to get attention.”','Myth','Take every mention seriously. It’s a sign of real pain, and the person needs support.','suicide'),
+ mythQ('“Suicide can be prevented. Noticing warning signs, offering support, and getting treatment can save lives.”','Fact','Many people who have suicidal thoughts get better with support and treatment, and noticing warning signs gives others a chance to help.','suicide'),
+ mythQ('“Self-harm is the same thing as a suicide attempt.”','Myth','Self-harm is usually not an attempt to die, but it signals serious pain, needs support, and can raise suicide risk over time.','selfharm'),
+ mythQ('“During a panic attack, the 5-4-3-2-1 technique has you notice 5 things you see, 4 you feel, 3 you hear, 2 you smell, and 1 you taste.”','Fact','This grounding technique shifts your attention to the present moment, which can help you get through a panic attack.','anxiety'),
+ mythQ('“If a friend tells you they’re thinking about suicide and asks you to keep it secret, the best move is to tell a trusted adult.”','Fact','Safety comes before secrecy. You can stay supportive while an adult helps, and a friend who is upset with you is still safe.','suicide'),
+ mythQ('“You can call or text 988 for free, 24/7 support during a mental health or suicide crisis.”','Fact','The 988 Suicide and Crisis Lifeline is free and confidential. You can also text HOME to 741741 to reach Crisis Text Line, or call 911 in an emergency.','suicide')
+];
+
+/* ---------- wrap-up ---------- */
+const rating={};
+function renderWrap(){
+  const names={scen:'Part 2: Spot the condition',myth:'Part 3: Myth or fact'};
+  const sl=document.getElementById('scoreList');
+  sl.innerHTML=Object.keys(names).map(k=>'<p style="margin:4px 0"><b>'+names[k]+':</b> '+(scoreStr(k)||'not finished yet')+'</p>').join('');
+  const w=document.getElementById('weak');
+  const list=Object.entries(missed).sort((a,b)=>b[1]-a[1]);
+  w.innerHTML=list.length?list.map(([id,n])=>'<span class="chip" style="--c:'+byId[id].color+'">'+byId[id].name+' (missed '+n+')</span>').join(''):'<span style="color:var(--muted)">Nothing flagged. Finish the quizzes to see your weak spots, or review all cards once more.</span>';
+  const rt=document.getElementById('rates');
+  rt.innerHTML='';
+  C.forEach(c=>{
+    const d=document.createElement('div'); d.className='rate'; d.style.setProperty('--c',c.color);
+    d.innerHTML='<b>'+c.name+'</b>';
+    const seg=document.createElement('div'); seg.className='seg';
+    ['Need review','Almost','Got it'].forEach(l=>{
+      const b=document.createElement('button'); b.textContent=l; b.setAttribute('aria-pressed',rating[c.id]===l);
+      b.onclick=()=>{rating[c.id]=l; seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); save();};
+      seg.appendChild(b);
+    });
+    d.appendChild(seg); rt.appendChild(d);
+  });
+}
+function scoreStr(k){
+  const r=results[k], i={scen:1,myth:2}[k];
+  if(!(r&&done[i])) return null;
+  if(r.multi) return r.first+' / '+r.total+' on the first try, '+r.second+' on the second try, '+r.shown+' answer'+(r.shown===1?'':'s')+' shown';
+  return r.right+' / '+r.total;
+}
+function triesList(){
+  const r=results.scen; if(!r||!r.log) return [];
+  return r.log.map(e=>{const q=scen[e.n]; return q.who+' ('+q.answer+'): '+(e.r===1?'correct on 1st try':e.r===2?'correct on 2nd try':'answer shown');});
+}
+const clean=t=>String(t).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/[^\x20-\x7E\u00A0-\u00FF\n]/g,'?');
+function resultData(){
+  const nm=document.getElementById('sname').value.trim();
+  const fmt=k=>scoreStr(k)||'not finished';
+  return {
+    name:nm,
+    scores:[['Part 2: Spot the condition',fmt('scen')],['Part 3: Myth or fact',fmt('myth')]],
+    tries:triesList(),
+    marked:C.filter(c=>known.has(c.id)).map(c=>c.name),
+    weak:Object.keys(missed).sort((x,y)=>missed[y]-missed[x]).map(id=>byId[id].name+' (missed '+missed[id]+')'),
+    conf:C.map(c=>[c.name,rating[c.id]||'not rated']),
+    reflect:document.getElementById('reflect').value.trim()
+  };
+}
+function summaryText(){
+  const d=resultData();
+  let t='Mental health unit review'+(d.name?' for '+d.name:'')+'\n';
+  d.scores.forEach(x=>t+=x[0]+': '+x[1]+'\n');
+  if(d.tries.length) t+='Part 2 tries: '+d.tries.join('; ')+'\n';
+  t+='Cards marked "got it": '+d.marked.length+' of '+C.length+'\n';
+  t+='Review first: '+(d.weak.length?d.weak.join(', '):'none flagged')+'\n';
+  t+='Confidence: '+d.conf.map(x=>x[0]+' = '+x[1]).join('; ')+'\n';
+  t+='My explanation: '+(d.reflect||'(blank)')+'\n';
+  return t;
+}
+function makePdf(){
+  const d=resultData();
+  const doc=new window.jspdf.jsPDF({unit:'pt',format:'letter'});
+  const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=54, maxW=W-2*M;
+  let y=M;
+  const text=(t,size,bold,gap)=>{
+    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(size);
+    doc.splitTextToSize(clean(t),maxW).forEach(l=>{
+      if(y+size+4>H-M){doc.addPage();y=M;}
+      doc.text(l,M,y+size); y+=size+4;
+    });
+    y+=gap||0;
+  };
+  text('Mental Health Unit: Review Results',20,true,6);
+  text('Name: '+(d.name||'(not entered)')+'     Date: '+new Date().toLocaleDateString(),12,false,14);
+  text('Scores',14,true,2);
+  d.scores.forEach(x=>text(x[0]+': '+x[1],12,false,0));
+  y+=12;
+  text('Part 2: Tries on each story',14,true,2);
+  if(d.tries.length) d.tries.forEach(x=>text(x,12,false,0)); else text('Not started',12,false,0);
+  y+=12;
+  text('Study cards marked "I\u2019ve got this": '+d.marked.length+' of '+C.length,12,false,12);
+  text('Review these first',14,true,2);
+  text(d.weak.length?d.weak.join(', '):'None flagged',12,false,12);
+  text('My confidence',14,true,2);
+  d.conf.forEach(x=>text(x[0]+': '+x[1],12,false,0));
+  y+=12;
+  text('In my own words',14,true,2);
+  text(d.reflect||'(blank)',12,false,16);
+  text('If anything in this unit feels close to home, talk to a trusted adult or your school counselor. Call or text 988, or text HOME to 741741, any time (free, 24/7). In an emergency, call 911.',10,false,0);
+  return doc;
+}
+function showFallback(){
+  const s=document.getElementById('summary'); s.value=summaryText(); s.hidden=false; s.style.minHeight='240px';
+  document.getElementById('sumLabel').hidden=false;
+}
+document.getElementById('dlPdf').onclick=async()=>{
+  const st=document.getElementById('dlStatus'); st.textContent='';
+  try{
+    if(!window.jspdf) throw {code:'nopdf'};
+    const hosted=!!(window.claude&&window.claude.use);
+    const downloads=hosted?await window.claude.use('downloads'):null;
+    if(hosted&&!downloads) throw {code:'unavailable'};
+    const nm=document.getElementById('sname').value.trim().replace(/[^A-Za-z0-9 _-]/g,'').replace(/\s+/g,'-');
+    const fname='Mental-Health-Review'+(nm?'-'+nm:'')+'.pdf';
+    const doc=makePdf();
+    if(downloads) await downloads.save({filename:fname,data:doc.output('arraybuffer')});
+    else doc.save(fname);
+    st.textContent='Saved. Turn in the PDF the way your teacher directed.';
+  }catch(e){
+    if(e&&e.code==='declined'){ st.textContent='Download canceled. Press the button again when you’re ready.'; }
+    else { st.textContent='We couldn’t create the PDF on this device.'; showFallback(); }
+  }
+};
+
+/* ---------- init ---------- */
+let saved=null;
+try{ saved=JSON.parse(localStorage.getItem(SKEY)||'null'); }catch(e){ canSave=false; }
+if(saved&&typeof saved==='object'){
+  (saved.known||[]).forEach(k=>{ if(byId[k]) known.add(k); });
+  (saved.flipped||[]).forEach(k=>{ if(byId[k]) flipped.add(k); });
+  (saved.done||[]).forEach((v,k)=>{ if(k<done.length) done[k]=!!v; });
+  Object.assign(missed,saved.missed||{});
+  Object.assign(rating,saved.rating||{});
+  document.getElementById('reflect').value=saved.reflect||'';
+  document.getElementById('sname').value=saved.sname||'';
+}
+const sq=(saved&&saved.q)||{};
+quiz('quizScen','scen',1,scen,2,'Next: Myth or fact',sq.scen,2);
+quiz('quizMyth','myth',2,mythQs,3,'Next: Wrap up',sq.myth);
+drawCards();
+const startAt=saved&&Number.isInteger(saved.current)&&saved.current>=0&&saved.current<4?saved.current:0;
+go(startAt,false);
+showSaveNote();
+document.getElementById('reflect').addEventListener('input',save);
+document.getElementById('sname').addEventListener('input',save);
+const resetBtn=document.getElementById('resetAll');
+let armed=false;
+resetBtn.onclick=()=>{
+  if(!armed){
+    armed=true; resetBtn.textContent='Click again to erase everything';
+    setTimeout(()=>{ armed=false; resetBtn.textContent='Start over (erase my answers)'; },4000);
+    return;
+  }
+  canSave=false;
+  try{ localStorage.removeItem(SKEY); }catch(e){}
+  location.reload();
+};
+</script>
+</body>
+</html>
