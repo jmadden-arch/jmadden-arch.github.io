@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drugs and the Body: a self-paced lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6EEDF; --surface:#FFFAF1; --soft:#EEE2CD; --ink:#2B1E17; --muted:#6D5A4C; --line:#D9C6AA;
+  --accent:#A6492B; --accent-ink:#FFF8EE; --signal:#E1AA3E; --signal-ink:#2B1E17;
+  --good:#3D7A4A; --good-bg:#E3EDDB; --bad:#A0342A; --bad-bg:#F6DFD6; --pink:#B8563A;
+  --display:"Newsreader",Georgia,"Times New Roman",serif;
+  --body:"Source Sans 3","Segoe UI",Verdana,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1D1612; --surface:#271E18; --soft:#33281F; --ink:#F3E9DB; --muted:#BFAA97; --line:#4A3A2E;
+    --accent:#E58A63; --accent-ink:#1D1612; --signal:#E1AA3E; --signal-ink:#1D1612;
+    --good:#7DC28A; --good-bg:#1F3223; --bad:#F08B76; --bad-bg:#3E221B; --pink:#E58A63;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+    --bg:#1D1612; --surface:#271E18; --soft:#33281F; --ink:#F3E9DB; --muted:#BFAA97; --line:#4A3A2E;
+    --accent:#E58A63; --accent-ink:#1D1612; --signal:#E1AA3E; --signal-ink:#1D1612;
+    --good:#7DC28A; --good-bg:#1F3223; --bad:#F08B76; --bad-bg:#3E221B; --pink:#E58A63;
+    color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 1.08rem/1.6 var(--body)}
+h1,h2,h3{font-family:var(--display);line-height:1.08;margin:0;letter-spacing:-.01em}
+h1{font-weight:700;font-size:clamp(2.7rem,9vw,5.2rem)}
+h2{font-weight:700;font-size:clamp(1.8rem,5vw,2.6rem);margin-bottom:.4em}
+h3{font-weight:700;font-size:1.35rem;margin-bottom:.4em}
+p{margin:0 0 1em;max-width:62ch}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px 80px}
+
+/* top bar */
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0 10px;font-family:var(--display);font-weight:600}
+.barright{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.savestat{font-family:var(--body);font-weight:400;font-size:.88rem;color:var(--good)}
+.bar .clock{font-family:var(--body);font-size:.95rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rail{list-style:none;margin:0 0 28px;padding:0 0 6px;display:flex;gap:8px;overflow-x:auto}
+.rail li{flex:1 0 150px}
+.rail button{width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px 12px;cursor:pointer;font:inherit;font-size:.92rem;line-height:1.25;display:flex;gap:10px;align-items:flex-start}
+.rail button:disabled{opacity:.5;cursor:not-allowed}
+.rail .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:800 .85rem var(--display)}
+.rail small{display:block;color:var(--muted);font-size:.8rem}
+.rail .is-current button{border-color:var(--ink);box-shadow:inset 0 -4px 0 var(--signal)}
+.rail .is-done .n{background:var(--good);color:var(--surface)}
+
+/* buttons */
+.btn{font:700 1rem var(--body);background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:13px 22px;cursor:pointer;min-height:48px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.wide{padding:16px 30px;font-size:1.1rem}
+.mini{width:40px;height:40px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:.9rem}
+.mini:disabled{opacity:.3;cursor:default}
+
+/* general parts */
+.part{animation:none}
+.lead{font-size:1.25rem;max-width:56ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:0 0 22px}
+.panel.note{border-left:5px solid var(--accent);border-radius:2px 8px 8px 2px}
+.count{font-size:.95rem;color:var(--muted);margin-bottom:.4em}
+.big{font:700 clamp(1.6rem,5vw,2.3rem)/1.15 var(--display);margin:0 0 18px;max-width:22ch}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.fb{border-radius:10px;padding:14px 16px;margin:16px 0 0;border:1.5px solid}
+.fb.ok{background:var(--good-bg);border-color:var(--good)}
+.fb.no{background:var(--bad-bg);border-color:var(--bad)}
+.fb strong{display:block;margin-bottom:2px}
+.fb p{margin:0 0 .6em}.fb p:last-child{margin:0}
+.nav{margin-top:34px;padding-top:20px;border-top:1.5px solid var(--line);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.nav .hint{margin:0;color:var(--muted);font-size:.95rem}
+textarea,input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--ink);border-radius:10px;padding:12px;min-height:48px}
+textarea{min-height:96px;resize:vertical}
+label.lab{display:block;font-weight:700;margin:0 0 6px}
+.choice.picked-ok{outline:3px solid var(--good)}
+.choice.picked-no{outline:3px solid var(--bad)}
+
+/* welcome */
+.hero{padding:18px 0 10px}
+.hero h1{max-width:9ch;margin-bottom:.25em}
+.plan{margin:24px 0;padding:0;list-style:none;display:grid;gap:10px;max-width:60ch}
+.plan li{display:flex;gap:14px;align-items:baseline}
+.plan b{font-family:var(--display);min-width:6.5ch;white-space:nowrap}
+[tabindex="-1"]:focus{outline:none}
+.hero-route .route-dot{animation:travel 8s ease-in-out infinite}
+@keyframes travel{0%,8%{left:12.5%}24%,33%{left:37.5%}49%,58%{left:62.5%}74%,100%{left:87.5%}}
+
+/* route / pathway */
+.route{position:relative;padding:28px 0 8px;margin:6px 0 10px}
+.route-line{position:absolute;left:12.5%;width:75%;top:48px;height:4px;background:var(--line);border-radius:2px}
+.route-fill{height:100%;width:0;background:var(--accent);border-radius:2px;transition:width .6s ease}
+.route-dot{position:absolute;top:39px;left:12.5%;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 6px color-mix(in srgb,var(--pink) 28%,transparent);transition:left .6s ease;z-index:2}
+.stops{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.stop{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-size:.92rem;line-height:1.2}
+.stop button,.stop .node{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);background:var(--surface);color:var(--ink);font:800 1rem var(--display);cursor:pointer;position:relative;z-index:1;display:grid;place-items:center;padding:0}
+.stop .node{cursor:default}
+.stop button:disabled{opacity:.45;cursor:not-allowed}
+.stop.current button{border-color:var(--ink);background:var(--signal);color:var(--signal-ink)}
+.stop.done button{background:var(--good);border-color:var(--good);color:var(--surface)}
+.stop span.lbl{max-width:11ch}
+
+/* hook + options */
+.opts{display:grid;gap:10px;margin:12px 0}
+.opt{text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--ink);border-radius:10px;padding:12px 14px;cursor:pointer;min-height:48px}
+.opt:disabled{cursor:default}
+.opt.ok{background:var(--good-bg);border-color:var(--good)}
+.opt.no{background:var(--bad-bg);border-color:var(--bad);opacity:.8}
+.q{font-weight:700}
+
+/* sort */
+.sortgrid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+.bin{background:var(--soft);border:2px dashed var(--line);border-radius:14px;padding:10px;min-height:150px}
+.bin.target{border-color:var(--accent)}
+.bin-head{width:100%;text-align:left;font:800 1.05rem var(--display);color:var(--ink);background:none;border:0;padding:6px 4px 8px;cursor:pointer}
+.bin small{display:block;font:400 .85rem var(--body);color:var(--muted)}
+.deck{display:grid;gap:10px;margin:0 0 18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.card{text-align:left;font:inherit;font-size:.98rem;line-height:1.4;color:var(--ink);background:var(--surface);border:1.5px solid var(--ink);border-radius:8px;padding:11px 12px;cursor:grab;width:100%}
+.card.sel{background:var(--signal);color:var(--signal-ink);border-color:var(--signal-ink);box-shadow:0 0 0 3px var(--signal-ink)}
+.card.placed{cursor:pointer;border-color:var(--good);background:var(--good-bg);margin-top:8px;font-size:.9rem}
+.card.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.deckhead{font-weight:700;margin:0 0 8px}
+
+/* rank */
+.ranklist{list-style:none;margin:14px 0;padding:0;display:grid;gap:8px}
+.ranklist li{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+.ranklist li.ok{border-color:var(--good);background:var(--good-bg)}
+.ranklist li.no{border-color:var(--bad);background:var(--bad-bg)}
+.ranklist .pos{flex:none;width:30px;height:30px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:800 .9rem var(--display)}
+.ranklist .rname{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.ranklist .rname span{color:var(--muted);font-size:.9rem}
+.ranklist li[tabindex]{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.ranklist li.dragging{cursor:grabbing;position:relative;z-index:5;border-color:var(--accent);box-shadow:0 8px 20px color-mix(in srgb,var(--ink) 22%,transparent)}
+.ranklist .grip{flex:none;color:var(--muted);display:grid;place-items:center;width:28px;height:36px}
+.ranklist .grip svg{fill:currentColor}
+.ranklist.locked li{cursor:default}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
+.ends{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);font-weight:700}
+.tier{display:grid;grid-template-columns:9ch 1fr;gap:4px 14px;padding:8px 0;border-top:1.5px solid var(--line)}
+.tier:first-child{border-top:0}
+.tier b{font-family:var(--display)}
+.keys{display:grid;gap:0}
+.key{display:grid;grid-template-columns:minmax(12ch,15ch) 1fr;gap:4px 18px;padding:12px 0;border-top:1px solid var(--line)}
+.key b{font-family:var(--display);font-size:1.08rem;line-height:1.3}
+@media (max-width:720px){.key{grid-template-columns:1fr}}
+
+/* brain */
+.meter{margin:14px 0}
+.track{position:relative;height:40px;background:var(--soft);border-radius:8px;overflow:hidden}
+.fill{position:absolute;left:0;top:0;bottom:0;background:var(--pink);width:10%;transition:width .5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font:800 .95rem var(--display);color:#fff;white-space:nowrap}
+.fill.blue{background:var(--accent);color:var(--accent-ink)}
+.refline{position:absolute;top:0;bottom:0;left:10%;border-left:3px dashed var(--ink)}
+.mlabel{display:flex;justify-content:space-between;font-size:.92rem;margin:0 0 4px;font-weight:700}
+input[type=range]{width:100%;accent-color:var(--accent);min-height:44px}
+.stages{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);gap:6px}
+
+/* exit */
+.checkrow{display:flex;gap:12px;align-items:flex-start;margin:14px 0}
+.checkrow input{width:22px;height:22px;margin-top:3px;flex:none;accent-color:var(--accent)}
+.sources{font-size:.9rem;color:var(--muted)}
+
+@media (max-width:720px){
+  .sortgrid{grid-template-columns:1fr}
+  .stop span.lbl{font-size:.8rem}
+  .tier{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="bar">
+  <span>Drugs and the Body</span>
+  <span class="barright"><span class="savestat" id="saveStat" role="status" aria-live="polite"></span><span class="clock" id="clock" hidden>0:00 of 45:00</span></span>
+</div>
+<ol class="rail" id="rail" hidden></ol>
+
+<main>
+
+<!-- WELCOME -->
+<section class="part" id="p0" aria-labelledby="h0">
+  <div class="hero">
+    <h1 id="h0" tabindex="-1">Drugs and the Body</h1>
+    <p class="lead">What counts as a drug, how a drug gets from your mouth, lungs, or skin to your brain, and why some substances become hard to stop.</p>
+  </div>
+  <div class="route hero-route" aria-hidden="true">
+    <div class="route-line"></div><div class="route-dot"></div>
+    <ol class="stops">
+      <li class="stop"><span class="node">1</span><span class="lbl">Absorption</span></li>
+      <li class="stop"><span class="node">2</span><span class="lbl">Distribution</span></li>
+      <li class="stop"><span class="node">3</span><span class="lbl">Metabolism</span></li>
+      <li class="stop"><span class="node">4</span><span class="lbl">Excretion</span></li>
+    </ol>
+  </div>
+  <ul class="plan">
+    <li><b>5 min</b><span>Sort everyday substances into drug and not a drug.</span></li>
+    <li><b>8 min</b><span>Place real-life situations on the spectrum from use to substance use disorder.</span></li>
+    <li><b>15 min</b><span>Rank how fast different routes reach the brain, then follow a drug through the body.</span></li>
+    <li><b>10 min</b><span>See what the brain’s reward system does, then test the myths.</span></li>
+    <li><b>2 min</b><span>Finish with an exit ticket.</span></li>
+  </ul>
+  <div class="panel note">
+    <p><strong>Before you start.</strong> This topic can be personal. Keep stories about other people private, and use respectful language. If something here hits close to home, Student Services is a great place to go if you want someone to talk to. The last page has a private way to ask.</p>
+    <p style="margin:0">Work alone and at your own pace. Your progress saves on this device as you go, so you can close the tab and come back later on the same computer. Nothing is sent to anyone other than your teacher (if you are turning it in as part of an assignment).</p>
+  </div>
+  <div class="fb no" id="storeWarn" hidden style="margin:0 0 18px"><strong>This browser can’t save your progress.</strong><p>Finish the lesson in one sitting, or switch out of incognito or guest mode and reopen this page.</p></div>
+  <div class="row" id="startRow"><button class="btn wide" id="start">Start the lesson</button><button class="btn ghost" id="resetBtn" hidden>Start over</button></div>
+  <div class="fb no" id="resetConfirm" hidden><strong>Erase all your answers and start over?</strong><p>This can’t be undone.</p><div class="row" style="margin-top:10px"><button class="btn" id="resetYes">Erase and start over</button><button class="btn ghost" id="resetNo">Keep my answers</button></div></div>
+  <div class="fb ok" id="resetDone" hidden><strong>Your answers are erased.</strong><p>Refresh this page to start the lesson from the beginning.</p></div>
+</section>
+
+<!-- PART 1 -->
+<section class="part" id="p1" aria-labelledby="h1" hidden>
+  <h2 id="h1" tabindex="-1">Drug or not a drug?</h2>
+  <p>Decide for each item. You’ll see the reasoning right away. There are no wrong answers to lose points on, only things to learn.</p>
+  <div class="panel" id="hookBox"></div>
+  <div class="panel note" id="hookDef" hidden>
+    <h3>Our working definition</h3>
+    <p class="big" style="font-size:1.5rem;max-width:none">A drug is any substance, other than food, that changes how the body or mind works.</p>
+    <p style="margin:0">That covers medicines and caffeine as well as illegal drugs. Legal doesn’t mean harmless, and prescribed doesn’t mean safe for everyone.</p>
+  </div>
+  <div class="nav"><button class="btn" id="next1" disabled>Continue to part 2</button><p class="hint" id="hint1">Answer all 7 items to continue.</p></div>
+</section>
+
+<!-- PART 2 -->
+<section class="part" id="p2" aria-labelledby="h2t" hidden>
+  <h2 id="h2t" tabindex="-1">Use, misuse, and substance use disorder</h2>
+  <p>These aren’t three boxes with hard walls. They’re a spectrum. Tap a card, then tap the group you think fits best (or drag it). You’ll get feedback on every placement.</p>
+  <div class="panel" style="padding:16px">
+    <p class="deckhead">Situations to place <span id="deckCount" style="font-weight:400;color:var(--muted)"></span></p>
+    <div class="deck" id="deck"></div>
+    <div class="sortgrid" id="bins">
+      <div class="bin" data-bin="use"><button type="button" class="bin-head">Appropriate use<small>Right medicine, person, dose, and purpose</small></button><div class="binbody"></div></div>
+      <div class="bin" data-bin="misuse"><button type="button" class="bin-head">Misuse<small>Not as intended, prescribed, or legal</small></button><div class="binbody"></div></div>
+      <div class="bin" data-bin="sud"><button type="button" class="bin-head">Substance use disorder<small>Loss of control, harm, and continued use</small></button><div class="binbody"></div></div>
+    </div>
+    <div id="sortFb" role="status" aria-live="polite"></div>
+  </div>
+  <div id="sortAfter" hidden>
+    <div class="panel note">
+      <p><strong>About the language.</strong> Health professionals now say “substance use disorder” instead of “addict” or “abuser.” It describes a medical condition, not a character flaw, and respectful words make it easier for people to ask for help.</p>
+      <p style="margin:0">Some of these cases sat close to a line. That’s normal. A diagnosis looks at a whole pattern, not a single moment.</p>
+    </div>
+    <label class="lab" for="hardest">Which situation was hardest to place, and why?</label>
+    <textarea id="hardest" placeholder="Write a sentence or two."></textarea>
+  </div>
+  <div class="nav"><button class="btn" id="next2" disabled>Continue to part 3</button><p class="hint" id="hint2">Place all 9 situations, then answer the question.</p></div>
+</section>
+
+<!-- PART 3 -->
+<section class="part" id="p3" aria-labelledby="h3t" hidden>
+  <h2 id="h3t" tabindex="-1">Race to the brain</h2>
+
+
+  <div class="panel">
+    <h3>How a drug gets into the blood</h3>
+    <p>A drug can’t affect the brain until it gets into the blood. Blood from the lungs goes to the heart, which pumps it straight out to the brain, so a drug that enters the blood there arrives within seconds. The way a drug enters the body is called its <strong>route of administration</strong>, and three things decide how fast a route works.</p>
+    <div class="keys">
+      <div class="key"><b>How direct the path is</b><span>A needle puts a drug right into a vein. The lungs have very thin walls and a huge surface area, about the size of half a tennis court, so drugs cross into the blood almost instantly.</span></div>
+      <div class="key"><b>How thin the lining is</b><span>The inside of the nose and the area under the tongue have thin, moist linings packed with tiny blood vessels. Drugs soak through them quickly.</span></div>
+      <div class="key"><b>What’s in the way</b><span>A swallowed drug has to get through the stomach and intestines, then pass through the liver, which breaks some of it down first. Skin is built to keep things out, so drugs cross it very slowly.</span></div>
+    </div>
+  </div>
+
+  <h3>Step 1. Rank the routes</h3>
+  <p>Use those three ideas to rank these routes from fastest to slowest at reaching the brain. Drag each route into place. On a keyboard, press Tab to select a route and use the up and down arrow keys to move it.</p>
+  <div class="panel">
+    <div class="ends"><span>Fastest</span></div>
+    <ol class="ranklist" id="ranklist"></ol>
+    <div class="ends"><span>Slowest</span></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="rankCheck">Check my order</button>
+      <button class="btn ghost" id="rankShow" hidden>Show me the answer</button>
+    </div>
+    <p id="rankLive" class="sr" aria-live="polite"></p>
+    <div id="rankFb" role="status" aria-live="polite"></div>
+    <div id="rankAnswer" hidden></div>
+  </div>
+
+  <div id="pathSection" hidden>
+    <h3>Step 2. Follow the drug through the body</h3>
+    <p>Pretend you’re a drug molecule. Pass the check at each stop to move on.</p>
+    <div class="route" id="route">
+      <div class="route-line"><div class="route-fill" id="routeFill"></div></div>
+      <div class="route-dot" id="routeDot"></div>
+      <ol class="stops" id="stops"></ol>
+    </div>
+    <div class="panel" id="stopPanel"></div>
+  </div>
+
+  <div id="whySection" hidden>
+    <h3>Step 3. Connect it to dependence</h3>
+    <label class="lab" for="why1">Why might a faster, stronger hit make a drug more likely to cause dependence?</label>
+    <textarea id="why1" placeholder="Think about what the brain feels right after, and right when it wears off."></textarea>
+    <div class="row" style="margin-top:12px"><button class="btn ghost" id="whyShow" disabled>Compare with a sample answer</button></div>
+    <div class="fb ok" id="whyAns" hidden><strong>Sample answer</strong><p>A fast route makes a quick, intense spike of reward, then a sharp drop as the drug wears off. The brain strongly links the drug with that spike, and the crash creates a pull to take another dose sooner. That cycle makes repeated use, and then dependence, more likely.</p><p>Compare it with yours. You don’t need the same words, just the same idea.</p></div>
+  </div>
+
+  <div class="nav"><button class="btn" id="next3" disabled>Continue to part 4</button><p class="hint" id="hint3">Finish the ranking, the journey, and the short reflection.</p></div>
+</section>
+
+<!-- PART 4 -->
+<section class="part" id="p4" aria-labelledby="h4t" hidden>
+  <h2 id="h4t" tabindex="-1">Why the brain keeps score</h2>
+  <div class="panel">
+    <p>Your brain has a <strong>reward circuit</strong>. When something good happens, like a favorite song, a win, or a meal with friends, neurons release <strong>dopamine</strong>. It’s a signal that says “that mattered, do it again.” It’s how you learn what’s worth repeating.</p>
+    <p>Many drugs hijack that circuit. They can cause a bigger and faster dopamine surge than natural rewards. The National Institute on Drug Abuse describes it as roughly 2 to 10 times as much.</p>
+    <p style="margin:0"><strong>Why teens are more vulnerable:</strong> the reward system matures earlier than the prefrontal cortex, the part that plans and weighs consequences, which keeps developing into the mid-20s. A teen brain gets strong “go” signals with weaker brakes. Starting use earlier raises the chance of developing a disorder.</p>
+  </div>
+
+  <h3>Try it: the size of the surge</h3>
+  <div class="panel">
+    <div class="row" id="surgeBtns">
+      <button class="btn ghost" data-s="1">A natural reward</button>
+      <button class="btn ghost" data-s="2">A drug at the low end</button>
+      <button class="btn ghost" data-s="10">A drug at the high end</button>
+    </div>
+    <div class="meter">
+      <div class="mlabel"><span>Dopamine surge</span><span id="surgeVal">Pick one</span></div>
+      <div class="track"><div class="refline" title="Natural reward"></div><div class="fill" id="surgeFill"></div></div>
+      <p class="sources" style="margin:6px 0 0">The dashed line marks a natural reward. This is an illustrative scale, and real amounts vary by drug and person.</p>
+    </div>
+    <p id="surgeTxt" style="margin:0" aria-live="polite">Select each option to compare.</p>
+  </div>
+
+  <h3>Try it: what repeated use does</h3>
+  <div class="panel">
+    <label class="lab" for="tol">Drag from first use to heavy regular use</label>
+    <input type="range" id="tol" min="0" max="3" step="1" value="0">
+    <div class="stages"><span>First use</span><span>Occasional</span><span>Regular</span><span>Heavy regular</span></div>
+    <div class="meter">
+      <div class="mlabel"><span>The brain’s own reward response</span></div>
+      <div class="track"><div class="fill blue" id="tolNat" style="width:100%"></div></div>
+    </div>
+    <div class="meter">
+      <div class="mlabel"><span>Amount needed to feel the same effect</span></div>
+      <div class="track"><div class="fill" id="tolDose" style="width:25%"></div></div>
+    </div>
+    <p id="tolTxt" aria-live="polite" style="margin:0">At first, a small amount produces a big reward and the brain’s own response is at full strength.</p>
+    <p class="sources" style="margin:8px 0 0">A simplified model, not measured data.</p>
+  </div>
+
+  <div id="mfSection" hidden>
+    <h3>Myth or fact?</h3>
+    <div class="panel" id="mfBox"></div>
+  </div>
+
+  <div class="nav"><button class="btn" id="next4" disabled>Continue to the exit ticket</button><p class="hint" id="hint4">Try all three surge options, drag the slider to the end, then finish the myth or fact round.</p></div>
+</section>
+
+<!-- PART 5 -->
+<section class="part" id="p5" aria-labelledby="h5t" hidden>
+  <h2 id="h5t" tabindex="-1">Exit ticket</h2>
+  <div class="panel">
+    <div style="margin-bottom:16px"><label class="lab" for="nm">Your name</label><input type="text" id="nm" autocomplete="name"></div>
+    <div style="margin-bottom:16px"><label class="lab" for="e1">One thing you learned about how drugs get to the brain</label><textarea id="e1"></textarea></div>
+    <div style="margin-bottom:16px"><label class="lab" for="e2">One question you still have about addiction</label><textarea id="e2"></textarea></div>
+    <div class="checkrow"><input type="checkbox" id="talk"><label for="talk"><strong>I’d like to talk to someone about this topic.</strong><br><span class="sources">Checking this adds a line to your PDF so your teacher can follow up with you privately.</span></label></div>
+    <button class="btn wide" id="build">Download my answers as a PDF</button>
+    <p id="buildErr" class="fb no" hidden style="margin-top:14px"></p>
+  </div>
+  <div id="summary" hidden>
+    <div class="panel">
+      <h3>Turn in your PDF</h3>
+      <p>Your answers downloaded as a PDF. Turn it in the way your teacher asked. If you can’t find the file, download it again.</p>
+      <div class="row"><button class="btn ghost" id="pdf">Download my PDF again</button><span id="copyMsg" role="status" aria-live="polite" style="align-self:center"></span></div>
+    </div>
+    <div class="panel" id="clearBox">
+      <h3>Using a shared computer?</h3>
+      <p>After you turn in your PDF, erase your answers from this device so the next person can’t see them.</p>
+      <div class="row" id="clearRow"><button class="btn ghost" id="clearBtn">Erase my answers from this device</button></div>
+      <div class="fb no" id="clearConfirm" hidden><strong>Erase your answers from this device?</strong><p>Make sure you’ve turned in your PDF first.</p><div class="row" style="margin-top:10px"><button class="btn" id="clearYes">Erase my answers</button><button class="btn ghost" id="clearNo">Not yet</button></div></div>
+      <div class="fb ok" id="clearDone" hidden><strong>Your answers are erased from this device.</strong><p>You can close this tab now.</p></div>
+    </div>
+    <div class="fb ok" id="talkMsg" hidden><strong>Thank you for flagging that.</strong><p>Please also stop by Student Services or tell a trusted adult. If you need help right now, call or text 988.</p></div>
+  </div>
+  <div class="panel note">
+    <p><strong>Support is available.</strong> If you or someone you know is struggling with substance use, talk to someone in Student Services or another trusted adult. In the U.S., you can call or text 988 anytime if you’re in crisis, or call the SAMHSA National Helpline at 1-800-662-4357 (free, confidential, 24/7).</p>
+    <p style="margin:0">Coming up in this unit: drug categories, vaping, and treatment.</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var shuffle=function(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a};
+var fb=function(ok,head,body){return '<div class="fb '+(ok?'ok':'no')+'"><strong>'+head+'</strong><p>'+body+'</p></div>'};
+
+var TARGET=45*60;
+var st={reached:0,part:0,done:{},t0:0,hookRight:0,sortRetries:0,rankChecks:0,mfRight:0,timer:null,hookLog:[],mfLog:[],rankFinal:null,rankGood:false,endSec:0};
+
+/* ---------- rail + navigation ---------- */
+var PARTS=[
+  {t:"Drug or not?",m:5},
+  {t:"Use, misuse, disorder",m:8},
+  {t:"Race to the brain",m:15},
+  {t:"The reward system",m:10},
+  {t:"Exit ticket",m:2}
+];
+var rail=$("#rail");
+function buildRail(){
+  rail.innerHTML="";
+  PARTS.forEach(function(p,i){
+    var n=i+1,li=document.createElement("li");
+    li.innerHTML='<button type="button" data-n="'+n+'"><span class="n">'+(st.done[n]?"✓":n)+'</span><span>'+p.t+'<small>about '+p.m+' min</small></span></button>';
+    var b=li.firstChild;
+    b.disabled=n>st.reached;
+    if(n===st.part)li.className="is-current";
+    if(st.done[n])li.className+=" is-done";
+    if(n===st.part)b.setAttribute("aria-current","step");
+    rail.appendChild(li);
+  });
+}
+rail.addEventListener("click",function(e){var b=e.target.closest("button");if(b&&!b.disabled)show(+b.dataset.n)});
+function show(n){
+  st.part=n;
+  $$(".part").forEach(function(s){s.hidden=(s.id!=="p"+n)});
+  rail.hidden=(n===0);
+  buildRail();
+  var h=$("#p"+n+" h1, #p"+n+" h2");
+  try{window.scrollTo(0,0);if(h)h.focus({preventScroll:true})}catch(e){}
+}
+function complete(n){
+  if(st.done[n])return;
+  st.done[n]=true;
+  st.reached=Math.max(st.reached,n+1);
+  var nb=$("#next"+n);if(nb)nb.disabled=false;
+  var hh=$("#hint"+n);if(hh)hh.textContent="Nice work. Keep going when you’re ready.";
+  buildRail();
+}
+[1,2,3,4].forEach(function(n){$("#next"+n).addEventListener("click",function(){show(n+1)})});
+
+/* ---------- clock ---------- */
+var fmt=function(s){var m=Math.floor(s/60),x=s%60;return m+":"+(x<10?"0":"")+x};
+function tick(){
+  var s=Math.floor((Date.now()-st.t0)/1000);
+  if(st.endSec)s=st.endSec;
+  $("#clock").textContent=fmt(s)+" of "+fmt(TARGET)+(s>TARGET?" (over target)":"");
+  if(s%10===0)save();
+}
+$("#start").addEventListener("click",function(){
+  st.t0=Date.now()-(st.savedEl||0)*1000;st.reached=Math.max(st.reached,1);
+  $("#clock").hidden=false;tick();
+  if(!st.done[5])st.timer=setInterval(tick,1000);
+  show(had?Math.max(1,st.resumePart||1):1);
+  save();
+});
+
+/* ---------- part 1: drug or not ---------- */
+var hook=[
+ {q:"Caffeine",a:"drug",why:"Caffeine is a stimulant. It changes alertness by blocking a brain chemical that signals tiredness."},
+ {q:"Ibuprofen",a:"drug",why:"It’s a medicine that changes how your body handles pain and inflammation. Sold without a prescription doesn’t mean it has no effects."},
+ {q:"An energy drink",a:"drug",why:"The drink is a delivery system. It contains caffeine, often a lot, and sometimes other stimulants. Count it."},
+ {q:"A nicotine vape",a:"drug",why:"Nicotine is a stimulant and highly addictive. The vapor is just the delivery system, like the energy drink."},
+ {q:"Cough syrup",a:"drug",why:"Many cough syrups contain active ingredients that change how the body works. They’re legal and in every pharmacy, and taking too much can be dangerous."},
+ {q:"Sugar",a:"not",why:"Sugar is food, and food is the exception in our definition because the body needs nutrients from it. It does trigger the reward system a little, which is a good reminder that many things affect the brain."},
+ {q:"A prescribed ADHD medication",a:"drug",why:"It’s a drug, and safe for the person it was prescribed for. The same pill taken by someone else is misuse."}
+];
+var hi=0;
+function showHookDone(){
+  $("#hookBox").innerHTML='<p class="count">All done</p><p class="big" style="max-width:none">You matched '+st.hookRight+' of '+hook.length+'.</p><p style="margin:0">The tricky ones were the everyday ones. That’s the point.</p>';
+  $("#hookDef").hidden=false;
+}
+function renderHook(){
+  var it=hook[hi];
+  $("#hookBox").innerHTML='<p class="count">Item '+(hi+1)+' of '+hook.length+'</p><p class="big">'+it.q+'</p><div class="row"><button class="btn choice" data-a="drug">Drug</button><button class="btn choice" data-a="not">Not a drug</button></div><div id="hookFb" role="status" aria-live="polite"></div>';
+}
+$("#hookBox").addEventListener("click",function(e){
+  var b=e.target.closest(".choice");
+  if(b){
+    var it=hook[hi],ok=b.dataset.a===it.a;
+    if(ok)st.hookRight++;
+    st.hookLog.push({q:it.q,pick:b.dataset.a,ok:ok,why:it.why});
+    $$(".choice").forEach(function(x){x.disabled=true});
+    b.classList.add(ok?"picked-ok":"picked-no");
+    var last=hi===hook.length-1;
+    $("#hookFb").innerHTML=fb(ok,ok?"Yes.":"Not quite.",it.why)+'<div class="row" style="margin-top:14px"><button class="btn" id="hookNext">'+(last?"See the definition":"Next item")+'</button></div>';
+    $("#hookNext").focus();
+    return;
+  }
+  if(e.target.id==="hookNext"){
+    if(hi<hook.length-1){hi++;renderHook()}
+    else{
+      showHookDone();complete(1);
+    }
+  }
+});
+renderHook();
+
+/* ---------- part 2: sort ---------- */
+var G="Right call.";
+var scen=[
+ {id:"a",t:"Taking an antibiotic exactly as your doctor prescribed.",ok:{use:"Right medicine, right person, right dose, right purpose. That’s appropriate use."},hint:"Nothing here goes beyond what the doctor intended."},
+ {id:"b",t:"Taking a friend’s Adderall the night before a test to study longer.",ok:{misuse:"A prescription is written for one person after a doctor checks their health. Using someone else’s, or for a different reason, is misuse, even once."},hint:"It’s not the person’s own prescription, but a single use doesn’t show a pattern of disorder."},
+ {id:"c",t:"Drinking three energy drinks a day to stay awake, then feeling shaky, irritable, and headachy without them.",ok:{misuse:"Heavy caffeine use well beyond what’s healthy is misuse. This one sits near the border, though. The withdrawal symptoms show real dependence.",sud:"Reasonable. Withdrawal shows dependence. Many health professionals would call this misuse near the border, since a disorder diagnosis looks for loss of control and harm across life. It’s a great example of a spectrum."},hint:"Think about it: it’s not a single thing used as directed, and your body has started to depend on it."},
+ {id:"d",t:"Continuing to vape even though you want to quit and have tried and failed several times.",ok:{sud:"Wanting to stop and being unable to is a hallmark of a substance use disorder. Nicotine dependence is real, and it’s treatable."},hint:"The key detail is wanting to stop and not being able to."},
+ {id:"e",t:"Taking more of your own prescribed pain medication than the label says because it “isn’t working fast enough.”",ok:{misuse:"It’s the right person, but the wrong dose. Taking more than prescribed is misuse, and with pain medication it can be dangerous."},hint:"It’s their own prescription, but they’re not following it."},
+ {id:"f",t:"Taking ibuprofen at the dose on the label for a headache.",ok:{use:"Label dose, common purpose. That’s appropriate use."},hint:"Check the details: the dose follows the label."},
+ {id:"g",t:"A 16-year-old drinking alcohol at a party.",ok:{misuse:"Underage drinking counts as misuse. It’s illegal, and the teen brain is more vulnerable to alcohol’s effects. It doesn’t automatically mean a disorder."},hint:"Think about age and legality. It’s not a diagnosis from one event."},
+ {id:"h",t:"Skipping school and dropping old friends to use a substance, needing more each time to feel the same, and getting sick without it.",ok:{sud:"Needing more, withdrawal, and continuing despite harm to school and relationships are signs of a substance use disorder."},hint:"Count the signs: tolerance, withdrawal, and life getting worse."},
+ {id:"i",t:"Using cough syrup for a cold, following the directions on the box.",ok:{use:"Following the box directions for its intended purpose. Appropriate use."},hint:"What’s different here from taking too much or for another reason?"}
+];
+var byId={};scen.forEach(function(s){byId[s.id]=s});
+var deck=$("#deck"),selected=null,placed=0;
+var binNames={use:"appropriate use",misuse:"misuse",sud:"substance use disorder"};
+function mkCard(s){
+  var b=document.createElement("button");b.type="button";b.className="card";b.textContent=s.t;b.dataset.id=s.id;b.draggable=true;return b;
+}
+shuffle(scen).forEach(function(s){deck.appendChild(mkCard(s))});
+function updDeck(){var left=scen.length-placed;$("#deckCount").textContent="("+left+" left)";if(!left)deck.parentNode.querySelector(".deckhead").textContent="All situations placed."}
+updDeck();
+deck.addEventListener("click",function(e){
+  var c=e.target.closest(".card");if(!c)return;
+  $$(".card.sel").forEach(function(x){x.classList.remove("sel")});
+  if(selected===c.dataset.id){selected=null;return}
+  selected=c.dataset.id;c.classList.add("sel");
+});
+deck.addEventListener("dragstart",function(e){var c=e.target.closest(".card");if(!c)return;selected=c.dataset.id;try{e.dataTransfer.setData("text/plain",c.dataset.id)}catch(x){}});
+$$(".bin").forEach(function(bin){
+  bin.addEventListener("dragover",function(e){e.preventDefault();bin.classList.add("target")});
+  bin.addEventListener("dragleave",function(){bin.classList.remove("target")});
+  bin.addEventListener("drop",function(e){e.preventDefault();bin.classList.remove("target");var id=selected;try{id=e.dataTransfer.getData("text/plain")||selected}catch(x){}attempt(id,bin.dataset.bin)});
+  bin.addEventListener("click",function(e){
+    var pc=e.target.closest(".card.placed");
+    if(pc){$("#sortFb").innerHTML=fb(true,"Why this fits",byId[pc.dataset.id].shown);return}
+    if(selected)attempt(selected,bin.dataset.bin);
+    else $("#sortFb").innerHTML='<div class="fb no"><p>Tap a situation card first, then tap a group.</p></div>';
+  });
+});
+function attempt(id,binKey){
+  var s=byId[id];if(!s)return;
+  var card=deck.querySelector('.card[data-id="'+id+'"]');if(!card)return;
+  if(s.ok[binKey]){
+    s.shown=s.ok[binKey];s.bin=binKey;
+    card.classList.remove("sel");card.classList.add("placed");card.draggable=false;
+    $('.bin[data-bin="'+binKey+'"] .binbody').appendChild(card);
+    selected=null;placed++;updDeck();
+    $("#sortFb").innerHTML=fb(true,G,s.shown);
+    if(placed===scen.length){$("#sortAfter").hidden=false;checkSort()}
+    save();
+  }else{
+    st.sortRetries++;
+    card.classList.remove("shake");void card.offsetWidth;card.classList.add("shake");
+    $("#sortFb").innerHTML=fb(false,"Not in “"+binNames[binKey]+"”.",s.hint);
+  }
+}
+function checkSort(){
+  var ok=placed===scen.length&&$("#hardest").value.trim().length>=5;
+  if(ok)complete(2);
+}
+$("#hardest").addEventListener("input",checkSort);
+
+/* ---------- part 3A: rank ---------- */
+var routes=[
+ {id:"swallow",n:"Swallowing",eg:"a pill or liquid",lo:4,hi:4},
+ {id:"inhale",n:"Inhaling or vaping",eg:"smoke or vapor into the lungs",lo:0,hi:1},
+ {id:"inject",n:"Injecting",eg:"a needle into a vein",lo:0,hi:1},
+ {id:"patch",n:"A skin patch",eg:"drug absorbed through the skin",lo:5,hi:5},
+ {id:"tongue",n:"Under the tongue",eg:"a dissolving tablet or strip",lo:2,hi:3},
+ {id:"snort",n:"Snorting",eg:"powder through the nose",lo:2,hi:3}
+];
+var rById={};routes.forEach(function(r){rById[r.id]=r});
+var order=shuffle(routes.map(function(r){return r.id}));
+function isGood(o){return o.every(function(id,i){return i>=rById[id].lo&&i<=rById[id].hi})}
+while(isGood(order))order=shuffle(order);
+var rlist=$("#ranklist");
+function renderRank(focusId){
+  rlist.innerHTML="";
+  var locked=typeof rankRevealed!=="undefined"&&rankRevealed;
+  rlist.classList.toggle("locked",locked);
+  order.forEach(function(id,i){
+    var r=rById[id],li=document.createElement("li");li.dataset.id=id;
+    if(!locked){li.tabIndex=0;li.setAttribute("aria-label",(i+1)+" of "+order.length+": "+r.n+". Use the up and down arrow keys to move.")}
+    li.innerHTML='<span class="pos">'+(i+1)+'</span><span class="rname"><strong>'+r.n+'</strong><span>'+r.eg+'</span></span>'+(locked?'':'<span class="grip" aria-hidden="true"><svg viewBox="0 0 12 20" width="12" height="20"><circle cx="3" cy="4" r="1.6"/><circle cx="9" cy="4" r="1.6"/><circle cx="3" cy="10" r="1.6"/><circle cx="9" cy="10" r="1.6"/><circle cx="3" cy="16" r="1.6"/><circle cx="9" cy="16" r="1.6"/></svg></span>');
+    rlist.appendChild(li);
+  });
+  if(focusId){var f=rlist.querySelector('li[data-id="'+focusId+'"]');if(f)f.focus()}
+}
+function rankChanged(){
+  order=$$("li",rlist).map(function(li){return li.dataset.id});
+  $("#rankFb").innerHTML="";
+  save();
+}
+/* keyboard: up/down arrows move the focused route */
+rlist.addEventListener("keydown",function(e){
+  if(rankRevealed)return;
+  var li=e.target.closest("li");if(!li)return;
+  var d=e.key==="ArrowUp"?-1:e.key==="ArrowDown"?1:0;if(!d)return;
+  e.preventDefault();
+  var id=li.dataset.id,i=order.indexOf(id),j=i+d;
+  if(j<0||j>=order.length)return;
+  order.splice(i,1);order.splice(j,0,id);
+  renderRank(id);rankChanged();
+  $("#rankLive").textContent=rById[id].n+" moved to position "+(j+1)+" of "+order.length+".";
+});
+/* pointer drag: works with a mouse, trackpad, or touchscreen */
+var drag=null;
+rlist.addEventListener("pointerdown",function(e){
+  if(rankRevealed||(e.pointerType==="mouse"&&e.button!==0))return;
+  var li=e.target.closest("li");if(!li)return;
+  e.preventDefault();
+  var r=li.getBoundingClientRect();
+  drag={li:li,grab:e.clientY-r.top,id:e.pointerId};
+  li.classList.add("dragging");
+  try{li.setPointerCapture(e.pointerId)}catch(x){}
+});
+rlist.addEventListener("pointermove",function(e){
+  if(!drag||e.pointerId!==drag.id)return;
+  var li=drag.li,y=e.clientY;
+  var prev=li.previousElementSibling,next=li.nextElementSibling;
+  if(prev){var pr=prev.getBoundingClientRect();if(y<pr.top+pr.height/2)rlist.insertBefore(li,prev)}
+  if(next){var nr=next.getBoundingClientRect();if(y>nr.top+nr.height/2)rlist.insertBefore(next,li)}
+  li.style.transform="";
+  var base=li.getBoundingClientRect().top;
+  li.style.transform="translateY("+(y-drag.grab-base)+"px)";
+});
+function endDrag(e){
+  if(!drag||(e&&e.pointerId!==drag.id))return;
+  var li=drag.li;drag=null;
+  li.style.transform="";li.classList.remove("dragging");
+  var id=li.dataset.id,before=order.join();
+  rankChanged();
+  if(order.join()!==before){renderRank();$("#rankLive").textContent=rById[id].n+" moved to position "+(order.indexOf(id)+1)+" of "+order.length+"."}
+}
+rlist.addEventListener("pointerup",endDrag);
+rlist.addEventListener("pointercancel",endDrag);
+renderRank();
+var rankRevealed=false;
+function revealRank(){
+  if(rankRevealed)return;rankRevealed=true;
+  st.rankFinal=order.slice();st.rankGood=isGood(order);
+  var marks={};$$("li",rlist).forEach(function(li){if(li.classList.contains("ok"))marks[li.dataset.id]="ok";else if(li.classList.contains("no"))marks[li.dataset.id]="no"});
+  renderRank();
+  $$("li",rlist).forEach(function(li){if(marks[li.dataset.id])li.classList.add(marks[li.dataset.id])});
+  $("#rankAnswer").hidden=false;
+  $("#rankAnswer").innerHTML='<div class="panel" style="margin:16px 0 0;background:var(--soft)">'+
+   '<div class="tier"><b>Seconds</b><span>Inhaling or vaping, and injecting. Both deliver the drug straight into the blood, and from there it reaches the brain in seconds.</span></div>'+
+   '<div class="tier"><b>Minutes</b><span>Snorting and under the tongue. The thin, blood-rich linings of the nose and mouth absorb the drug quickly.</span></div>'+
+   '<div class="tier"><b>30 to 60+ min</b><span>Swallowing. The drug has to survive the stomach and intestines, and then pass through the liver, which breaks some of it down before it reaches the rest of the body.</span></div>'+
+   '<div class="tier"><b>Hours</b><span>A skin patch. It’s designed to release slowly and steadily.</span></div>'+
+   '<p style="margin:10px 0 0"><strong>Why it matters:</strong> vaping delivers nicotine through the lungs, the same fast route as smoking. Fast delivery is part of why it’s so habit-forming.</p></div>';
+  $("#pathSection").hidden=false;
+  updateRoute();renderStop();
+}
+$("#rankCheck").addEventListener("click",function(){
+  st.rankChecks++;
+  var good=0;
+  $$("li",rlist).forEach(function(li,i){
+    var r=rById[li.dataset.id],ok=i>=r.lo&&i<=r.hi;
+    li.classList.remove("ok","no");li.classList.add(ok?"ok":"no");if(ok)good++;
+  });
+  $("#rankShow").hidden=false;
+  if(good===6){
+    $("#rankFb").innerHTML=fb(true,"All six in a spot that works.","Two pairs can swap places, because those routes are about equally fast.");
+    revealRank();
+  }else{
+    $("#rankFb").innerHTML=fb(false,good+" of 6 in a spot that works.","Green ones are good. Adjust the red ones and check again. Hint: think about whether the drug has to get through the digestive system and liver first.");
+  }
+});
+$("#rankShow").addEventListener("click",revealRank);
+
+/* ---------- part 3B: pathway ---------- */
+var stops=[
+ {n:"Absorption",text:"The drug passes into the bloodstream. How fast depends on the route you just ranked: the lungs and injection are quick, and the digestive system is slow.",q:"Why does a vaped drug reach the brain faster than a swallowed pill?",opts:[
+   {t:"It skips the stomach and liver, and crosses thin lung walls straight into the blood.",ok:true,why:"Lungs have a huge surface area and very thin walls. Blood from the lungs goes to the heart and straight on to the brain."},
+   {t:"Vapor is a stronger form of the drug.",why:"The drug itself is the same. The route changes the speed."},
+   {t:"The brain absorbs it directly from the air.",why:"Drugs have to travel in the blood to reach the brain."},
+   {t:"Swallowed pills never reach the blood.",why:"They do, just more slowly, and some of the drug is broken down first."}]},
+ {n:"Distribution",text:"Blood carries the drug around the body. To change your thinking or mood, a drug has to cross the blood–brain barrier, a tightly packed wall of cells that protects the brain.",q:"Which of these must a drug do to change your mood or thinking?",opts:[
+   {t:"Be swallowed.",why:"Any route can work. What matters is whether it reaches the brain."},
+   {t:"Cross the blood–brain barrier and reach brain cells.",ok:true,why:"Substances that cross the barrier, like nicotine, alcohol, and caffeine, can affect the brain directly."},
+   {t:"Be illegal.",why:"Legal status has nothing to do with biology. Caffeine and alcohol both reach the brain."},
+   {t:"Be metabolized first.",why:"Metabolism is the next stop, and it usually breaks the drug down. It isn’t required for reaching the brain."}]},
+ {n:"Metabolism",text:"Enzymes, mostly in the liver, break the drug into smaller pieces called metabolites. Some are inactive, and some are still active. How fast this happens depends on age, genetics, other drugs, and liver health.",q:"Which organ does most of the work of breaking drugs down?",opts:[
+   {t:"The heart.",why:"The heart pumps blood, which delivers the drug. It doesn’t break it down."},
+   {t:"The lungs.",why:"The lungs absorb some drugs and can remove a few, but they aren’t the main breakdown site."},
+   {t:"The liver.",ok:true,why:"The liver holds most of the enzymes that process drugs. That’s also why heavy substance use can damage it."},
+   {t:"The skin.",why:"The skin absorbs patches and can lose a little through sweat, but it isn’t where drugs are broken down."}]},
+ {n:"Excretion",text:"The kidneys filter the drug and its metabolites out of the blood into urine. Smaller amounts leave through breath, sweat, saliva, and feces. The time it takes is described by half-life: how long for the amount in your blood to drop by half.",q:"A drug has a half-life of 4 hours. You start with 80 units in your blood. About how many are left after 8 hours?",opts:[
+   {t:"60 units",why:"The amount halves each half-life. It doesn’t drop by a fixed number."},
+   {t:"40 units",why:"That’s what’s left after one half-life (4 hours). 8 hours is two half-lives."},
+   {t:"20 units",ok:true,why:"80 halves to 40 after 4 hours, then halves again to 20 after 8 hours."},
+   {t:"0 units",why:"The amount keeps shrinking by half, but it doesn’t reach zero right away."}]}
+];
+var cur=0,stopDone=[false,false,false,false];
+var stopsEl=$("#stops");
+stops.forEach(function(s,i){
+  var li=document.createElement("li");li.className="stop";
+  li.innerHTML='<button type="button" data-i="'+i+'" aria-label="Stop '+(i+1)+': '+s.n+'">'+(i+1)+'</button><span class="lbl">'+s.n+'</span>';
+  stopsEl.appendChild(li);
+});
+function reachIdx(){var c=0;while(c<4&&stopDone[c])c++;return Math.min(c,3)}
+function updateRoute(){
+  var r=reachIdx();
+  $$("li",stopsEl).forEach(function(li,i){
+    var b=li.querySelector("button");
+    li.className="stop"+(i===cur?" current":"")+(stopDone[i]?" done":"");
+    b.disabled=i>r;
+    b.textContent=stopDone[i]?"✓":(i+1);
+  });
+  $("#routeDot").style.left=(12.5+cur*25)+"%";
+  var finished=stopDone.filter(Boolean).length;
+  $("#routeFill").style.width=(Math.max(cur,finished===4?3:0)/3*100)+"%";
+}
+stopsEl.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b||b.disabled)return;
+  cur=+b.dataset.i;updateRoute();renderStop();
+});
+function renderStop(){
+  var s=stops[cur],d=stopDone[cur];
+  var html='<h3>Stop '+(cur+1)+': '+s.n+'</h3><p>'+s.text+'</p><p class="q">'+s.q+'</p><div class="opts">';
+  s.opts.forEach(function(o,i){html+='<button type="button" class="opt'+(d&&o.ok?" ok":"")+'" data-i="'+i+'"'+(d?" disabled":"")+'>'+o.t+'</button>'});
+  html+='</div><div id="stopFb" role="status" aria-live="polite">';
+  if(d){html+=fb(true,"Correct.",s.opts.filter(function(o){return o.ok})[0].why)+nextBtn()}
+  html+='</div>';
+  $("#stopPanel").innerHTML=html;
+}
+function nextBtn(){
+  return '<div class="row" style="margin-top:14px"><button class="btn" id="stopNext">'+(cur<3?"Follow it to "+stops[cur+1].n:"Finish the journey")+'</button></div>';
+}
+$("#stopPanel").addEventListener("click",function(e){
+  var o=e.target.closest(".opt");
+  if(o){
+    var s=stops[cur],opt=s.opts[+o.dataset.i];
+    if(opt.ok){
+      stopDone[cur]=true;updateRoute();renderStop();
+      var nb=$("#stopNext");if(nb)nb.focus();
+    }else{
+      o.classList.add("no");o.disabled=true;
+      $("#stopFb").innerHTML=fb(false,"Not quite.",opt.why+" Try another answer.");
+    }
+    return;
+  }
+  if(e.target.id==="stopNext"){
+    if(cur<3){cur++;updateRoute();renderStop()}
+    else{$("#whySection").hidden=false;$("#whySection").scrollIntoView({behavior:"smooth",block:"start"})}
+  }
+});
+$("#why1").addEventListener("input",function(){$("#whyShow").disabled=$("#why1").value.trim().length<10});
+$("#whyShow").addEventListener("click",function(){$("#whyAns").hidden=false;complete(3)});
+
+/* ---------- part 4: brain ---------- */
+var surgeSeen={};
+var surgeInfo={
+ 1:{w:10,l:"About 1×",t:"A natural reward gives a modest, short dopamine bump. It teaches your brain what’s worth repeating, and it’s balanced by everything else going on in your life."},
+ 2:{w:20,l:"About 2×",t:"Even at the low end, a drug can produce twice the surge of a natural reward, and it arrives faster and more reliably. The brain notices."},
+ 10:{w:100,l:"About 10×",t:"At the high end, the surge is many times larger than anything everyday life produces. Compared with that, normal rewards can start to feel dull."}
+};
+$("#surgeBtns").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  var k=b.dataset.s,i=surgeInfo[k];
+  $$("#surgeBtns .btn").forEach(function(x){x.classList.add("ghost")});b.classList.remove("ghost");
+  $("#surgeFill").style.width=i.w+"%";$("#surgeFill").textContent="";
+  $("#surgeVal").textContent=i.l;$("#surgeTxt").textContent=i.t;
+  surgeSeen[k]=true;checkBrain();
+});
+var tolInfo=[
+ {n:100,d:25,t:"At first, a small amount produces a big reward and the brain’s own response is at full strength."},
+ {n:80,d:45,t:"The brain starts turning down its reward signals to balance the surges. The same amount now feels a little weaker."},
+ {n:55,d:70,t:"Everyday things feel flat. The person needs more to get the same effect, which is tolerance, and feels bad without it."},
+ {n:30,d:100,t:"Needing the drug just to feel normal, with strong cravings, is dependence. This is why stopping is so hard, and why treatment is medical care, not just willpower."}
+];
+var tolMax=false;
+$("#tol").addEventListener("input",function(){
+  var v=+this.value,i=tolInfo[v];
+  $("#tolNat").style.width=i.n+"%";$("#tolDose").style.width=i.d+"%";$("#tolTxt").textContent=i.t;
+  if(v===3)tolMax=true;checkBrain();
+});
+function checkBrain(){
+  if(Object.keys(surgeSeen).length===3&&tolMax&&$("#mfSection").hidden){
+    $("#mfSection").hidden=false;renderMF();
+  }
+}
+var mf=[
+ {q:"Addiction is just a lack of willpower.",a:"myth",why:"Repeated use changes the brain’s reward, stress, and self-control circuits. Substance use disorder is a medical condition, and effective treatment exists."},
+ {q:"Vaping nicotine can’t be addictive because it isn’t a cigarette.",a:"myth",why:"Nicotine is the addictive part, and vapes deliver it. Some pods contain as much nicotine as a pack of cigarettes."},
+ {q:"Anyone can develop a substance use disorder. Risk factors include genetics, environment, and age of first use.",a:"fact",why:"No one is immune, and no one is doomed. Risk factors add up, and starting young raises the risk."},
+ {q:"Treatment can work, and relapse is a common part of recovery, not a sign of failure.",a:"fact",why:"Relapse rates for substance use disorders are similar to those for other long-term conditions like asthma and high blood pressure. It usually means the plan needs adjusting."},
+ {q:"Only illegal drugs can cause addiction.",a:"myth",why:"Nicotine, alcohol, and prescription medications are legal in some settings and are among the substances people most often develop a disorder with."}
+];
+var mi=0;
+function showMFDone(){
+  $("#mfBox").innerHTML='<p class="big" style="max-width:none">You got '+st.mfRight+' of '+mf.length+'.</p><p style="margin:0">Keep these in mind. Drug categories, vaping, and treatment are coming up next.</p>';
+}
+function renderMF(){
+  var it=mf[mi];
+  $("#mfBox").innerHTML='<p class="count">Statement '+(mi+1)+' of '+mf.length+'</p><p class="big" style="max-width:34ch">“'+it.q+'”</p><div class="row"><button class="btn mfc" data-a="myth">Myth</button><button class="btn mfc" data-a="fact">Fact</button></div><div id="mfFb" role="status" aria-live="polite"></div>';
+}
+$("#mfBox").addEventListener("click",function(e){
+  var b=e.target.closest(".mfc");
+  if(b){
+    var it=mf[mi],ok=b.dataset.a===it.a;if(ok)st.mfRight++;
+    st.mfLog.push({q:it.q,pick:b.dataset.a,a:it.a,ok:ok,why:it.why});
+    $$(".mfc").forEach(function(x){x.disabled=true});b.classList.add(ok?"picked-ok":"picked-no");
+    var last=mi===mf.length-1;
+    $("#mfFb").innerHTML=fb(ok,ok?"Correct. It’s a "+it.a+".":"Not quite. It’s a "+it.a+".",it.why)+'<div class="row" style="margin-top:14px"><button class="btn" id="mfNext">'+(last?"Finish":"Next statement")+'</button></div>';
+    $("#mfNext").focus();return;
+  }
+  if(e.target.id==="mfNext"){
+    if(mi<mf.length-1){mi++;renderMF()}
+    else{
+      showMFDone();complete(4);
+    }
+  }
+});
+
+/* ---------- part 5: exit ---------- */
+$("#build").addEventListener("click",function(){
+  var err=$("#buildErr");
+  if($("#e1").value.trim().length<5||$("#e2").value.trim().length<3){
+    err.hidden=false;err.textContent="Please answer both questions before downloading your PDF.";return;
+  }
+  err.hidden=true;
+  st.endSec=st.endSec||Math.floor((Date.now()-st.t0)/1000);
+  if(st.timer){clearInterval(st.timer);st.timer=null}
+  complete(5);
+  $("#summary").hidden=false;
+  $("#talkMsg").hidden=!$("#talk").checked;
+  downloadPdf();
+  $("#summary").scrollIntoView({behavior:"smooth",block:"start"});
+});
+
+/* ---------- pdf download ---------- */
+function clean(s){return String(s==null?"":s).replace(/[^\u0009\u000A\u0020-\u007E\u00A0-\u00FF\u2018\u2019\u201C\u201D\u2013\u2014\u2026\u2022]/g,"?")}
+var BINL={use:"Appropriate use",misuse:"Misuse",sud:"Substance use disorder"};
+function buildPdf(){
+  var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
+  var doc=new J({unit:"pt",format:"letter"});
+  var W=612,H=792,M=54,TW=W-2*M,y=M;
+  var DARK=[18,38,43],GRAY=[85,100,105];
+  function need(h){if(y+h>H-M){doc.addPage();y=M}}
+  function tx(s,size,bold,gap,col,indent){
+    doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.setTextColor.apply(doc,col||DARK);
+    var ind=indent||0,lines=doc.splitTextToSize(clean(s),TW-ind),lh=size*1.35;
+    lines.forEach(function(l){need(lh);doc.text(l,M+ind,y+size);y+=lh});
+    y+=gap||0;
+  }
+  function head(s){need(48);y+=12;tx(s,14,true,2);doc.setDrawColor(18,38,43);doc.setLineWidth(1);doc.line(M,y,W-M,y);y+=8}
+  var nm=$("#nm").value.trim()||"(no name entered)";
+  var secs=st.endSec||Math.floor((Date.now()-st.t0)/1000);
+  tx("Drugs and the Body: My Answers",22,true,6);
+  tx("Name: "+nm,11,false,0);
+  tx("Date: "+new Date().toLocaleDateString(),11,false,0);
+  tx("Time in lesson: "+fmt(secs),11,false,4);
+
+  head("Part 1. Drug or not a drug?");
+  st.hookLog.forEach(function(h){
+    tx(h.q+": you said “"+(h.pick==="drug"?"Drug":"Not a drug")+"” ("+(h.ok?"correct":"review")+")",11,true,0);
+    tx(h.why,10,false,6,GRAY,12);
+  });
+  tx("Definition: a drug is any substance, other than food, that changes how the body or mind works.",11,false,4);
+
+  head("Part 2. Use, misuse, and substance use disorder");
+  scen.forEach(function(s){
+    tx(s.t,11,true,0);
+    tx("Your placement: "+(BINL[s.bin]||"(not placed)"),10.5,false,0,DARK,12);
+    tx(s.shown||"",10,false,6,GRAY,12);
+  });
+  tx("Placements that needed another try: "+st.sortRetries,10.5,false,4);
+  tx("Hardest situation to place, in your words:",11,true,0);
+  tx($("#hardest").value.trim(),11,false,4);
+
+  head("Part 3. Race to the brain");
+  tx("Your route ranking, fastest to slowest:",11,true,0);
+  (st.rankFinal||order).forEach(function(id,i){tx((i+1)+". "+rById[id].n+" ("+rById[id].eg+")",11,false,0,DARK,12)});
+  tx(st.rankGood?"Your order matched the correct speed tiers.":"You viewed the answer before matching the tiers.",10,false,0,GRAY,12);
+  tx("Correct tiers: seconds (inhaling or vaping, injecting); minutes (snorting, under the tongue); 30 to 60+ minutes (swallowing); hours (skin patch).",10,false,8,GRAY,12);
+  tx("The journey through the body:",11,true,0);
+  stops.forEach(function(s,i){
+    var ok=s.opts.filter(function(o){return o.ok})[0];
+    tx("Stop "+(i+1)+": "+s.n,11,true,0,DARK,12);
+    tx(s.q,10.5,false,0,DARK,24);
+    tx("Answer: "+ok.t+" "+ok.why,10,false,6,GRAY,24);
+  });
+  tx("Why a faster, stronger hit raises the risk of dependence, in your words:",11,true,0);
+  tx($("#why1").value.trim(),11,false,4);
+  tx("Sample answer: A fast route makes a quick, intense spike of reward, then a sharp drop as the drug wears off. The brain strongly links the drug with that spike, and the crash creates a pull to take another dose sooner.",10,false,4,GRAY);
+
+  head("Part 4. Myth or fact?");
+  st.mfLog.forEach(function(m){
+    tx("“"+m.q+"”",11,true,0);
+    tx("You said: "+(m.pick==="myth"?"Myth":"Fact")+" ("+(m.ok?"correct":"review")+"). The answer is: "+(m.a==="myth"?"Myth":"Fact")+".",10.5,false,0,DARK,12);
+    tx(m.why,10,false,6,GRAY,12);
+  });
+
+  head("Part 5. Exit ticket");
+  tx("One thing I learned about how drugs get to the brain:",11,true,0);
+  tx($("#e1").value.trim(),11,false,6);
+  tx("One question I still have about addiction:",11,true,0);
+  tx($("#e2").value.trim(),11,false,6);
+  tx("I’d like to talk to someone about this topic: "+($("#talk").checked?"Yes, please follow up privately":"No"),11,true,6);
+
+  var n=doc.getNumberOfPages();
+  for(var p=1;p<=n;p++){
+    doc.setPage(p);doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(120,130,135);
+    doc.text(clean("Drugs and the Body: "+nm+"  |  Page "+p+" of "+n),M,H-28);
+  }
+  return doc;
+}
+function downloadPdf(){
+  var msg=$("#copyMsg"),doc=null;
+  try{doc=buildPdf()}catch(e){doc=null}
+  if(!doc){msg.textContent="Couldn’t make the PDF. Check your internet connection and try again.";return}
+  var slug=($("#nm").value.trim()||"student").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||"student";
+  try{doc.save("drugs-and-the-body-"+slug+".pdf");msg.textContent="PDF downloaded."}
+  catch(e){msg.textContent="Couldn’t download the PDF here. Try again, or ask your teacher for help."}
+}
+$("#pdf").addEventListener("click",downloadPdf);
+
+/* ---------- autosave (this device only) ---------- */
+var KEY="drugs-and-the-body-v1",canStore=false,restoring=false,wiped=false,had=false;
+try{localStorage.setItem(KEY+"-test","1");localStorage.removeItem(KEY+"-test");canStore=true}catch(e){}
+var FIELDS=["hardest","why1","nm","e1","e2"];
+function stat(t){$("#saveStat").textContent=t}
+function save(){
+  if(restoring||wiped||!st.reached)return;
+  if(!canStore){stat("Progress isn’t saving on this browser");return}
+  var f={};FIELDS.forEach(function(k){f[k]=$("#"+k).value});
+  var data={v:1,reached:st.reached,part:st.part,done:st.done,
+    el:st.endSec||(st.t0?Math.floor((Date.now()-st.t0)/1000):0),endSec:st.endSec,
+    hookRight:st.hookRight,sortRetries:st.sortRetries,rankChecks:st.rankChecks,mfRight:st.mfRight,
+    hookLog:st.hookLog,mfLog:st.mfLog,rankFinal:st.rankFinal,rankGood:st.rankGood,
+    placed:scen.filter(function(s){return s.bin}).map(function(s){return [s.id,s.bin]}),
+    order:order,rankRevealed:rankRevealed,cur:cur,stopDone:stopDone,whyOpen:!$("#whySection").hidden,
+    surge:Object.keys(surgeSeen),tol:+$("#tol").value,tolMax:tolMax,f:f,talk:$("#talk").checked};
+  try{localStorage.setItem(KEY,JSON.stringify(data));stat("✓ Progress saved on this device")}
+  catch(e){stat("Progress isn’t saving on this browser")}
+}
+function restore(){
+  if(!canStore)return false;
+  var d=null;try{d=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){d=null}
+  if(!d||!d.reached)return false;
+  restoring=true;
+  try{
+    st.reached=d.reached;st.part=d.part||1;st.resumePart=st.part;st.done=d.done||{};st.endSec=d.endSec||0;st.savedEl=d.el||0;
+    st.hookRight=d.hookRight||0;st.sortRetries=d.sortRetries||0;st.rankChecks=d.rankChecks||0;st.mfRight=d.mfRight||0;
+    st.hookLog=d.hookLog||[];st.mfLog=d.mfLog||[];
+    var f=d.f||{};FIELDS.forEach(function(k){if(typeof f[k]==="string")$("#"+k).value=f[k]});
+    $("#talk").checked=!!d.talk;
+    /* part 1 */
+    if(st.hookLog.length>=hook.length){hi=hook.length-1;showHookDone()}
+    else{hi=st.hookLog.length;renderHook()}
+    /* part 2 */
+    (d.placed||[]).forEach(function(p){
+      var s=byId[p[0]],card=deck.querySelector('.card[data-id="'+p[0]+'"]');
+      if(!s||!card||!s.ok[p[1]])return;
+      s.shown=s.ok[p[1]];s.bin=p[1];card.classList.add("placed");card.draggable=false;
+      $('.bin[data-bin="'+p[1]+'"] .binbody').appendChild(card);placed++;
+    });
+    updDeck();if(placed===scen.length)$("#sortAfter").hidden=false;
+    /* part 3 */
+    if(d.order&&d.order.length===order.length&&d.order.every(function(id){return rById[id]})){order=d.order.slice();renderRank()}
+    cur=d.cur||0;if(d.stopDone&&d.stopDone.length===4)stopDone=d.stopDone;
+    if(d.rankRevealed)revealRank();
+    if(d.rankGood!=null)st.rankGood=d.rankGood;
+    if(d.whyOpen)$("#whySection").hidden=false;
+    $("#whyShow").disabled=$("#why1").value.trim().length<10;
+    if(st.done[3])$("#whyAns").hidden=false;
+    /* part 4 */
+    (d.surge||[]).forEach(function(k){surgeSeen[k]=true});
+    var tv=Math.max(0,Math.min(3,d.tol||0)),ti=tolInfo[tv];
+    $("#tol").value=tv;$("#tolNat").style.width=ti.n+"%";$("#tolDose").style.width=ti.d+"%";$("#tolTxt").textContent=ti.t;
+    tolMax=!!d.tolMax;
+    if(Object.keys(surgeSeen).length===3&&tolMax){
+      $("#mfSection").hidden=false;
+      if(st.mfLog.length>=mf.length){mi=mf.length-1;showMFDone()}else{mi=st.mfLog.length;renderMF()}
+    }
+    /* unlocked parts */
+    Object.keys(st.done).forEach(function(n){
+      var nb=$("#next"+n);if(nb)nb.disabled=false;
+      var hh=$("#hint"+n);if(hh)hh.textContent="Nice work. Keep going when you’re ready.";
+    });
+    /* part 5 */
+    if(st.done[5]){$("#summary").hidden=false;$("#talkMsg").hidden=!$("#talk").checked}
+  }catch(e){}
+  restoring=false;
+  return true;
+}
+function wipe(){
+  wiped=true;
+  try{localStorage.removeItem(KEY)}catch(e){}
+  if(st.timer){clearInterval(st.timer);st.timer=null}
+  stat("");
+}
+document.addEventListener("click",function(){setTimeout(save,0)});
+document.addEventListener("input",function(){save()});
+document.addEventListener("change",function(){save()});
+
+$("#resetBtn").addEventListener("click",function(){$("#resetConfirm").hidden=false;$("#resetYes").focus()});
+$("#resetNo").addEventListener("click",function(){$("#resetConfirm").hidden=true});
+$("#resetYes").addEventListener("click",function(){
+  wipe();$("#resetConfirm").hidden=true;$("#startRow").hidden=true;$("#resetDone").hidden=false;
+});
+$("#clearBtn").addEventListener("click",function(){$("#clearConfirm").hidden=false;$("#clearYes").focus()});
+$("#clearNo").addEventListener("click",function(){$("#clearConfirm").hidden=true});
+$("#clearYes").addEventListener("click",function(){
+  wipe();
+  FIELDS.forEach(function(k){$("#"+k).value=""});$("#talk").checked=false;
+  $("#clearConfirm").hidden=true;$("#clearRow").hidden=true;$("#clearDone").hidden=false;$("#talkMsg").hidden=true;
+});
+
+had=restore();
+if(had){$("#start").textContent="Continue where you left off";$("#resetBtn").hidden=false}
+if(!canStore)$("#storeWarn").hidden=false;
+
+show(0);
+})();
+</script>
+</body>
+</html>
