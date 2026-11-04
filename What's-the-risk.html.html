@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What’s the Risk? | Addiction Unit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bitter:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ===== Colors (light + dark) ===== */
+:root{
+  --bg:#eef2ef; --card:#ffffff; --ink:#18302e; --muted:#5b6b69; --line:#d5dfdb;
+  --accent:#1f5f5b; --accent-ink:#ffffff; --accent-soft:#e1efec;
+  --low:#7fa77a; --mid:#d9a441; --high:#b5483b;
+  --pick:#e1efec; --pick-line:#1f5f5b;
+  --marker:#ffe47a; --marker-ink:#3f3300;
+  --warn:#9a3b2e; --ok:#2f6b3b;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121a19; --card:#1b2524; --ink:#e6efec; --muted:#9fb2ae; --line:#2e3d3b;
+    --accent:#5fb3aa; --accent-ink:#0f1716; --accent-soft:#203332;
+    --pick:#203a37; --pick-line:#5fb3aa;
+    --marker:#6b5a12; --marker-ink:#fff4c2;
+    --warn:#f08b7b; --ok:#8fd19c;
+    color-scheme: dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.55; font-size:17px;
+}
+h1,h2,h3{font-family:'Bitter', Georgia, serif; line-height:1.2; margin:0}
+.wrap{max-width:960px; margin:0 auto; padding:24px 16px 80px}
+.sheet{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:28px; margin-bottom:24px}
+@media (min-width:720px){ .sheet{padding:40px} }
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.prose{max-width:68ch}
+
+/* ===== Header ===== */
+.hero h1{font-size:clamp(2.2rem,6vw,3.4rem); font-weight:800; letter-spacing:-.01em; margin-bottom:14px}
+.hero .who{display:grid; grid-template-columns:1fr; gap:12px; margin-top:22px; padding-top:20px; border-top:1px solid var(--line)}
+@media (min-width:600px){ .hero .who{grid-template-columns:2fr 1fr} }
+label.field{display:block; font-weight:700; font-size:.95rem}
+input[type=text], textarea{
+  width:100%; font:inherit; color:var(--ink); background:var(--bg);
+  border:1.5px solid var(--line); border-radius:8px; padding:10px 12px; margin-top:6px;
+}
+textarea{min-height:130px; resize:vertical}
+input:focus-visible, textarea:focus-visible, button:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.status{font-size:.88rem; margin-top:14px; color:var(--muted)}
+.status.ok{color:var(--ok)}
+.status.warn{color:var(--warn); font-weight:700}
+em.key{font-style:normal; font-weight:700; color:var(--high)}
+em.key.pro{color:var(--accent)}
+
+/* ===== Section headings ===== */
+.part-label{font-family:'Bitter',Georgia,serif; color:var(--accent); font-weight:600; font-size:1rem; margin-bottom:4px}
+.sheet > h2{font-size:1.75rem; margin-bottom:10px}
+.directions{background:var(--accent-soft); border-radius:10px; padding:14px 16px; margin:16px 0 24px}
+
+/* ===== Factor cards ===== */
+.grid{display:grid; grid-template-columns:1fr; gap:14px}
+@media (min-width:720px){ .grid{grid-template-columns:1fr 1fr} }
+.factor{border:1px solid var(--line); border-radius:10px; padding:14px}
+.factor-head{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px}
+.factor-head h3{font-size:1.05rem}
+.opt{display:flex; justify-content:space-between; gap:10px; font-size:.9rem; padding:7px 10px; border-radius:6px; border:1.5px solid transparent; color:var(--muted)}
+.opt + .opt{margin-top:4px}
+.opt .pts{font-weight:700; white-space:nowrap}
+.opt.selected{background:var(--pick); border-color:var(--pick-line); color:var(--ink)}
+.opt.selected .pts{color:var(--accent)}
+
+/* ===== Dice ===== */
+.dice{
+  flex-shrink:0; width:48px; height:48px; border-radius:11px; position:relative;
+  background:#fff; border:1px solid #d6dcdb; cursor:pointer; padding:0;
+  box-shadow: inset 0 -4px 0 #c9d3d1, 0 3px 6px rgba(20,40,38,.15);
+  transition: transform .1s ease;
+}
+.dice:hover:not(:disabled){transform:translateY(-2px)}
+.dice:active:not(:disabled){transform:translateY(1px); box-shadow: inset 0 -1px 0 #c9d3d1}
+.dice.empty{background:var(--accent); border-color:var(--accent); box-shadow: inset 0 -4px 0 rgba(0,0,0,.25), 0 3px 6px rgba(20,40,38,.2)}
+.dice:disabled{cursor:default}
+.dice-q{position:absolute; inset:0; display:grid; place-items:center; color:var(--accent-ink); font-family:'Bitter',Georgia,serif; font-weight:800; font-size:1.3rem}
+.dot{width:8px; height:8px; background:#18302e; border-radius:50%; position:absolute}
+.rolling{animation:roll .45s ease}
+@keyframes roll{0%{transform:rotate(0)}50%{transform:rotate(200deg) scale(.9)}100%{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){ .rolling{animation:none} .dice{transition:none} }
+.d1{top:50%;left:50%;transform:translate(-50%,-50%)}
+.d2-1{top:22%;left:22%}.d2-2{bottom:22%;right:22%}
+.d3-1{top:20%;left:20%}.d3-2{top:50%;left:50%;transform:translate(-50%,-50%)}.d3-3{bottom:20%;right:20%}
+.d4-1{top:22%;left:22%}.d4-2{top:22%;right:22%}.d4-3{bottom:22%;left:22%}.d4-4{bottom:22%;right:22%}
+.d5-1{top:20%;left:20%}.d5-2{top:20%;right:20%}.d5-3{top:50%;left:50%;transform:translate(-50%,-50%)}.d5-4{bottom:20%;left:20%}.d5-5{bottom:20%;right:20%}
+.d6-1{top:20%;left:24%}.d6-2{top:20%;right:24%}.d6-3{top:50%;left:24%;transform:translateY(-50%)}.d6-4{top:50%;right:24%;transform:translateY(-50%)}.d6-5{bottom:20%;left:24%}.d6-6{bottom:20%;right:24%}
+
+/* ===== Scoresheet / risk meter ===== */
+.score{display:grid; grid-template-columns:1fr; gap:20px; align-items:center; margin:8px 0 28px}
+@media (min-width:640px){ .score{grid-template-columns:auto 1fr} }
+.total{text-align:center; min-width:140px}
+.total .num{font-family:'Bitter',Georgia,serif; font-weight:800; font-size:4rem; line-height:1; color:var(--accent)}
+.total .of{font-size:.9rem; color:var(--muted)}
+.meter-ends{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); margin-bottom:6px}
+.meter{position:relative; height:26px; border-radius:999px; overflow:visible; display:flex}
+.meter span{flex:1}
+.meter span:nth-child(1){background:var(--low); border-radius:999px 0 0 999px}
+.meter span:nth-child(2){background:var(--mid)}
+.meter span:nth-child(3){background:var(--high); border-radius:0 999px 999px 0}
+.pin{position:absolute; top:-6px; bottom:-6px; width:8px; margin-left:-4px; background:var(--ink); border:2px solid var(--card); border-radius:4px; transition:left .6s cubic-bezier(.2,.9,.3,1.2)}
+@media (prefers-reduced-motion: reduce){ .pin{transition:none} }
+.verdict{margin-top:12px; font-weight:700}
+.count{font-size:.9rem; color:var(--muted); margin-top:4px}
+
+.consider{border:2px dashed var(--line); border-radius:12px; padding:20px; margin-bottom:28px}
+.consider h3{font-size:1.25rem; margin-bottom:6px}
+.gen-row{display:flex; align-items:center; gap:14px; margin-top:14px}
+.consider .opt{font-size:.95rem}
+
+/* ===== Protective factors table ===== */
+.table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px; margin:14px 0 30px}
+table{border-collapse:collapse; width:100%; min-width:640px}
+th{font-family:'Bitter',Georgia,serif; text-align:left; padding:12px 14px; font-size:1.05rem; border-bottom:1px solid var(--line); background:var(--accent-soft)}
+td{vertical-align:top; padding:4px; border-top:1px solid var(--line); width:33.33%}
+th + th, td + td{border-left:1px solid var(--line)}
+.pf{
+  display:block; width:100%; text-align:left; font:inherit; font-size:.95rem; color:var(--ink);
+  background:transparent; border:0; border-radius:6px; padding:10px 12px; cursor:pointer;
+}
+.pf:hover{background:var(--bg)}
+.pf[aria-pressed="true"]{background:var(--marker); color:var(--marker-ink)}
+.pf[aria-pressed="true"]::before{content:"✓ "; font-weight:700}
+
+.q{margin-bottom:26px}
+.q label{font-family:'Bitter',Georgia,serif; font-weight:600; font-size:1.12rem; display:block}
+.q .hint{font-size:.92rem; color:var(--muted); margin:4px 0 0}
+
+/* ===== Finish ===== */
+.finish{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
+.btn{font:inherit; font-weight:700; border-radius:10px; padding:14px 22px; cursor:pointer; border:1.5px solid transparent}
+.btn.primary{background:var(--accent); color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent; color:var(--muted); border-color:var(--line)}
+.btn.ghost:hover{color:var(--warn); border-color:var(--warn)}
+.note{font-size:.9rem; color:var(--muted); margin-top:14px; max-width:68ch}
+
+/* ===== In-page dialog ===== */
+.modal-back{position:fixed; inset:0; background:rgba(10,20,19,.55); display:none; align-items:center; justify-content:center; padding:16px; z-index:100}
+.modal-back.open{display:flex}
+.modal{background:var(--card); color:var(--ink); border-radius:14px; padding:26px; max-width:460px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.modal h3{font-size:1.3rem; margin-bottom:10px}
+.modal p{white-space:pre-line}
+.modal ul{margin:0 0 14px; padding-left:20px}
+.modal .actions{display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end; margin-top:18px}
+.btn.danger{background:var(--high); color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== Header ===== -->
+  <header class="sheet hero">
+    <h1>What’s the Risk?</h1>
+    <div class="prose">
+      <p>Drug and alcohol addiction, also known as substance use disorder, can happen to anyone. While it’s hard to predict who will become addicted and who will not, there are a variety of factors that impact our behaviors.</p>
+      <p>Studies have found that the more <em class="key">risk factors</em> a teen has, the greater the likelihood they will engage in risky behaviors. Teens with more <em class="key pro">protective factors</em> and a resilient personality are better able to cope with risk factors and life challenges and are less likely to be involved in risk-related behaviors.</p>
+    </div>
+    <div class="who">
+      <label class="field">Your name
+        <input type="text" data-field="name" autocomplete="name" placeholder="First and last name">
+      </label>
+      <label class="field">Class period
+        <input type="text" data-field="period" placeholder="e.g. 3">
+      </label>
+    </div>
+    <p id="save-status" class="status" role="status" aria-live="polite"></p>
+  </header>
+
+  <!-- ===== Part 1 ===== -->
+  <section class="sheet" aria-labelledby="p1">
+    <p class="part-label">Part 1</p>
+    <h2 id="p1">Build a fictional student</h2>
+    <div class="directions">
+      <strong>Directions:</strong> Click the die for each factor to roll it. Each roll is final, so your fictional student stays the same. Your scoresheet and risk scale update as you go.
+    </div>
+    <div id="factors-grid" class="grid"></div>
+  </section>
+
+  <section class="sheet" aria-labelledby="sc">
+    <h2 id="sc">Scoresheet</h2>
+    <div class="score">
+      <div class="total">
+        <div id="total-score" class="num">0</div>
+        <div class="of">total points</div>
+      </div>
+      <div>
+        <div class="meter-ends"><span>Not likely (19)</span><span>Very likely (43)</span></div>
+        <div class="meter" aria-hidden="true"><span></span><span></span><span></span><div id="pin" class="pin" style="left:0%"></div></div>
+        <p id="verdict" class="verdict"></p>
+        <p id="rolled-count" class="count"></p>
+      </div>
+    </div>
+
+    <div class="consider">
+      <h3>Consider this…</h3>
+      <p class="muted">Genetics plays an important role. Roll for your student’s genetic makeup to see their vulnerability level. This roll doesn’t add points.</p>
+      <div id="gen-opts"></div>
+      <div class="gen-row">
+        <button class="dice empty" id="dice-genetics" onclick="roll('genetics')" aria-label="Roll the die for genetic makeup"></button>
+        <span class="muted">Roll to find genetic vulnerability</span>
+      </div>
+    </div>
+
+    <div class="q">
+      <label for="reflection">What are the greatest risk factors for this fictional student? What are the best protective factors? Explain.</label>
+      <textarea id="reflection" data-field="reflection" placeholder="Write your analysis here…"></textarea>
+    </div>
+  </section>
+
+  <!-- ===== Part 2 ===== -->
+  <section class="sheet" aria-labelledby="p2">
+    <p class="part-label">Part 2</p>
+    <h2 id="p2">Identifying your protective factors</h2>
+    <div class="q" style="margin-top:22px">
+      <label id="q1-label">1. Which of these protective factors do you have that can reduce your risk of developing a substance use disorder?</label>
+      <p class="hint">Click each one that applies to you to highlight it. Click again to remove it.</p>
+    </div>
+    <div class="table-wrap">
+      <table aria-labelledby="q1-label">
+        <thead><tr><th scope="col">Individual</th><th scope="col">Family</th><th scope="col">School / community</th></tr></thead>
+        <tbody id="pf-body"></tbody>
+      </table>
+    </div>
+
+    <div class="q">
+      <label for="q2">2. Which protective factors are the strongest for you? Explain why they are strengths.</label>
+      <textarea id="q2" data-field="q2" placeholder="Write your response here…"></textarea>
+    </div>
+    <div class="q">
+      <label for="q3">3. Which protective factors that <u>you have control over</u> could you strengthen? Explain your thinking.</label>
+      <textarea id="q3" data-field="q3" placeholder="Write your response here…"></textarea>
+    </div>
+    <div class="q">
+      <label for="q4">4. Who is on your support team? Explain why these people are on your team.</label>
+      <p class="hint">Think about the people you can count on for caring support and honest feedback.</p>
+      <textarea id="q4" data-field="q4" placeholder="List your team members and explain why…"></textarea>
+    </div>
+  </section>
+
+  <!-- ===== Finish ===== -->
+  <section class="sheet" aria-labelledby="fin">
+    <h2 id="fin" style="margin-bottom:10px">Turn it in</h2>
+    <p class="prose">Download your work as a PDF, then turn it in the way your teacher has asked.</p>
+    <div class="finish">
+      <button class="btn primary" onclick="downloadPDF()">Download PDF</button>
+      <button class="btn ghost" onclick="clearWork()">Erase my work from this computer</button>
+    </div>
+    <p class="note">Your work saves automatically in this browser, so you can close the tab and come back later on the same device. On a shared computer, click <strong>Erase my work</strong> after you download your PDF.</p>
+  </section>
+</div>
+
+<div id="modal-back" class="modal-back" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body"></div>
+    <div class="actions">
+      <button id="modal-cancel" class="btn ghost">Go back</button>
+      <button id="modal-ok" class="btn primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SETTINGS — easy to change
+   ============================================================ */
+const ALLOW_REROLL = false;               // true = students can re-roll a factor
+const STORAGE_KEY  = 'whatsTheRisk.v1';   // change this to reset everyone's saved work
+const MIN_SCORE = 19, MAX_SCORE = 43;
+
+/* ============================================================
+   CONTENT
+   ============================================================ */
+const factors = [
+  { id:'stability', name:'Stability', options:[{rolls:[1,2,3],text:'Moves to a new area frequently',points:2},{rolls:[4,5,6],text:'Moves infrequently or never',points:1}]},
+  { id:'family_conn', name:'Family connectedness', options:[{rolls:[2,3,5],text:'Feels detached from family',points:3},{rolls:[1,4,6],text:'Strong bonds between family members',points:1}]},
+  { id:'parental_att', name:'Parental attitudes', options:[{rolls:[1],text:'Parents talk often about drugs/alcohol',points:1},{rolls:[4,6],text:'Parents never discuss the issue',points:2},{rolls:[2,3,5],text:'Parents approve of use',points:3}]},
+  { id:'expectations', name:'Parental expectations', options:[{rolls:[1,2,6],text:'Low expectations',points:2},{rolls:[3,4,5],text:'High expectations',points:1}]},
+  { id:'structure', name:'Family structure', options:[{rolls:[2,4,5],text:'Lack of supervision',points:2},{rolls:[1,3,6],text:'Clear rules/monitoring',points:1}]},
+  { id:'history', name:'Family history', options:[{rolls:[1,2,3],text:'Family history of addiction',points:2},{rolls:[4,5,6],text:'No family history',points:1}]},
+  { id:'abuse', name:'Abuse history', options:[{rolls:[1,3,5],text:'Experienced abuse',points:2},{rolls:[2,4,6],text:'No abuse history',points:1}]},
+  { id:'access', name:'Household access', options:[{rolls:[2,3,4],text:'Easily accessed',points:2},{rolls:[1,5,6],text:'Hard to access',points:1}]},
+  { id:'belonging', name:'Belonging', options:[{rolls:[1,2,6],text:'Unattached to school',points:2},{rolls:[3,4,5],text:'Highly involved',points:1}]},
+  { id:'gpa', name:'GPA', options:[{rolls:[3,4,6],text:'Low GPA',points:2},{rolls:[1,2,5],text:'High GPA',points:1}]},
+  { id:'success_early', name:'Early success', options:[{rolls:[1,2,6],text:'Poor grades (grades 4–6)',points:2},{rolls:[3,4,5],text:'Excellent grades (grades 4–6)',points:1}]},
+  { id:'availability', name:'Community availability', options:[{rolls:[1,5,6],text:'Widely available',points:2},{rolls:[2,3,4],text:'Hard to find',points:1}]},
+  { id:'neighborhood', name:'Neighborhood', options:[{rolls:[3,4,5],text:'Low attachment/disorganized',points:2},{rolls:[1,2,6],text:'Connected neighborhood',points:1}]},
+  { id:'norms', name:'Community norms', options:[{rolls:[1,2,6],text:'Climate of acceptance',points:2},{rolls:[3,4,5],text:'Policies support healthy norms',points:1}]},
+  { id:'skills', name:'Social skills', options:[{rolls:[1,3,4],text:'Anti-social behavior',points:2},{rolls:[2,5,6],text:'Adapts well',points:1}]},
+  { id:'anger', name:'Anger management', options:[{rolls:[1,4,5],text:'Easily angered',points:2},{rolls:[2,3,6],text:'Easy-going',points:1}]},
+  { id:'depression', name:'Depression', options:[{rolls:[1,2,3],text:'Struggles with depression',points:2},{rolls:[4,5,6],text:'No depression',points:1}]},
+  { id:'friends', name:'Friends', options:[{rolls:[1,2,4],text:'Friends use substances',points:2},{rolls:[3,5,6],text:'No involvement',points:1}]},
+  { id:'lifeskills', name:'Life skills', options:[{rolls:[4,5,6],text:'Struggles with regulation',points:2},{rolls:[1,2,3],text:'Empathetic/communicates',points:1}]},
+  { id:'first_use', name:'First use', options:[{rolls:[3],text:'Never used',points:0},{rolls:[2,6],text:'Used age 18+',points:1},{rolls:[1,4,5],text:'Used before 18',points:3}]}
+];
+
+const genetics = { id:'genetics', name:'Genetic makeup', options:[
+  {rolls:[1,3], text:'Both biological parents had addiction'},
+  {rolls:[2,6], text:'One biological parent had addiction'},
+  {rolls:[4,5], text:'Neither parent had addiction'}
+]};
+
+const protective = {
+  individual:{ label:'Individual', items:[
+    'emotional self-regulation',
+    'high self-esteem',
+    'good coping skills',
+    'good problem-solving skills',
+    'engagement and connections in two or more of the following contexts: at school, with peers, in athletics, employment, religion, culture'
+  ]},
+  family:{ label:'Family', items:[
+    'family provides structure, limits, rules, monitoring, and predictability',
+    'supportive relationships with parents and family members',
+    'clear expectations for behavior and rules',
+    'higher parent education',
+    'high parental expectations about school'
+  ]},
+  community:{ label:'School / community', items:[
+    'positive connection to other adults',
+    'opportunities for youth engagement within the school and community',
+    'safe, supportive, connected neighborhood',
+    'clear norms and expectations for behavior',
+    'physical and psychological safety'
+  ]}
+};
+const PF_COLS = ['individual','family','community'];
+
+/* ============================================================
+   STATE + AUTOSAVE
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const blank = () => ({ name:'', period:'', rolls:{}, reflection:'', highlights:[], q2:'', q3:'', q4:'' });
+let state = blank();
+let storageOK = true;
+let saveTimer;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) state = Object.assign(blank(), JSON.parse(raw));
+  }catch(e){ storageOK = false; }
+}
+function save(){
+  if(!storageOK){ setStatus(); return; }
+  setStatus('saving');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); setStatus('saved'); }
+    catch(e){ storageOK = false; setStatus(); }
+  }, 300);
+}
+function setStatus(mode){
+  const el = $('save-status');
+  if(!storageOK){
+    el.textContent = 'Autosave isn’t available in this browser. Download your PDF before you close this tab.';
+    el.className = 'status warn'; return;
+  }
+  if(mode === 'saving'){ el.textContent = 'Saving…'; el.className = 'status'; }
+  else if(mode === 'saved'){ el.textContent = '✓ Your progress is saved on this device'; el.className = 'status ok'; }
+  else { el.textContent = 'Your progress saves automatically on this device.'; el.className = 'status'; }
+}
+
+/* ============================================================
+   DICE + FACTORS
+   ============================================================ */
+const DOTS = {1:['d1'],2:['d2-1','d2-2'],3:['d3-1','d3-2','d3-3'],4:['d4-1','d4-2','d4-3','d4-4'],5:['d5-1','d5-2','d5-3','d5-4','d5-5'],6:['d6-1','d6-2','d6-3','d6-4','d6-5','d6-6']};
+const diceHTML = v => v ? DOTS[v].map(d=>`<span class="dot ${d}"></span>`).join('') : '<span class="dice-q">?</span>';
+const optionFor = (f, v) => f.options.find(o => o.rolls.includes(v));
+const allFactors = [...factors, genetics];
+const ptsLabel = p => `${p} ${p===1?'pt':'pts'}`;
+
+function buildFactors(){
+  $('factors-grid').innerHTML = factors.map(f => `
+    <div class="factor">
+      <div class="factor-head">
+        <h3>${f.name}</h3>
+        <button class="dice empty" id="dice-${f.id}" onclick="roll('${f.id}')" aria-label="Roll the die for ${f.name}"></button>
+      </div>
+      ${f.options.map((o,i)=>`
+        <div class="opt" id="opt-${f.id}-${i}">
+          <span><strong>Roll ${o.rolls.join(', ')}:</strong> ${o.text}</span>
+          <span class="pts">${ptsLabel(o.points)}</span>
+        </div>`).join('')}
+    </div>`).join('');
+
+  $('gen-opts').innerHTML = genetics.options.map((o,i)=>`
+    <div class="opt" id="opt-genetics-${i}"><span><strong>Roll ${o.rolls.join(' or ')}:</strong> ${o.text}</span></div>`).join('');
+}
+
+function renderRoll(f){
+  const v = state.rolls[f.id];
+  const d = $('dice-'+f.id);
+  d.innerHTML = diceHTML(v);
+  d.classList.toggle('empty', !v);
+  const locked = !!v && !ALLOW_REROLL;
+  d.disabled = locked;
+  d.setAttribute('aria-label', v ? `${f.name}: rolled a ${v}` : `Roll the die for ${f.name}`);
+  f.options.forEach((o,i)=> $(`opt-${f.id}-${i}`).classList.toggle('selected', !!v && o.rolls.includes(v)));
+}
+
+function roll(id){
+  const f = allFactors.find(x => x.id === id);
+  const d = $('dice-'+id);
+  if((state.rolls[id] && !ALLOW_REROLL) || d.dataset.busy) return;
+  d.dataset.busy = '1';
+  d.classList.add('rolling'); d.classList.remove('empty');
+  let ticks = 0;
+  const t = setInterval(()=>{
+    d.innerHTML = diceHTML(1 + Math.floor(Math.random()*6));
+    if(++ticks >= 6){
+      clearInterval(t);
+      state.rolls[id] = 1 + Math.floor(Math.random()*6);
+      d.classList.remove('rolling');
+      delete d.dataset.busy;
+      renderRoll(f); updateScore(); save();
+    }
+  }, 70);
+}
+
+function scoreInfo(){
+  let total = 0, n = 0;
+  factors.forEach(f => { const v = state.rolls[f.id]; if(v){ n++; total += optionFor(f,v).points; } });
+  const pct = Math.min(100, Math.max(0, (total - MIN_SCORE) / (MAX_SCORE - MIN_SCORE) * 100));
+  let zone = '';
+  if(n === factors.length) zone = pct < 33.34 ? 'Not likely' : pct < 66.67 ? 'Somewhat likely' : 'Very likely';
+  return { total, n, pct, zone };
+}
+
+function updateScore(){
+  const { total, n, pct, zone } = scoreInfo();
+  $('total-score').textContent = total;
+  $('pin').style.left = pct + '%';
+  $('rolled-count').textContent = `${n} of ${factors.length} factors rolled`;
+  $('verdict').textContent = zone
+    ? `Risk level for this student: ${zone.toLowerCase()}`
+    : 'Roll all 20 factors to see where this student lands on the scale.';
+}
+
+/* ============================================================
+   PROTECTIVE FACTORS TABLE
+   ============================================================ */
+function buildTable(){
+  const rows = Math.max(...PF_COLS.map(c => protective[c].items.length));
+  let html = '';
+  for(let r=0; r<rows; r++){
+    html += '<tr>' + PF_COLS.map(c => {
+      const t = protective[c].items[r];
+      return t ? `<td><button class="pf" data-id="${c}-${r}" aria-pressed="false">${t}</button></td>` : '<td></td>';
+    }).join('') + '</tr>';
+  }
+  const body = $('pf-body');
+  body.innerHTML = html;
+  body.addEventListener('click', e => {
+    const b = e.target.closest('.pf'); if(!b) return;
+    const id = b.dataset.id;
+    state.highlights = state.highlights.includes(id) ? state.highlights.filter(x=>x!==id) : [...state.highlights, id];
+    renderHighlights(); save();
+  });
+}
+function renderHighlights(){
+  document.querySelectorAll('.pf').forEach(b => b.setAttribute('aria-pressed', state.highlights.includes(b.dataset.id)));
+}
+
+/* ============================================================
+   TEXT FIELDS
+   ============================================================ */
+function bindFields(){
+  document.querySelectorAll('[data-field]').forEach(el => {
+    el.value = state[el.dataset.field] || '';
+    el.addEventListener('input', () => { state[el.dataset.field] = el.value; save(); });
+  });
+}
+
+/* ============================================================
+   CLEAR
+   ============================================================ */
+/* In-page dialog (replaces confirm/alert, which some browsers block) */
+function showDialog({ title, html, okText = 'OK', cancelText = null, danger = false }){
+  return new Promise(resolve => {
+    const back = $('modal-back'), ok = $('modal-ok'), cancel = $('modal-cancel');
+    const opener = document.activeElement;
+    $('modal-title').textContent = title;
+    $('modal-body').innerHTML = html;
+    ok.textContent = okText;
+    ok.className = 'btn ' + (danger ? 'danger' : 'primary');
+    cancel.style.display = cancelText ? '' : 'none';
+    cancel.textContent = cancelText || '';
+    back.classList.add('open');
+    ok.focus();
+    const close = result => {
+      back.classList.remove('open');
+      ok.onclick = cancel.onclick = back.onclick = null;
+      document.removeEventListener('keydown', onKey);
+      if(opener && opener.focus) opener.focus();
+      resolve(result);
+    };
+    const onKey = e => { if(e.key === 'Escape') close(false); };
+    ok.onclick = () => close(true);
+    cancel.onclick = () => close(false);
+    back.onclick = e => { if(e.target === back) close(false); };
+    document.addEventListener('keydown', onKey);
+  });
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function clearWork(){
+  const yes = await showDialog({
+    title: 'Erase your work?',
+    html: '<p>This removes all of your rolls, highlights, and answers from this computer. Make sure you’ve downloaded your PDF first. This can’t be undone.</p>',
+    okText: 'Erase my work', cancelText: 'Go back', danger: true
+  });
+  if(!yes) return;
+  clearTimeout(saveTimer);
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  state = blank();
+  allFactors.forEach(renderRoll);
+  renderHighlights(); updateScore();
+  document.querySelectorAll('[data-field]').forEach(el => el.value = '');
+  setStatus();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ============================================================
+   PDF
+   ============================================================ */
+function clean(s){
+  return String(s || '')
+    .replace(/[\u2018\u2019\u201A\u2032]/g, "'").replace(/[\u201C\u201D\u201E\u2033]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-').replace(/\u2026/g, '...').replace(/\u00A0/g, ' ')
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF]/g, '');
+}
+
+async function downloadPDF(){
+  if(!window.jspdf){
+    await showDialog({ title:'The PDF tool didn’t load', html:'<p>Check your internet connection and refresh the page. Your work is saved.</p>' });
+    return;
+  }
+  if(!state.name.trim()){
+    await showDialog({ title:'Add your name first', html:'<p>Type your name at the top of the page before downloading.</p>' });
+    const nameBox = document.querySelector('[data-field="name"]');
+    nameBox.scrollIntoView({ behavior:'smooth', block:'center' }); nameBox.focus();
+    return;
+  }
+  const { total, n, zone } = scoreInfo();
+  const missing = [];
+  if(n < factors.length) missing.push(`${factors.length - n} risk factor(s) not rolled`);
+  if(!state.rolls.genetics) missing.push('Genetic makeup not rolled');
+  if(!state.reflection.trim()) missing.push('Part 1 reflection');
+  if(!state.highlights.length) missing.push('Part 2, question 1 (no factors highlighted)');
+  ['q2','q3','q4'].forEach((k,i) => { if(!state[k].trim()) missing.push(`Part 2, question ${i+2}`); });
+  if(missing.length){
+    const go = await showDialog({
+      title: 'Some parts aren’t finished',
+      html: '<p>Your PDF is missing:</p><ul>' + missing.map(m => `<li>${esc(m)}</li>`).join('') + '</ul><p>Download anyway?</p>',
+      okText: 'Download anyway', cancelText: 'Go back and finish'
+    });
+    if(!go) return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'letter' });
+  const M = 54, PW = doc.internal.pageSize.getWidth(), PH = doc.internal.pageSize.getHeight(), W = PW - 2*M;
+  const INK = [24,48,46], ACCENT = [31,95,91], MUTED = [91,107,105], LINE = [213,223,219];
+  let y = M;
+
+  const ensure = h => { if(y + h > PH - M){ doc.addPage(); y = M; } };
+  const font = (style, size, color) => { doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(...(color || INK)); };
+  function heading(t){
+    ensure(44); y += 6;
+    font('bold', 14, ACCENT); doc.text(clean(t), M, y); y += 7;
+    doc.setDrawColor(...LINE); doc.setLineWidth(1); doc.line(M, y, M + W, y); y += 16;
+  }
+  function para(t, opts = {}){
+    font(opts.bold ? 'bold' : 'normal', opts.size || 10.5, opts.color);
+    const indent = opts.indent || 0;
+    doc.splitTextToSize(clean(t), W - indent).forEach(line => { ensure(14); doc.text(line, M + indent, y); y += 14; });
+    y += (opts.after ?? 4);
+  }
+  const answer = t => para(t && t.trim() ? t : '(no response)', { indent:10, color: t && t.trim() ? INK : MUTED, after:10 });
+
+  // Title block
+  font('bold', 20, INK); doc.text("What's the Risk?", M, y); y += 22;
+  font('normal', 10.5, MUTED);
+  const date = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  doc.text(clean(`${state.name.trim()}${state.period.trim() ? '   |   Period ' + state.period.trim() : ''}   |   ${date}`), M, y);
+  y += 20;
+
+  // Part 1 scoresheet
+  heading('Part 1: Fictional student scoresheet');
+  font('bold', 9, MUTED);
+  doc.text('FACTOR', M, y); doc.text('RESULT', M + 150, y); doc.text('POINTS', M + W, y, { align:'right' }); y += 12;
+  factors.forEach(f => {
+    const v = state.rolls[f.id];
+    const o = v ? optionFor(f, v) : null;
+    const lines = doc.splitTextToSize(clean(o ? `${o.text} (rolled ${v})` : 'Not rolled'), W - 150 - 50);
+    ensure(lines.length * 13 + 6);
+    font('bold', 10, INK); doc.text(clean(f.name), M, y);
+    font('normal', 10, o ? INK : MUTED); lines.forEach((l,i) => doc.text(l, M + 150, y + i*13));
+    font('bold', 10, INK); doc.text(o ? String(o.points) : '-', M + W, y, { align:'right' });
+    y += lines.length * 13 + 4;
+    doc.setDrawColor(...LINE); doc.setLineWidth(.5); doc.line(M, y - 9, M + W, y - 9);
+  });
+  y += 6;
+  ensure(40);
+  font('bold', 12, ACCENT);
+  doc.text(`Total risk score: ${total} out of ${MAX_SCORE}`, M, y); y += 16;
+  font('normal', 10.5, INK);
+  doc.text(zone ? `Risk scale: ${zone} (scale runs from ${MIN_SCORE} to ${MAX_SCORE})` : `Risk scale: incomplete (${n} of ${factors.length} factors rolled)`, M, y); y += 16;
+  const g = state.rolls.genetics ? optionFor(genetics, state.rolls.genetics).text : 'Not rolled';
+  para(`Genetic vulnerability: ${g}`, { after:10 });
+
+  heading('Part 1: Reflection');
+  para('What are the greatest risk factors for this fictional student? What are the best protective factors? Explain.', { bold:true });
+  answer(state.reflection);
+
+  // Part 2
+  heading('Part 2: Identifying my protective factors');
+  para('1. Protective factors I have:', { bold:true });
+  if(!state.highlights.length) answer('');
+  PF_COLS.forEach(c => {
+    const picks = protective[c].items.filter((_, r) => state.highlights.includes(`${c}-${r}`));
+    if(!picks.length) return;
+    para(protective[c].label, { bold:true, indent:10, size:10, color:MUTED, after:0 });
+    picks.forEach(p => para('-  ' + p, { indent:18, after:0 }));
+    y += 6;
+  });
+  y += 4;
+  para('2. Which protective factors are the strongest for you? Explain why they are strengths.', { bold:true });
+  answer(state.q2);
+  para('3. Which protective factors that you have control over could you strengthen? Explain your thinking.', { bold:true });
+  answer(state.q3);
+  para('4. Who is on your support team? Explain why these people are on your team.', { bold:true });
+  answer(state.q4);
+
+  // Footer on every page
+  const pages = doc.getNumberOfPages();
+  for(let i = 1; i <= pages; i++){
+    doc.setPage(i); font('normal', 8.5, MUTED);
+    doc.text(clean(`${state.name.trim()}  |  What's the Risk?`), M, PH - 30);
+    doc.text(`Page ${i} of ${pages}`, PW - M, PH - 30, { align:'right' });
+  }
+
+  const safeName = clean(state.name).trim().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
+  doc.save(`Whats-the-Risk_${safeName || 'student'}.pdf`);
+}
+
+/* ============================================================
+   START
+   ============================================================ */
+load();
+buildFactors();
+buildTable();
+bindFields();
+allFactors.forEach(renderRoll);
+renderHighlights();
+updateScore();
+setStatus();
+</script>
+</body>
+</html>
