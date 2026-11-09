@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treatment for Addiction: The 5 W’s</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #eef3f1;
+    --surface: #ffffff;
+    --ink: #1f2a44;
+    --ink-soft: #4a5672;
+    --line: #cdd9d4;
+    --accent: #2f6f5e;
+    --accent-ink: #ffffff;
+    --progress: #d99a2b;
+    --done: #3e8e5e;
+    --empty: #c4cfd0;
+    --danger: #b3412f;
+    --field: #f7faf9;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141b22;
+      --surface: #1d2630;
+      --ink: #e6ecef;
+      --ink-soft: #a9b6c0;
+      --line: #33424f;
+      --accent: #5fb39a;
+      --accent-ink: #0f1a17;
+      --progress: #e8b04a;
+      --done: #5fbf85;
+      --empty: #3f4d59;
+      --danger: #e2735f;
+      --field: #17202a;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    padding-bottom: 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+  header { padding: 40px 0 24px; }
+  h1 {
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    line-height: 1.1;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .intro { max-width: 66ch; color: var(--ink-soft); margin: 0 0 10px; }
+  .intro a { color: var(--accent); font-weight: 700; }
+  .steps { max-width: 66ch; color: var(--ink-soft); margin: 0; padding-left: 1.3em; }
+  .steps li { margin-bottom: 4px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  label.name-label { font-weight: 700; display: block; margin-bottom: 6px; }
+  input[type="text"], textarea {
+    width: 100%;
+    font: inherit;
+    color: var(--ink);
+    background: var(--field);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  textarea { resize: vertical; min-height: 96px; }
+  input:focus, textarea:focus, button:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .field-error { color: var(--danger); font-weight: 700; margin-top: 6px; display: none; }
+  .field-error.show { display: block; }
+
+  /* The treatment path */
+  .path-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .path-head strong { font-size: 1.1rem; }
+  .save-status { color: var(--ink-soft); font-size: 0.9rem; }
+  .path { display: grid; grid-template-columns: repeat(5, 1fr); position: relative; }
+  .path::before {
+    content: ""; position: absolute; top: 21px; left: 10%; right: 10%;
+    height: 4px; background: var(--line); border-radius: 2px;
+  }
+  .stop {
+    position: relative; background: none; border: 0; padding: 0 4px;
+    color: var(--ink); font: inherit; cursor: pointer; text-align: center;
+    border-radius: 8px;
+  }
+  .stop .marker {
+    width: 46px; height: 46px; margin: 0 auto 6px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; font-size: 1.05rem;
+    background: var(--surface); border: 4px solid var(--empty); color: var(--ink-soft);
+    transition: border-color .2s, background .2s;
+  }
+  .stop.progress .marker { border-color: var(--progress); color: var(--ink); }
+  .stop.done .marker { border-color: var(--done); background: var(--done); color: #fff; }
+  .stop.current .marker { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); }
+  .stop .stop-name { font-size: 0.85rem; line-height: 1.25; display: block; }
+  .stop .stop-count { font-size: 0.78rem; color: var(--ink-soft); }
+
+  /* Sections */
+  .section { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+  .section-toggle {
+    width: 100%; display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; background: none; border: 0; color: var(--ink);
+    font: inherit; text-align: left; cursor: pointer;
+  }
+  .section-toggle .num {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700;
+    background: var(--accent); color: var(--accent-ink);
+  }
+  .section.is-done .section-toggle .num { background: var(--done); color: #fff; }
+  .section-toggle .title { font-size: 1.2rem; font-weight: 700; flex: 1; }
+  .section-toggle .tally { color: var(--ink-soft); font-size: 0.9rem; }
+  .section-toggle .chev { transition: transform .2s; }
+  .section.open .chev { transform: rotate(90deg); }
+  .section-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--line); }
+  .section.open .section-body { display: block; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 18px; }
+  .grid .wide { grid-column: 1 / -1; }
+  .w-label { font-weight: 700; display: block; margin-bottom: 4px; }
+  .w-hint { color: var(--ink-soft); font-size: 0.88rem; display: block; margin-bottom: 6px; }
+  .section-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+  /* Buttons */
+  .btn {
+    font: inherit; font-weight: 700; border-radius: 10px; padding: 11px 20px;
+    cursor: pointer; border: 2px solid transparent;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-secondary { background: transparent; color: var(--accent); border-color: var(--accent); }
+  .btn-quiet { background: transparent; color: var(--ink-soft); border-color: var(--line); }
+  .btn-danger { background: var(--danger); color: #fff; }
+
+  .finish h2 { margin: 0 0 6px; font-size: 1.35rem; }
+  .finish p { margin: 0 0 14px; color: var(--ink-soft); max-width: 66ch; }
+  .finish-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .finish-actions .spacer { flex: 1; }
+
+  /* In-page dialog */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(10, 16, 24, 0.55);
+    display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+  }
+  .overlay.show { display: flex; }
+  .dialog {
+    background: var(--surface); color: var(--ink); border-radius: 14px;
+    max-width: 440px; width: 100%; padding: 24px; border: 1px solid var(--line);
+  }
+  .dialog h3 { margin: 0 0 8px; font-size: 1.2rem; }
+  .dialog p { margin: 0 0 18px; color: var(--ink-soft); }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg); padding: 12px 22px; border-radius: 999px;
+    font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 60;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Practice quiz */
+  .quiz h2 { margin: 0 0 6px; font-size: 1.35rem; }
+  .quiz-intro { color: var(--ink-soft); margin: 0 0 16px; max-width: 66ch; }
+  .quiz-locked {
+    padding: 16px; border: 2px dashed var(--line); border-radius: 10px; color: var(--ink-soft);
+  }
+  .q-meta { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 6px; }
+  .q-text { font-size: 1.15rem; font-weight: 700; margin: 0 0 14px; max-width: 66ch; }
+  .q-options { display: grid; gap: 10px; }
+  .q-opt {
+    text-align: left; font: inherit; color: var(--ink); background: var(--field);
+    border: 2px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  }
+  .q-opt:hover:not(:disabled) { border-color: var(--accent); }
+  .q-opt:disabled { cursor: default; }
+  .q-opt.wrong { border-color: var(--danger); opacity: 0.7; text-decoration: line-through; }
+  .q-opt.correct {
+    border-color: var(--done); font-weight: 700;
+    background: color-mix(in srgb, var(--done) 15%, var(--field));
+  }
+  .q-feedback {
+    margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+    border-left: 5px solid var(--line); background: var(--field);
+  }
+  .q-feedback.good { border-left-color: var(--done); }
+  .q-feedback.retry { border-left-color: var(--progress); }
+  .q-feedback.miss { border-left-color: var(--danger); }
+  .q-nav { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .q-score { font-size: 1.6rem; font-weight: 700; margin: 0 0 4px; }
+  .q-score:focus { outline: none; }
+  .q-review { margin: 10px 0 18px; padding-left: 1.2em; }
+  .q-review li { margin-bottom: 10px; }
+
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr; }
+    .stop .stop-name { font-size: 0.72rem; }
+    .stop .marker { width: 38px; height: 38px; }
+    .path::before { top: 17px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Treatment for Addiction</h1>
+    <p class="intro">
+      Read <a href="https://docs.google.com/document/d/1jy4i9TJmfIFtXezNMNmg_vhuFfJlyPjj/edit?usp=sharing&ouid=104978059668965577418&rtpof=true&sd=true" target="_blank" rel="noopener">Addiction Treatment from Teen Health and Wellness</a>.
+      Use it to answer Who, What, Where, Why and When for each of the five treatment types below.
+    </p>
+    <ol class="steps">
+      <li>Type your name.</li>
+      <li>Fill in all five W’s for each treatment. Your work saves automatically on this Chromebook.</li>
+      <li>Take the practice quiz. It unlocks when all 25 answers are filled in.</li>
+      <li>Download your PDF and turn it in where your teacher tells you to.</li>
+    </ol>
+  </header>
+
+  <div class="panel">
+    <label class="name-label" for="studentName">Your name</label>
+    <input type="text" id="studentName" autocomplete="name" placeholder="First and last name">
+    <div class="field-error" id="nameError">Type your name before downloading your PDF.</div>
+  </div>
+
+  <div class="panel">
+    <div class="path-head">
+      <strong id="overallCount">0 of 25 answers</strong>
+      <span class="save-status" id="saveStatus" aria-live="polite"></span>
+    </div>
+    <nav class="path" id="path" aria-label="Treatment sections"></nav>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="panel quiz" id="quizPanel">
+    <h2>Practice quiz</h2>
+    <p class="quiz-intro">Ten questions to check what you learned from the reading. You get two tries on each one, and a hint if your first answer is wrong.</p>
+    <div id="quizBody"></div>
+  </div>
+
+  <div class="panel finish">
+    <h2>Turn it in</h2>
+    <p>Download your answers as a PDF, then upload it to the assignment in your class. Your quiz score is included.</p>
+    <div class="finish-actions">
+      <button class="btn btn-primary" id="pdfBtn">Download PDF</button>
+      <span class="spacer"></span>
+      <button class="btn btn-quiet" id="resetBtn">Start over</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+  <div class="dialog">
+    <h3 id="dlgTitle"></h3>
+    <p id="dlgText"></p>
+    <div class="dialog-actions">
+      <button class="btn btn-quiet" id="dlgCancel">Cancel</button>
+      <button class="btn btn-primary" id="dlgOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script>
+const STORAGE_KEY = "addictionTreatment5Ws_v2";
+
+const TREATMENTS = [
+  { id: "detox",      name: "Detoxification",         short: "Detox" },
+  { id: "inpatient",  name: "Inpatient Treatment",    short: "Inpatient" },
+  { id: "outpatient", name: "Outpatient Treatment",   short: "Outpatient" },
+  { id: "support",    name: "Support Groups",         short: "Support groups" },
+  { id: "therapy",    name: "Professional Therapy",   short: "Therapy" }
+];
+
+const WS = [
+  { label: "Who?",   hint: "Who goes through this type of treatment?" },
+  { label: "What?",  hint: "What happens? Describe the process." },
+  { label: "Where?", hint: "Where does it take place?" },
+  { label: "Why?",   hint: "Why is it needed? What does it help with?" },
+  { label: "When?",  hint: "When is this the right choice?" }
+];
+
+let openId = TREATMENTS[0].id;
+
+/* ---------- Build the page ---------- */
+function build() {
+  const path = document.getElementById("path");
+  const sections = document.getElementById("sections");
+
+  TREATMENTS.forEach((t, i) => {
+    const stop = document.createElement("button");
+    stop.className = "stop";
+    stop.id = "stop-" + t.id;
+    stop.type = "button";
+    stop.innerHTML = `<span class="marker">${i + 1}</span><span class="stop-name">${t.short}</span><span class="stop-count" id="stopcount-${t.id}">0/5</span>`;
+    stop.addEventListener("click", () => openSection(t.id, true));
+    path.appendChild(stop);
+
+    const sec = document.createElement("section");
+    sec.className = "section";
+    sec.id = "sec-" + t.id;
+
+    let fields = "";
+    WS.forEach((w, j) => {
+      const fid = `${t.id}-${j}`;
+      fields += `<div class="${j === 4 ? "wide" : ""}">
+        <label class="w-label" for="${fid}">${w.label}</label>
+        <span class="w-hint" id="${fid}-hint">${w.hint}</span>
+        <textarea id="${fid}" aria-describedby="${fid}-hint"></textarea>
+      </div>`;
+    });
+
+    const next = TREATMENTS[i + 1];
+    const footBtn = next
+      ? `<button class="btn btn-secondary" type="button" data-next="${next.id}">Next: ${next.name}</button>`
+      : `<button class="btn btn-secondary" type="button" data-finish="1">Go to the practice quiz</button>`;
+
+    sec.innerHTML = `
+      <button class="section-toggle" type="button" aria-expanded="false" aria-controls="body-${t.id}">
+        <span class="num">${i + 1}</span>
+        <span class="title">${t.name}</span>
+        <span class="tally" id="tally-${t.id}">0 of 5</span>
+        <span class="chev" aria-hidden="true">▶</span>
+      </button>
+      <div class="section-body" id="body-${t.id}">
+        <div class="grid">${fields}</div>
+        <div class="section-foot">${footBtn}</div>
+      </div>`;
+    sections.appendChild(sec);
+
+    sec.querySelector(".section-toggle").addEventListener("click", () => {
+      openSection(openId === t.id ? null : t.id, false);
+    });
+    const nb = sec.querySelector("[data-next]");
+    if (nb) nb.addEventListener("click", () => openSection(nb.dataset.next, true));
+    const fb = sec.querySelector("[data-finish]");
+    if (fb) fb.addEventListener("click", () => focusQuiz());
+  });
+
+  document.querySelectorAll("textarea, #studentName").forEach(el => {
+    el.addEventListener("input", onEdit);
+  });
+}
+
+function openSection(id, scroll) {
+  openId = id;
+  TREATMENTS.forEach(t => {
+    const sec = document.getElementById("sec-" + t.id);
+    const isOpen = t.id === id;
+    sec.classList.toggle("open", isOpen);
+    sec.querySelector(".section-toggle").setAttribute("aria-expanded", isOpen);
+    document.getElementById("stop-" + t.id).classList.toggle("current", isOpen);
+  });
+  if (id && scroll) {
+    const sec = document.getElementById("sec-" + id);
+    sec.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => sec.querySelector("textarea").focus({ preventScroll: true }), 350);
+  }
+  save();
+}
+
+/* ---------- Progress ---------- */
+function countFor(id) {
+  let n = 0;
+  for (let j = 0; j < 5; j++) {
+    if (document.getElementById(`${id}-${j}`).value.trim()) n++;
+  }
+  return n;
+}
+
+function updateProgress() {
+  let total = 0;
+  TREATMENTS.forEach(t => {
+    const n = countFor(t.id);
+    total += n;
+    const stop = document.getElementById("stop-" + t.id);
+    stop.classList.toggle("done", n === 5);
+    stop.classList.toggle("progress", n > 0 && n < 5);
+    stop.setAttribute("aria-label", `${t.name}, ${n} of 5 answered`);
+    document.getElementById("stopcount-" + t.id).textContent = `${n}/5`;
+    document.getElementById("tally-" + t.id).textContent = n === 5 ? "Complete" : `${n} of 5`;
+    document.getElementById("sec-" + t.id).classList.toggle("is-done", n === 5);
+  });
+  document.getElementById("overallCount").textContent =
+    total === 25 ? "All 25 answers done" : `${total} of 25 answers`;
+  checkQuizLock(total);
+  return total;
+}
+
+/* ---------- Autosave ---------- */
+let saveTimer = null;
+function onEdit() {
+  updateProgress();
+  if (this.id === "studentName" && this.value.trim()) {
+    document.getElementById("nameError").classList.remove("show");
+  }
+  document.getElementById("saveStatus").textContent = "Saving…";
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 400);
+}
+
+function collect() {
+  const data = { name: document.getElementById("studentName").value, open: openId, quiz: quiz, answers: {} };
+  TREATMENTS.forEach(t => {
+    data.answers[t.id] = WS.map((_, j) => document.getElementById(`${t.id}-${j}`).value);
+  });
+  return data;
+}
+
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collect()));
+    const time = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    document.getElementById("saveStatus").textContent = `Saved at ${time}`;
+  } catch (e) {
+    document.getElementById("saveStatus").textContent = "Couldn’t save on this device. Download your PDF before you leave.";
+  }
+}
+
+function load() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) {}
+  if (!data) { openSection(TREATMENTS[0].id, false); return; }
+  document.getElementById("studentName").value = data.name || "";
+  TREATMENTS.forEach(t => {
+    const arr = (data.answers && data.answers[t.id]) || [];
+    WS.forEach((_, j) => { document.getElementById(`${t.id}-${j}`).value = arr[j] || ""; });
+  });
+  if (data.quiz && Array.isArray(data.quiz.results) && data.quiz.results.length === QUIZ.length) {
+    quiz = data.quiz;
+  }
+  openSection(data.open === null ? null : (data.open || TREATMENTS[0].id), false);
+  document.getElementById("saveStatus").textContent = "Your saved work is back";
+}
+
+/* ---------- In-page dialog ---------- */
+function confirmBox({ title, text, ok = "OK", cancel = "Cancel", danger = false }) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById("overlay");
+    const okBtn = document.getElementById("dlgOk");
+    const cancelBtn = document.getElementById("dlgCancel");
+    document.getElementById("dlgTitle").textContent = title;
+    document.getElementById("dlgText").textContent = text;
+    okBtn.textContent = ok;
+    cancelBtn.textContent = cancel;
+    okBtn.className = "btn " + (danger ? "btn-danger" : "btn-primary");
+    overlay.classList.add("show");
+    cancelBtn.focus();
+    const done = val => {
+      overlay.classList.remove("show");
+      okBtn.onclick = cancelBtn.onclick = null;
+      document.removeEventListener("keydown", esc);
+      resolve(val);
+    };
+    const esc = e => { if (e.key === "Escape") done(false); };
+    okBtn.onclick = () => done(true);
+    cancelBtn.onclick = () => done(false);
+    document.addEventListener("keydown", esc);
+  });
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+/* ---------- Export ---------- */
+function requireName() {
+  const nameEl = document.getElementById("studentName");
+  if (!nameEl.value.trim()) {
+    document.getElementById("nameError").classList.add("show");
+    nameEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    nameEl.focus({ preventScroll: true });
+    return false;
+  }
+  return true;
+}
+
+async function checkComplete(action) {
+  const total = updateProgress();
+  if (total === 25) return true;
+  return confirmBox({
+    title: "Some answers are blank",
+    text: `You’ve answered ${total} of 25. ${action} anyway, or go back and finish?`,
+    ok: `${action} anyway`,
+    cancel: "Go back"
+  });
+}
+
+async function downloadPDF() {
+  if (!requireName()) return;
+  if (!(await checkComplete("Download"))) return;
+  if (!window.jspdf) {
+    toast("The PDF tool didn’t load. Refresh the page and try again.");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "letter" });
+  const M = 54, W = doc.internal.pageSize.getWidth() - M * 2, H = doc.internal.pageSize.getHeight();
+  let y = M;
+  const need = h => { if (y + h > H - M) { doc.addPage(); y = M; } };
+
+  const name = document.getElementById("studentName").value.trim();
+  doc.setFont("helvetica", "bold"); doc.setFontSize(18);
+  doc.text("Treatment for Addiction: The 5 W's", M, y); y += 22;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+  doc.text(`Name: ${name}`, M, y); y += 15;
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, M, y); y += 15;
+  doc.text(`Answers completed: ${updateProgress()} of 25`, M, y); y += 15;
+  doc.text(quizSummary(), M, y); y += 20;
+
+  TREATMENTS.forEach((t, i) => {
+    need(40);
+    doc.setDrawColor(47, 111, 94); doc.setLineWidth(1.5);
+    doc.line(M, y, M + W, y); y += 18;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+    doc.text(`${i + 1}. ${t.name}`, M, y); y += 18;
+
+    WS.forEach((w, j) => {
+      const val = document.getElementById(`${t.id}-${j}`).value.trim();
+      doc.setFontSize(11);
+      const lines = doc.splitTextToSize(val || "(left blank)", W - 12);
+      need(16 + lines.length * 14);
+      doc.setFont("helvetica", "bold"); doc.setTextColor(31, 42, 68);
+      doc.text(w.label, M, y); y += 14;
+      doc.setFont("helvetica", "normal");
+      if (!val) doc.setTextColor(140, 140, 140);
+      lines.forEach(line => { need(14); doc.text(line, M + 12, y); y += 14; });
+      doc.setTextColor(0, 0, 0);
+      y += 6;
+    });
+    y += 6;
+  });
+
+  const safe = name.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "");
+  doc.save(`Addiction_Treatment_5Ws_${safe || "student"}.pdf`);
+  toast("PDF downloaded. Upload it to your class assignment.");
+}
+
+async function startOver() {
+  const ok = await confirmBox({
+    title: "Erase all your answers?",
+    text: "This clears your name, all 25 answers and your quiz results on this Chromebook. You can’t undo it.",
+    ok: "Erase everything",
+    cancel: "Keep my work",
+    danger: true
+  });
+  if (!ok) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  document.querySelectorAll("textarea").forEach(t => t.value = "");
+  document.getElementById("studentName").value = "";
+  quiz = freshQuiz();
+  updateProgress();
+  renderQuiz();
+  openSection(TREATMENTS[0].id, false);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  toast("Answers erased");
+}
+
+/* ---------- Practice quiz ---------- */
+const QUIZ = [
+  {
+    q: "According to the reading, what is detoxification (“detox”)?",
+    options: [
+      "A weekly meeting where people share their experiences",
+      "Getting drugs or alcohol out of the body’s system",
+      "Talking one-on-one with a counselor about what caused the addiction",
+      "A plan for avoiding friends who use drugs"
+    ],
+    answer: 1,
+    hint: "Detox is about toxins, the poisonous substances that harm the body.",
+    explain: "Detox removes drugs or alcohol from the body. At first it can be very hard and even physically painful because of severe withdrawal symptoms."
+  },
+  {
+    q: "Why is a hospital often the safest place for withdrawal?",
+    options: [
+      "Hospitals are the only places that offer group therapy",
+      "Patients get to choose their own sponsor there",
+      "Withdrawal can be life-threatening in some cases, and medical treatment is right there",
+      "Withdrawal only lasts one day in a hospital"
+    ],
+    answer: 2,
+    hint: "Think about what can go wrong when the body suddenly goes without a substance it craves.",
+    explain: "In certain circumstances withdrawal can be life-threatening, so a hospital gives the patient access to whatever medical treatment they need."
+  },
+  {
+    q: "Maya’s friends all drink, and alcohol is easy for her to get. She has tried to quit several times and keeps relapsing. Based on the reading, why might an inpatient program help her?",
+    options: [
+      "It removes her from her environment, and it’s almost impossible to get alcohol there",
+      "It lets her keep living at home with her friends nearby",
+      "It’s the cheapest and most available option",
+      "It doesn’t involve any medical staff"
+    ],
+    answer: 0,
+    hint: "What does staying in a hospital change about her surroundings?",
+    explain: "Inpatient care puts distance between a person and the friends and situations that trigger their use, and alcohol or drugs are nearly impossible to get there."
+  },
+  {
+    q: "What happens during rehabilitation (“rehab”)?",
+    options: [
+      "Patients attend a free meeting once a week in their community",
+      "Patients meet only with their family and a counselor",
+      "Patients are assigned a sponsor they can call at any time",
+      "Patients stay in a clinic or hospital for about two weeks to two months, learning to live without drugs or alcohol"
+    ],
+    answer: 3,
+    hint: "Rehab is part of inpatient care. Where do patients stay?",
+    explain: "Rehab is a stay in a clinic or hospital where patients work on their physical and mental health and prepare for life outside. They usually get group therapy, too."
+  },
+  {
+    q: "According to the reading, why can’t most people with addiction get inpatient treatment?",
+    options: [
+      "There aren’t nearly enough hospital beds, and it can be expensive",
+      "Inpatient treatment doesn’t work for most people",
+      "Inpatient treatment is only for adults",
+      "People need a sponsor before they can be admitted"
+    ],
+    answer: 0,
+    hint: "Compare how many people need help with how many places can treat them.",
+    explain: "With 15 to 20 million people with addiction in the U.S., there aren’t enough beds or facilities, and the cost puts inpatient care out of reach for many."
+  },
+  {
+    q: "Jordan wants help with his addiction but needs to keep going to school. He’s willing to visit a clinic regularly, even every day. Which program fits him?",
+    options: [
+      "An inpatient program",
+      "An intensive outpatient program",
+      "Rehab",
+      "Recovering on his own without talking to anyone"
+    ],
+    answer: 1,
+    hint: "Which program gives medical services without staying in the hospital?",
+    explain: "In an intensive outpatient program, patients get evaluation, treatment, counseling and therapy through regular visits while they stay in school or keep their job."
+  },
+  {
+    q: "Which statement about support groups like Alcoholics Anonymous (AA) and Narcotics Anonymous (NA) is true?",
+    options: [
+      "They are led by doctors and focus on medical treatment",
+      "They cost money and are only found in big cities",
+      "Members are recovering addicts who meet regularly, keep what is said confidential, and attend for free",
+      "Members must stay in a hospital while they attend"
+    ],
+    answer: 2,
+    hint: "Who is in the group, and what does it cost?",
+    explain: "AA and NA groups are made up of recovering addicts. They’re nonmedical, confidential, always free and available in most communities."
+  },
+  {
+    q: "In a support group, what is a sponsor?",
+    options: [
+      "The doctor who supervises detox",
+      "A family member who pays for treatment",
+      "The therapist who leads group sessions",
+      "A group member a newer member can call any time for help, like when they feel the urge to use"
+    ],
+    answer: 3,
+    hint: "Sponsors are members of the group themselves.",
+    explain: "New members get a sponsor, a fellow group member they can call for support if they relapse or feel the urge to drink or use drugs."
+  },
+  {
+    q: "How is group therapy different from a support group like AA or NA?",
+    options: [
+      "Group therapy members don’t have substance use problems",
+      "Group therapy is led by a trained professional counselor or therapist",
+      "Group therapy is always one-on-one",
+      "Group therapy only happens during detox"
+    ],
+    answer: 1,
+    hint: "Both bring together people with similar problems. Look at who runs the session.",
+    explain: "Group therapy is led by a counselor or therapist trained in psychology and addiction. Support groups are nonmedical and run by the members."
+  },
+  {
+    q: "Alex’s drug use has caused a lot of conflict at home. His parents and sister want to help but don’t know how. Which type of professional therapy fits best?",
+    options: [
+      "Individual therapy",
+      "A support group",
+      "Family therapy",
+      "Group therapy"
+    ],
+    answer: 2,
+    hint: "Who needs to be in the room?",
+    explain: "Family therapy brings a trained counselor together with immediate family members so everyone understands their role and learns how to work together on recovery."
+  }
+];
+const LETTERS = ["A", "B", "C", "D"];
+let quiz = freshQuiz();
+let quizWasUnlocked = null;
+
+function freshQuiz() {
+  return { i: 0, finished: false, results: QUIZ.map(() => ({ wrong: [], done: false, got: false })) };
+}
+
+function quizStarted() {
+  const r0 = quiz.results[0];
+  return quiz.finished || quiz.i > 0 || r0.done || r0.wrong.length > 0;
+}
+
+function quizScore() {
+  let first = 0, second = 0, missed = 0;
+  quiz.results.forEach(r => {
+    if (!r.done) return;
+    if (r.got && r.wrong.length === 0) first++;
+    else if (r.got) second++;
+    else missed++;
+  });
+  return { first, second, missed };
+}
+
+function quizSummary() {
+  if (!quiz.finished) return "Practice quiz: not finished";
+  const s = quizScore();
+  return `Practice quiz: ${s.first + s.second} of ${QUIZ.length} correct (${s.first} on first try, ${s.second} on second try)`;
+}
+
+function checkQuizLock(total) {
+  const unlocked = total === 25 || quizStarted();
+  if (unlocked !== quizWasUnlocked) {
+    const announce = quizWasUnlocked === false && unlocked;
+    quizWasUnlocked = unlocked;
+    renderQuiz();
+    if (announce) toast("Practice quiz unlocked!");
+  }
+}
+
+function renderQuiz() {
+  const box = document.getElementById("quizBody");
+  if (!quizWasUnlocked) {
+    box.innerHTML = `<div class="quiz-locked">Finish all 25 answers above to unlock the quiz. The circles at the top show which sections still need answers.</div>`;
+    return;
+  }
+  if (quiz.finished) { renderResults(box); return; }
+
+  const q = QUIZ[quiz.i], r = quiz.results[quiz.i];
+  const opts = q.options.map((o, k) => {
+    let cls = "q-opt";
+    if (r.wrong.includes(k)) cls += " wrong";
+    if (r.done && k === q.answer) cls += " correct";
+    const dis = (r.done || r.wrong.includes(k)) ? "disabled" : "";
+    return `<button type="button" class="${cls}" data-opt="${k}" ${dis}><strong>${LETTERS[k]}.</strong> ${o}</button>`;
+  }).join("");
+
+  let fb = "";
+  if (r.done && r.got) {
+    fb = `<div class="q-feedback good" role="status"><strong>${r.wrong.length ? "Got it on the second try." : "Correct!"}</strong> ${q.explain}</div>`;
+  } else if (r.done) {
+    fb = `<div class="q-feedback miss" role="status"><strong>The answer is ${LETTERS[q.answer]}.</strong> ${q.explain}</div>`;
+  } else if (r.wrong.length) {
+    fb = `<div class="q-feedback retry" role="status"><strong>Not quite. Try once more.</strong> Hint: ${q.hint}</div>`;
+  }
+
+  const last = quiz.i === QUIZ.length - 1;
+  const nav = r.done
+    ? `<div class="q-nav"><button type="button" class="btn btn-primary" id="qNext">${last ? "See my results" : "Next question"}</button></div>`
+    : "";
+
+  box.innerHTML = `
+    <div class="q-meta">Question ${quiz.i + 1} of ${QUIZ.length}</div>
+    <p class="q-text" id="qText">${q.q}</p>
+    <div class="q-options" role="group" aria-labelledby="qText">${opts}</div>
+    ${fb}${nav}`;
+
+  box.querySelectorAll("[data-opt]").forEach(b =>
+    b.addEventListener("click", () => answerQuiz(Number(b.dataset.opt))));
+  const nb = document.getElementById("qNext");
+  if (nb) nb.addEventListener("click", () => {
+    if (last) quiz.finished = true; else quiz.i++;
+    renderQuiz(); save(); focusQuiz();
+  });
+}
+
+function answerQuiz(k) {
+  const q = QUIZ[quiz.i], r = quiz.results[quiz.i];
+  if (r.done) return;
+  if (k === q.answer) {
+    r.done = true; r.got = true;
+  } else {
+    r.wrong.push(k);
+    if (r.wrong.length >= 2) { r.done = true; r.got = false; }
+  }
+  renderQuiz(); save();
+  const next = document.getElementById("qNext") || document.querySelector("#quizBody .q-opt:not(:disabled)");
+  if (next) next.focus();
+}
+
+function renderResults(box) {
+  const s = quizScore();
+  const missed = QUIZ.map((q, i) => ({ q, n: i + 1, r: quiz.results[i] })).filter(x => !x.r.got);
+  const review = missed.length
+    ? `<p class="quiz-intro">Review ${missed.length === 1 ? "this one" : "these"} before you turn in your work:</p>
+       <ul class="q-review">${missed.map(x =>
+         `<li><strong>Question ${x.n}:</strong> ${x.q.q}<br>Answer: ${x.q.options[x.q.answer]}</li>`).join("")}</ul>`
+    : `<p class="quiz-intro">You got every question right.</p>`;
+  box.innerHTML = `
+    <p class="q-score" id="qResults" tabindex="-1">${s.first + s.second} of ${QUIZ.length} correct</p>
+    <p class="quiz-intro">${s.first} on the first try, ${s.second} on the second try, ${s.missed} missed.</p>
+    ${review}
+    <button type="button" class="btn btn-secondary" id="qRetake">Retake the quiz</button>`;
+  document.getElementById("qRetake").addEventListener("click", () => {
+    quiz = freshQuiz(); renderQuiz(); save(); focusQuiz();
+  });
+}
+
+function focusQuiz() {
+  document.getElementById("quizPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+  const target = document.querySelector("#quizBody .q-opt:not(:disabled), #qResults");
+  if (target) setTimeout(() => target.focus({ preventScroll: true }), 350);
+}
+
+document.getElementById("pdfBtn").addEventListener("click", downloadPDF);
+document.getElementById("resetBtn").addEventListener("click", startOver);
+
+build();
+load();
+updateProgress();
+</script>
+</body>
+</html>
