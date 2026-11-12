@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Family Roles in Codependency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --paper:#F4F6F8; --sheet:#FFFFFF; --ink:#1D2A3A; --ink-soft:#4E5D6E; --rule:#D5DCE3;
+  --accent:#2F5D8A; --good:#1F7A4D; --warn:#A35A00; --focus:#2F5D8A;
+  --hl-ink:#1D2A3A;
+  --dependent:#F5C64F; --enabler:#79CDB8; --hero:#9DC2F5; --scapegoat:#F59A90;
+  --lost:#C9B0EC; --mascot:#F7B3D7; --recovery:#C9E37F;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#151B22; --sheet:#1D252E; --ink:#E7ECF1; --ink-soft:#A9B5C2; --rule:#33404D;
+    --accent:#8DB6E0; --good:#6FD39C; --warn:#F2B05E; --focus:#8DB6E0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#151B22; --sheet:#1D252E; --ink:#E7ECF1; --ink-soft:#A9B5C2; --rule:#33404D;
+  --accent:#8DB6E0; --good:#6FD39C; --warn:#F2B05E; --focus:#8DB6E0;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1.0625rem;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sheet);border-bottom:1px solid var(--rule)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:1rem}
+nav.steps{display:flex;gap:4px;flex-wrap:wrap}
+nav.steps label{cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;color:var(--ink-soft);text-decoration:none;font-size:.95rem}
+nav.steps label .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;font-size:.8rem;font-weight:700}
+nav.steps label.done .n{background:var(--good);border-color:var(--good);color:var(--sheet)}
+#go-learn:checked ~ header label[for="go-learn"],#go-read:checked ~ header label[for="go-read"],#go-apply:checked ~ header label[for="go-apply"],#go-reflect:checked ~ header label[for="go-reflect"]{background:var(--ink);color:var(--sheet)}
+#go-learn:checked ~ header label[for="go-learn"] .n,#go-read:checked ~ header label[for="go-read"] .n,#go-apply:checked ~ header label[for="go-apply"] .n,#go-reflect:checked ~ header label[for="go-reflect"] .n{border-color:var(--sheet)}
+#go-learn:focus-visible ~ header label[for="go-learn"],#go-read:focus-visible ~ header label[for="go-read"],#go-apply:focus-visible ~ header label[for="go-apply"],#go-reflect:focus-visible ~ header label[for="go-reflect"]{outline:3px solid var(--focus);outline-offset:2px}
+.steprad{position:absolute;top:0;left:0;width:1px;height:1px;opacity:0;margin:0;pointer-events:none}
+label.btn{cursor:pointer}
+
+/* highlighter mark: the signature element */
+.mark{--c:var(--dependent);color:var(--hl-ink);background:linear-gradient(100deg,transparent 0 .25em,var(--c) .35em calc(100% - .35em),transparent calc(100% - .25em));padding:.05em .45em;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:.2em .5em .3em .45em}
+
+section.step{display:none;padding:40px 0 96px}
+#go-learn:checked ~ main #step-learn,#go-read:checked ~ main #step-read,#go-apply:checked ~ main #step-apply,#go-reflect:checked ~ main #step-reflect{display:block}
+h1:focus{outline:none}
+h1{font-family:Literata,Georgia,serif;font-weight:600;font-size:clamp(2rem,4.5vw,3rem);line-height:1.12;margin:0 0 16px;max-width:20ch;letter-spacing:-.01em}
+h2{font-family:Literata,Georgia,serif;font-weight:600;font-size:1.6rem;line-height:1.25;margin:48px 0 8px}
+h3{font-size:1.15rem;margin:0 0 6px}
+.lede{font-size:1.15rem;color:var(--ink-soft);max-width:62ch;margin:0 0 8px}
+p{max-width:66ch}
+
+/* role cards */
+.roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-top:28px}
+.role{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:20px 22px}
+.role h3{font-family:Literata,Georgia,serif;font-size:1.35rem;font-weight:600;margin-bottom:10px}
+.role .def{margin:0 0 12px}
+.role dl{margin:0;display:grid;gap:8px}
+.role dt{font-weight:700;font-size:.9rem;color:var(--ink-soft)}
+.role dd{margin:0}
+.role.cycle{border-style:dashed}
+.credit{font-size:.9rem;color:var(--ink-soft);margin-top:20px}
+.video{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:22px;margin-top:28px;max-width:860px}
+.vframe{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000;margin-top:4px}
+.vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vthumb{display:grid;place-items:center;aspect-ratio:16/10;border-radius:8px;color:var(--sheet);text-decoration:none;background:linear-gradient(100deg,var(--dependent) 0 17%,var(--enabler) 17% 34%,var(--hero) 34% 51%,var(--scapegoat) 51% 68%,var(--lost) 68% 84%,var(--mascot) 84%)}
+.vthumb svg{color:var(--hl-ink)}
+.video h2{margin:0 0 4px}
+.vtitle{font-family:Literata,Georgia,serif;font-style:italic;color:var(--ink-soft);margin:0 0 10px}
+.vlink{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 0;font-weight:700}
+.vnote{font-size:.9rem;color:var(--ink-soft);margin:12px 0 0}
+.watched{display:flex;gap:10px;align-items:center;margin-top:12px;font-weight:700;cursor:pointer}
+.watched input{width:20px;height:20px;accent-color:var(--good)}
+@media (max-width:640px){.video{grid-template-columns:1fr}.vthumb{display:none}}
+
+/* quick check */
+.qlist{display:grid;gap:14px;margin-top:20px;max-width:760px}
+.q{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:16px 18px}
+.q p{margin:0 0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--rule);background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.95rem}
+.chip:hover{border-color:var(--ink-soft)}
+.chip.picked.right{background:var(--good);border-color:var(--good);color:var(--sheet)}
+.chip.picked.wrong{border-color:var(--warn);color:var(--warn);text-decoration:line-through}
+.fb{margin:10px 0 0;font-size:.97rem}
+.fb.right{color:var(--good)} .fb.wrong{color:var(--warn)}
+.fb span{color:var(--ink)}
+
+.next{display:flex;justify-content:flex-end;max-width:760px;margin-top:36px}
+.btn{background:var(--ink);color:var(--sheet);border:0;border-radius:8px;padding:11px 20px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--rule)}
+.btn:hover{opacity:.9}
+
+/* reading */
+.reader{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:40px;align-items:start;margin-top:28px}
+.story{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:36px clamp(20px,5vw,56px)}
+.story h3{font-family:Literata,Georgia,serif;font-size:1.6rem;font-weight:600;margin:0}
+.story .by{color:var(--ink-soft);margin:4px 0 4px}
+.story .cite{font-size:.85rem;color:var(--ink-soft);margin:0 0 28px}
+.story p{font-family:Literata,Georgia,serif;font-size:1.1rem;line-height:1.85;margin:0 0 1.1em;max-width:64ch}
+.s{cursor:pointer;border-radius:.2em;transition:background-color .12s}
+.s:hover{background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.s.tagged{color:var(--hl-ink);background:linear-gradient(100deg,transparent 0 .15em,var(--c) .25em calc(100% - .25em),transparent calc(100% - .15em));-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.s.flash{animation:flash 1.4s ease-out 1}
+@keyframes flash{0%,40%{outline:3px solid var(--accent);outline-offset:3px}100%{outline:3px solid transparent;outline-offset:3px}}
+@media (prefers-reduced-motion: reduce){.s.flash{animation:none;outline:3px solid var(--accent)}}
+
+.palette{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:16px}
+.palette h3{font-size:1rem;margin-bottom:10px}
+.pens{display:grid;gap:6px}
+.pen{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:1.5px solid transparent;border-radius:8px;padding:6px 8px;cursor:pointer}
+.pen .tip{width:26px;height:14px;border-radius:3px 7px 4px 6px;background:var(--c);flex:none}
+.pen .ct{margin-left:auto;font-size:.85rem;color:var(--ink-soft)}
+.pen[aria-pressed="true"]{border-color:var(--ink);font-weight:700}
+.pen.eraser .tip{background:repeating-linear-gradient(45deg,var(--rule) 0 4px,transparent 4px 8px);border:1px solid var(--rule)}
+.palette .hint{font-size:.9rem;color:var(--ink-soft);margin:12px 0}
+.palette .actions{display:grid;gap:8px}
+
+.results{margin-top:36px;max-width:820px}
+.score{font-family:Literata,Georgia,serif;font-size:1.35rem;margin:0 0 4px}
+.rlist{display:grid;gap:12px;margin-top:16px}
+.r{background:var(--sheet);border:1px solid var(--rule);border-left:6px solid var(--rule);border-radius:8px;padding:14px 18px}
+.r.found{border-left-color:var(--good)} .r.mis{border-left-color:var(--warn)} .r.missed{border-left-color:var(--ink-soft)}
+.r .st{font-size:.9rem;font-weight:700}
+.r.found .st{color:var(--good)} .r.mis .st{color:var(--warn)} .r.missed .st{color:var(--ink-soft)}
+.r p{margin:6px 0 8px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font-size:.95rem}
+.note{background:var(--sheet);border:1px dashed var(--rule);border-radius:8px;padding:14px 18px;margin-top:12px}
+
+/* scenarios */
+.scen{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:20px 22px;max-width:760px;margin-top:18px}
+.scen .story-bit{font-family:Literata,Georgia,serif;font-size:1.08rem;line-height:1.7;margin:0 0 12px}
+.scen .ask{font-weight:700;margin:0 0 10px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:transparent;border:1.5px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer}
+.opt:hover{border-color:var(--ink-soft)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
+.opt.wrong{border-color:var(--warn)}
+
+/* reflect */
+.field{max-width:760px;margin-top:22px}
+.field label{display:block;font-weight:700;margin-bottom:8px}
+.field textarea,.field input{width:100%;font:inherit;color:var(--ink);background:var(--sheet);border:1.5px solid var(--rule);border-radius:8px;padding:12px 14px}
+.field textarea{min-height:120px;resize:vertical;line-height:1.5}
+.saved{font-size:.85rem;color:var(--ink-soft);margin-top:6px;min-height:1.2em}
+.support{max-width:760px;margin-top:40px;padding:18px 20px;border-radius:10px;background:var(--sheet);border:1px solid var(--rule)}
+.support h3{font-family:Literata,Georgia,serif;font-weight:600}
+.support p{margin:6px 0}
+#copyOut{width:100%;min-height:160px;margin-top:12px;font:inherit;display:none;background:var(--sheet);color:var(--ink);border:1.5px solid var(--rule);border-radius:8px;padding:12px}
+.reset{margin-top:28px;font-size:.9rem}
+
+@media (max-width:880px){
+  .reader{grid-template-columns:1fr}
+  .palette{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:6;border-radius:12px 12px 0 0;border-width:1px 0 0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
+  .palette h3,.palette .hint{display:none}
+  .pens{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .pen{width:auto;flex:none;white-space:nowrap}
+  .pen .ct{display:none}
+  .palette .actions{grid-template-columns:1fr 1fr;margin-top:8px}
+  #step-read{padding-bottom:220px}
+  header.top .wrap{justify-content:center}
+  nav.steps label .lbl{display:none}
+  #go-learn:checked ~ header label[for="go-learn"] .lbl,#go-read:checked ~ header label[for="go-read"] .lbl,#go-apply:checked ~ header label[for="go-apply"] .lbl,#go-reflect:checked ~ header label[for="go-reflect"] .lbl{display:inline}
+}
+</style>
+</head>
+<body>
+<input type="radio" name="step" class="steprad" id="go-learn" checked aria-label="Step 1">
+<input type="radio" name="step" class="steprad" id="go-read" aria-label="Step 2">
+<input type="radio" name="step" class="steprad" id="go-apply" aria-label="Step 3">
+<input type="radio" name="step" class="steprad" id="go-reflect" aria-label="Step 4">
+<header class="top">
+  <div class="wrap">
+    <div class="brand">Family Roles in Codependency</div>
+    <nav class="steps" aria-label="Lesson steps">
+      <label for="go-learn" data-step="learn"><span class="n">1</span><span class="lbl">Learn the roles</span></label>
+      <label for="go-read" data-step="read"><span class="n">2</span><span class="lbl">Read &amp; highlight</span></label>
+      <label for="go-apply" data-step="apply"><span class="n">3</span><span class="lbl">Real scenarios</span></label>
+      <label for="go-reflect" data-step="reflect"><span class="n">4</span><span class="lbl">Reflect</span></label>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- STEP 1 -->
+  <section class="step" id="step-learn">
+    <h1>When one person struggles, the whole family adapts.</h1>
+    <p class="lede">Codependency is a pattern where your sense of safety or worth depends on managing someone else’s behavior. In families affected by addiction, people often fall into predictable roles to survive the stress. Learn the roles here, then you’ll find them in a real person’s story.</p>
+    <div class="video">
+      <h2>Start here: watch the video</h2>
+      <p class="vtitle">Codependency: Mapping the Family System</p>
+      <p>Watch the whole video before you read the role cards. Listen for each family role and how that person copes with the stress at home. You can pause anytime to take notes.</p>
+      <!-- VIDEO: to use a different YouTube video, replace 5KnJtPZx-Xo in BOTH the player and the YouTube button below with that video's ID (the part after watch?v= in its link). -->
+      <div class="vframe"><iframe src="https://www.youtube-nocookie.com/embed/5KnJtPZx-Xo?rel=0" title="Codependency: Mapping the Family System" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+      <p class="vlink">Video not showing? <a class="btn" href="https://www.youtube.com/watch?v=5KnJtPZx-Xo" target="_blank" rel="noopener">Watch it on YouTube</a></p>
+      <p class="vnote">The video opens in a new tab. When you’re done, come back to this tab to take notes and keep going.</p>
+    </div>
+    <div class="field"><label for="videoNotes">While you watch: for each role you hear about, write the role’s name and a few words about how that person copes.</label><textarea id="videoNotes"></textarea><div class="saved" id="svv"></div></div>
+    <label class="watched"><input type="checkbox" id="watched"> I watched the whole video</label>
+
+    <h2>The roles</h2>
+    <p>Use these cards to check your video notes and fill in anything you missed.</p>
+    <div class="roles" id="roleCards"></div>
+    <p class="credit">These roles come from family therapist Sharon Wegscheider-Cruse’s model of families affected by addiction. Real people often blend roles or switch roles as they grow up.</p>
+
+    <h2>Quick check</h2>
+    <p>Match each person to the role they’re playing. You can try again until you get it.</p>
+    <div class="qlist" id="quickCheck"></div>
+    <div class="next"><label class="btn" for="go-read">Go to the story</label></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="step-read">
+    <h1>Find the roles in Denise’s story.</h1>
+    <p class="lede">Choose a highlighter, then tap any sentence that shows that role. Tap it again to remove the highlight. One person can play different roles at different points in their life, so watch for changes over time. When you’re done, check your highlights.</p>
+    <div class="reader">
+      <article class="story" id="story" aria-label="Story: My Story and Struggle with Codependency"></article>
+      <aside class="palette" aria-label="Highlighters">
+        <h3>Highlighters</h3>
+        <div class="pens" id="pens"></div>
+        <p class="hint" id="penHint"></p>
+        <div class="actions">
+          <button class="btn" id="checkBtn">Check my highlights</button>
+          <button class="btn ghost" id="clearBtn">Clear all</button>
+        </div>
+      </aside>
+    </div>
+    <div class="results" id="results" hidden></div>
+    <div class="next" style="max-width:none"><label class="btn" for="go-apply">Go to real scenarios</label></div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="step-apply">
+    <h1>Roles show up outside of stories, too.</h1>
+    <p class="lede">Codependent patterns appear in families, friendships, and dating relationships, not only around addiction. Read each scenario and choose the best answer.</p>
+    <div id="scenarios"></div>
+    <div class="next"><label class="btn" for="go-reflect">Go to reflection</label></div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="step-reflect">
+    <h1>Put it in your own words.</h1>
+    <p class="lede">Answer each question using evidence from the story. Your answers save on this device as you type. When you’re finished, download them as a PDF or copy them, and submit them the way your teacher asked.</p>
+    <div class="field"><label for="studentName">Your name</label><input id="studentName" type="text" autocomplete="name"></div>
+    <div id="reflectFields"></div>
+    <div class="next" style="justify-content:flex-start;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="pdfBtn" hidden>Download my answers (PDF)</button>
+      <button class="btn ghost" id="copyBtn">Copy my answers</button>
+      <span class="saved" id="copyMsg" role="status"></span>
+    </div>
+    <textarea id="copyOut" aria-label="Your answers, ready to copy" readonly></textarea>
+
+    <div class="support">
+      <h3>If this story feels familiar</h3>
+      <p>You don’t have to figure it out alone. A school counselor or another trusted adult is a good place to start.</p>
+      <p>Alateen and Al-Anon (al-anon.org) run free meetings for young people and families affected by someone else’s drinking. The SAMHSA National Helpline, 1-800-662-4357, offers free, confidential referrals any time.</p>
+    </div>
+    <p class="reset"><button class="linkbtn" id="resetBtn">Start the whole lesson over</button></p>
+  </section>
+</main>
+
+<script>
+const ROLES = [
+  {key:"dependent", name:"The Dependent", def:"The person with the addiction or out-of-control behavior. The rest of the family organizes itself around them.",
+   see:"Unpredictable moods, broken promises, blaming others, denying there’s a problem.", under:"Shame, fear, and pain they’re trying to numb.", cost:"Relationships and health break down while the problem grows."},
+  {key:"enabler", name:"The Enabler", alt:"also called the Caretaker", def:"Covers for, rescues, or tries to fix the Dependent so the family can keep going.",
+   see:"Making excuses, bailing them out, taking over their responsibilities, trying to control them.", under:"Fear of losing them and a need to feel needed.", cost:"Exhaustion and resentment, and the Dependent never faces consequences."},
+  {key:"hero", name:"The Hero", def:"Tries to prove the family is fine by being perfect and responsible.",
+   see:"Top grades, following every rule, taking care of siblings, never asking for help.", under:"Feeling that nothing they do is ever good enough.", cost:"Perfectionism and stress that follow them into adulthood."},
+  {key:"scapegoat", name:"The Scapegoat", def:"Acts out and gets blamed, which pulls attention away from the real problem.",
+   see:"Rebellion, trouble at school, anger, sometimes using substances.", under:"Hurt and feeling rejected.", cost:"Gets labeled as “the problem” and may repeat the family’s patterns."},
+  {key:"lost", name:"The Lost Child", def:"Stays quiet and out of the way so they don’t add to the stress.",
+   see:"Withdrawn, has few needs, keeps to themselves, seems like an “easy” kid.", under:"Loneliness and feeling unimportant.", cost:"Struggles to speak up or ask for what they need."},
+  {key:"mascot", name:"The Mascot", def:"Uses humor or clowning to break the tension.",
+   see:"Joking during tense moments, being the class clown, distracting people.", under:"Anxiety hidden behind the jokes.", cost:"Isn’t taken seriously and their real feelings stay hidden."}
+];
+const CYCLE = {key:"recovery", name:"Breaking the cycle", def:"Not a role, but a moment when someone steps out of their role: getting help, setting a boundary, or letting another person face their own consequences."};
+const PENS = [...ROLES, CYCLE];
+const NAME = Object.fromEntries(PENS.map(r=>[r.key,r.name]));
+
+const QUICK = [
+  {t:"Marcus cracks loud jokes every time his parents start arguing at dinner.", a:"mascot", why:"Humor that breaks the tension is the Mascot’s job."},
+  {t:"Priya gets straight A’s, captains two teams, and never asks anyone for help.", a:"hero", why:"Looking perfect so the family looks okay is the Hero."},
+  {t:"Everyone calls Jordan “the problem kid.” He skips class and gets suspended for fighting.", a:"scapegoat", why:"Acting out and getting blamed is the Scapegoat."},
+  {t:"Ana spends most nights alone in her room. Her family rarely notices whether she’s home.", a:"lost", why:"Staying invisible to avoid adding stress is the Lost Child."},
+  {t:"Mr. Lee calls his wife’s boss to say she’s sick when she’s actually too hungover to work.", a:"enabler", why:"Covering for someone so they avoid consequences is enabling."},
+  {t:"Dev drinks every night, then tells everyone they’re overreacting.", a:"dependent", why:"The person with the addiction, in denial, is the Dependent."}
+];
+
+const STORY = [
+  [[1,`My dad had been in the military for over 20 years when he retired.`],[2,`I was a senior in high school.`],[3,`Growing up he was gone a lot or stationed without his family and was very strict when he was home.`]],
+  [[4,`My mom didn’t work while I was growing up, but did her best to raise 3 kids, many times without our dad around.`],[5,`Once he retired he seemed to show anger more often and started drinking heavily.`]],
+  [[6,`I was 9.`],[7,`I saw how his moods would change and he would get upset easily over small things.`],[8,`I was always quiet when I was young and was an easy child to raise, as I did what I was told, but still, there would be times I would get the belt and I didn’t understand why!`]],
+  [[9,`He expected perfect grades, good behavior, and obeying what we were told to do without question.`],[10,`Other than giving commands, he gave us little attention or signs of love.`],[11,`I remember seeing many of my friend’s dads so involved in their lives, and how I wished my dad could be that way!`]],
+  [[12,`I was petrified whenever he was home and as I got older I saw how he had gotten worse with my sisters.`],[13,`As they grew, my younger sister would stand up to him and hold in her true emotions.`],[14,`I saw how angry she was too!`]],
+  [[15,`She was not doing well with her grades in high school and became quite rebellious towards our dad, and I watched her start drinking in order to deal with the turmoil inside.`],[16,`We watched how our mom dealt with being married to someone with an addiction and saw such sadness in her face and I knew she did not know how to deal with it, so how did she expect us to!`]],
+  [[17,`Years later, after several of my own failed marriages, my older son had started smoking marijuana in middle school and once in the 9th grade was expelled from school for having drug paraphernalia and marijuana on him.`]],
+  [[18,`I was at my wit’s end and did not know how difficult this journey was going to be as he got older!`],[19,`There was anger built up inside me of how our dad’s addiction affected us growing up.`],[20,`I wasn’t the one with addiction, so why do I have to deal with my son’s drug problems!!`],[21,`I think I figured that if I tried to fix him it would go away.`],[22,`I did not know I was codependent yet.`]],
+  [[23,`While he was in counseling, one of the doctors suggested I get counseling also, knowing our family history.`],[24,`I set up an appointment and discovered how being the daughter of an alcoholic can have such a negative effect on how we see relationships and love.`]],
+  [[25,`So I found out I was codependent and that there are meetings for codependency to attend.`],[26,`Now I knew why I reacted the way I did and how to be aware of future situations that could take me down the wrong path again.`]],
+  [[27,`That codependency has continued through the years with my older son.`],[28,`After he graduated from high school, my younger son and I moved to a different city, so I did not see him often.`]],
+  [[29,`He did manage to graduate from college but was not able to keep a job.`],[30,`His addiction got worse as he was now doing harder drugs, like heroin and meth, and getting in trouble with the police, and lied to my ex-husband, so he kicked him out on the streets!!`],[31,`This scared me, and I did not want anything to happen to him and of course as a codependent mom of an addict I wanted to fix him!`]],
+  [[32,`After many years of ups and downs, he was in an accident and did not tell the hospital he was an addict, so he ended up getting hooked on pills after being sober for three years.`],[33,`This started the downhill spiral again, and he ended up having 2 DUI’s within 3 months of each other.`],[34,`I decided I could not enable him anymore and said he could not contact us until he was willing to be serious about getting clean and sober.`]],
+  [[35,`This was one of the hardest things for me to do as a mom, and other people close to me mentioned nothing will change until he wants to be helped.`],[36,`He had to be the one to make an effort and not depend on others to bail him out!`],[37,`Finally, I realized this was so true!!`]],
+  [[38,`This has been a long, hard journey as a family for years, that affects so many and tears families apart.`],[39,`I was lucky to escape the actual addiction but became codependent and dysfunctional due to being raised in a home with addiction.`]],
+  [[40,`I was quiet way too long, and hope I can help others that have been raised with addiction in their home and became codependent as I did.`],[41,`I want to create awareness of a dysfunctional situation before you become a part of it and love yourself enough to be able to walk away.`]]
+];
+
+const KEYS = [
+  {id:"dad", ids:[5,7], roles:["dependent"], title:"Dad’s drinking",
+   exp:"Dad is the Dependent. After he retires, his anger grows and he begins drinking heavily. Everyone starts tracking his moods, which shows how the household bends around him."},
+  {id:"rules", ids:[9,10], roles:["dependent","hero"], title:"Perfect grades, little love",
+   exp:"Strict rules with little warmth often come with a Dependent parent. That pressure to be perfect is also what creates a Hero, so either highlighter works here."},
+  {id:"child", ids:[8,12], roles:["lost","hero"], title:"Denise as a child",
+   exp:"Young Denise stays quiet, obeys, and lives in fear. Staying invisible is the Lost Child, and being the obedient, no-trouble kid has some Hero in it. Real people often blend roles."},
+  {id:"sister", ids:[13,14,15], roles:["scapegoat"], title:"The younger sister",
+   exp:"The younger sister pushes back against Dad, her grades drop, she rebels, and she starts drinking. Acting out the family’s pain is the Scapegoat."},
+  {id:"mom", ids:[4,16], roles:["enabler"], title:"Mom",
+   exp:"Mom keeps the family running mostly on her own and quietly endures the addiction without knowing how to change it. The spouse who absorbs the damage and holds things together is the classic Enabler or Caretaker."},
+  {id:"son", ids:[17,29,30,32,33], roles:["dependent"], title:"The older son",
+   exp:"In the next generation, Denise’s son becomes the Dependent: marijuana in middle school, then harder drugs, trouble with police, a relapse, and two DUIs."},
+  {id:"fix", ids:[20,21,31], roles:["enabler"], title:"Denise trying to fix her son",
+   exp:"As a mother, Denise moves into the Enabler role. She believes that fixing her son will make the problem go away. That urge to rescue and control is the heart of codependency."},
+  {id:"help", ids:[23,24,25,26], roles:["recovery"], title:"Getting counseling",
+   exp:"Counseling and codependency meetings help Denise understand her own pattern. Naming the pattern is the first step toward breaking it."},
+  {id:"boundary", ids:[34,35,36,37], roles:["recovery"], title:"Setting a boundary",
+   exp:"Denise stops enabling and tells her son not to contact the family until he’s serious about sobriety. It hurts, but it lets him face his own consequences, which is the opposite of rescuing."},
+  {id:"quiet", ids:[40], roles:["lost","recovery"], title:"“I was quiet way too long”",
+   exp:"Looking back, Denise sees that her childhood silence followed her into adulthood. Sharing her story publicly is a way of stepping out of the Lost Child role."}
+];
+const KEYED = new Set(KEYS.flatMap(k=>k.ids));
+
+const SCEN = [
+  {text:"Kayla’s boyfriend keeps forgetting his homework. Kayla starts doing it for him “so he doesn’t fail,” even though she’s falling behind in her own classes.",
+   ask:"Which role is Kayla playing?",
+   opts:[["The Hero","The Hero is about proving the family is okay through their own achievement. Kayla is managing someone else’s responsibilities."],
+         ["The Enabler","Right. She’s protecting him from the consequences of his choices at her own expense."],
+         ["The Lost Child","The Lost Child withdraws. Kayla is very involved in someone else’s problems."]], a:1},
+  {text:"Sam’s mom has a gambling problem. Sam, 16, works after school to help pay bills, cooks dinner for his younger brother, and keeps a 4.0 GPA. Teachers say he’s the most mature kid they know.",
+   ask:"Which role is Sam playing?",
+   opts:[["The Hero","Right. Being responsible and high-achieving makes the family look okay from the outside, even though Sam is carrying adult weight."],
+         ["The Mascot","The Mascot uses humor to ease tension. Sam is using responsibility and achievement."],
+         ["The Scapegoat","The Scapegoat draws negative attention. Sam gets praised."]], a:0},
+  {text:"In Sam’s family, his younger brother Theo does impressions and silly voices whenever his mom comes home upset about money. Everyone laughs and the tension drops.",
+   ask:"Which role is Theo playing?",
+   opts:[["The Lost Child","The Lost Child tries not to be noticed. Theo is the center of attention."],
+         ["The Enabler","Theo isn’t covering for his mom’s gambling. He’s easing the mood."],
+         ["The Mascot","Right. Humor is how Theo copes, and it distracts everyone from the real problem."]], a:2},
+  {text:"Eli’s dad drinks every night, but nobody in the family talks about it. When 15-year-old Eli is caught vaping at school, his parents spend weeks focused only on Eli’s behavior.",
+   ask:"Which role is Eli in, and why does it matter to the family?",
+   opts:[["The Scapegoat. His trouble gives the family a problem to focus on that isn’t Dad’s drinking.","Right. The Scapegoat’s behavior is real, but it also lets the family avoid the bigger issue."],
+         ["The Dependent. Vaping means Eli is now the main problem.","Eli’s choice matters, but notice how the family uses it to avoid talking about Dad."],
+         ["The Hero. Getting caught shows he’s honest.","The Hero earns praise. Eli is getting blamed."]], a:0},
+  {text:"Riley’s best friend texts her in crisis almost every night about fights at home. Riley stays up until 2 a.m. answering, is exhausted at school, and feels guilty if she doesn’t reply right away.",
+   ask:"Which response would best break the codependent pattern?",
+   opts:[["Keep answering every text. A good friend is always available.","This keeps Riley in the rescuer role, and her friend still doesn’t get adult help."],
+         ["Tell her friend she cares, encourage her to talk to a counselor or trusted adult, and set a time when she stops texting at night.","Right. Riley stays supportive while setting a boundary and pointing her friend toward help that can actually change things."],
+         ["Stop talking to her friend without explaining why.","Cutting someone off without a word isn’t a healthy boundary. It leaves both people hurt and confused."],
+         ["Secretly handle it by trying to fix the fights herself.","Trying to fix someone else’s family problems is still the Enabler role."]], a:1}
+];
+
+const REFLECT = [
+  "Which role or roles did Denise play as a child? Which role did she play as a mother? Use at least one detail from the story for each.",
+  "No one in this story clearly plays the Mascot. Why do you think that might be? Could the roles you found in this family have looked different if someone had?",
+  "Denise says cutting off contact with her son was one of the hardest things she ever did. Why can setting a boundary feel like abandoning someone, and how might it actually help them?",
+  "How does codependency get passed from one generation to the next in this story? What finally helped Denise start to change the pattern?"
+];
+
+/* ---------- state ---------- */
+const STORE = "codep-lesson-v1";
+let S = {quick:{}, tags:{}, checked:false, scen:{}, refl:{}, name:"", pen:"dependent"};
+try{ const raw = localStorage.getItem(STORE); if(raw) S = Object.assign(S, JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){} }
+const $ = s=>document.querySelector(s);
+const esc = s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- step 1 ---------- */
+function renderRoles(){
+  $("#roleCards").innerHTML = PENS.map(r=>`
+    <div class="role${r.key==="recovery"?" cycle":""}">
+      <h3><span class="mark" style="--c:var(--${r.key})">${r.name}</span></h3>
+      <p class="def">${r.def}${r.alt?` <span style="color:var(--ink-soft)">(${r.alt})</span>`:""}</p>
+      ${r.see?`<dl><dt>What you might see</dt><dd>${r.see}</dd><dt>What’s underneath</dt><dd>${r.under}</dd><dt>What it costs</dt><dd>${r.cost}</dd></dl>`:""}
+    </div>`).join("");
+}
+function renderQuick(){
+  $("#quickCheck").innerHTML = QUICK.map((q,i)=>{
+    const pick = S.quick[i];
+    const ok = pick===q.a;
+    return `<div class="q"><p>${q.t}</p><div class="chips">${ROLES.map(r=>{
+      const cls = pick===r.key ? (ok?"picked right":"picked wrong") : "";
+      return `<button class="chip ${cls}" data-q="${i}" data-r="${r.key}" ${ok?"disabled":""}>${r.name.replace("The ","")}</button>`;}).join("")}</div>
+      ${pick? `<p class="fb ${ok?"right":"wrong"}">${ok?"Correct. ":"Not quite. Try another. "}${ok?`<span>${q.why}</span>`:""}</p>`:""}</div>`;
+  }).join("");
+}
+$("#quickCheck").addEventListener("click",e=>{
+  const b = e.target.closest(".chip"); if(!b) return;
+  S.quick[b.dataset.q] = b.dataset.r; save(); renderQuick(); renderNav();
+});
+
+/* ---------- step 2 ---------- */
+function renderStory(){
+  $("#story").innerHTML = `<h3>My Story and Struggle with Codependency</h3><p class="by">By Denise</p>
+  <p class="cite">“My Story and Struggle with Codependency.” Manyfacetsoflife.com, 2020. Web. 20 Apr. 2020.</p>` +
+  STORY.map(p=>`<p>${p.map(([id,t])=>{
+    const tag = S.tags[id];
+    return `<span class="s${tag?" tagged":""}" data-id="${id}" ${tag?`style="--c:var(--${tag})"`:""} tabindex="0" role="button" aria-pressed="${!!tag}" aria-label="${esc(t)}${tag?` (highlighted: ${NAME[tag]})`:""}">${t}</span>`;
+  }).join(" ")}</p>`).join("");
+}
+function renderPens(){
+  const counts = {}; Object.values(S.tags).forEach(k=>counts[k]=(counts[k]||0)+1);
+  $("#pens").innerHTML = PENS.map(r=>`<button class="pen" data-pen="${r.key}" style="--c:var(--${r.key})" aria-pressed="${S.pen===r.key}"><span class="tip"></span>${r.key==="recovery"?r.name:r.name.replace("The ","")}<span class="ct">${counts[r.key]||""}</span></button>`).join("") +
+    `<button class="pen eraser" data-pen="erase" aria-pressed="${S.pen==="erase"}"><span class="tip"></span>Eraser</button>`;
+  const total = Object.keys(S.tags).length;
+  $("#penHint").textContent = total ? `${total} sentence${total===1?"":"s"} highlighted.` : "Pick a highlighter, then tap sentences in the story.";
+}
+$("#pens").addEventListener("click",e=>{
+  const b = e.target.closest(".pen"); if(!b) return;
+  S.pen = b.dataset.pen; save(); renderPens();
+});
+function tagSentence(id){
+  const cur = S.tags[id];
+  if(S.pen==="erase" || cur===S.pen) delete S.tags[id]; else S.tags[id]=S.pen;
+  save(); renderStory(); renderPens();
+  if(S.checked) renderResults(true);
+  const el = document.querySelector(`.s[data-id="${id}"]`); if(el) el.focus({preventScroll:true});
+}
+$("#story").addEventListener("click",e=>{ const s=e.target.closest(".s"); if(s) tagSentence(+s.dataset.id); });
+$("#story").addEventListener("keydown",e=>{ const s=e.target.closest(".s"); if(s&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); tagSentence(+s.dataset.id);} });
+
+function grade(){
+  return KEYS.map(k=>{
+    const tagged = k.ids.filter(i=>S.tags[i]);
+    if(tagged.some(i=>k.roles.includes(S.tags[i]))) return {k, status:"found"};
+    if(tagged.length) return {k, status:"mis", used:[...new Set(tagged.map(i=>S.tags[i]))]};
+    return {k, status:"missed"};
+  });
+}
+function renderResults(stale){
+  const box = $("#results");
+  if(!S.checked){ box.hidden = true; return; }
+  const g = grade(), found = g.filter(x=>x.status==="found").length;
+  const extra = Object.keys(S.tags).filter(id=>!KEYED.has(+id)).length;
+  const order = {mis:0, missed:1, found:2};
+  box.hidden = false;
+  box.innerHTML = `<h2 style="margin-top:0">Your highlights</h2>
+    <p class="score">You found ${found} of ${KEYS.length} key moments.</p>
+    ${stale?`<p style="color:var(--ink-soft)">You’ve changed highlights since checking. These results update as you go.</p>`:""}
+    <p>Moments marked “Look again” have a highlight, but a different role fits better. Read the hint, try another highlighter, and the result updates.</p>
+    <div class="rlist">${g.sort((a,b)=>order[a.status]-order[b.status]).map(x=>{
+      const accepted = x.k.roles.map(r=>NAME[r]).join(" or ");
+      let st, body;
+      if(x.status==="found"){ st="Found it"; body=`<p>${x.k.exp}</p>`; }
+      else if(x.status==="mis"){ st="Look again"; body=`<p>You used ${x.used.map(r=>NAME[r]).join(" and ")}. Reread these lines and ask what the person is doing to cope. Compare with the role cards in step 1.</p>`; }
+      else { st="Not highlighted yet"; body=`<p>There’s a role at work in these sentences. Find them and decide which highlighter fits.</p>`; }
+      return `<div class="r ${x.status}"><div class="st">${st}</div><h3>${x.k.title}${x.status==="found"?` <span style="font-weight:400;color:var(--ink-soft)">(${accepted})</span>`:""}</h3>${body}<button class="linkbtn" data-goto="${x.k.ids[0]}">Show in the story</button></div>`;
+    }).join("")}</div>
+    <div class="note"><h3>What about the Mascot?</h3><p>No one in Denise’s story clearly plays the Mascot. Not every family has every role, and the story only shows us what Denise chose to tell. You’ll think about this in the reflection.</p></div>
+    ${extra?`<div class="note"><h3>Your other highlights</h3><p>You highlighted ${extra} sentence${extra===1?"":"s"} outside the key moments. That isn’t wrong. Be ready to explain your thinking in the reflection or in class.</p></div>`:""}
+    `;
+}
+$("#results").addEventListener("click",e=>{
+  const b = e.target.closest("[data-goto]"); if(!b) return;
+  const el = document.querySelector(`.s[data-id="${b.dataset.goto}"]`);
+  if(el){ el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"center"}); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); el.focus({preventScroll:true}); }
+});
+$("#checkBtn").addEventListener("click",()=>{
+  if(!Object.keys(S.tags).length){ $("#penHint").textContent="Highlight at least one sentence before checking."; return; }
+  S.checked = true; save(); renderResults(false); renderNav();
+  $("#results").scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("#clearBtn").addEventListener("click",()=>{
+  if(!Object.keys(S.tags).length) return;
+  if(!confirm("Remove all your highlights?")) return;
+  S.tags = {}; S.checked = false; save(); renderStory(); renderPens(); renderResults(); renderNav();
+});
+
+/* ---------- step 3 ---------- */
+function renderScen(){
+  $("#scenarios").innerHTML = SCEN.map((s,i)=>{
+    const pick = S.scen[i];
+    const solved = pick===s.a;
+    return `<div class="scen"><p class="story-bit">${s.text}</p><p class="ask">${s.ask}</p>
+      <div class="opts">${s.opts.map(([o],j)=>`<button class="opt ${pick===j?(j===s.a?"right":"wrong"):""}" data-s="${i}" data-o="${j}" ${solved?"disabled":""}>${o}</button>`).join("")}</div>
+      ${pick!==undefined?`<p class="fb ${solved?"right":"wrong"}">${solved?"":"Not quite. "}<span>${s.opts[pick][1]}</span>${solved?"":" Try again."}</p>`:""}</div>`;
+  }).join("");
+}
+$("#scenarios").addEventListener("click",e=>{
+  const b = e.target.closest(".opt"); if(!b) return;
+  S.scen[b.dataset.s] = +b.dataset.o; save(); renderScen(); renderNav();
+});
+
+/* ---------- step 4 ---------- */
+function renderReflect(){
+  $("#studentName").value = S.name||"";
+  $("#reflectFields").innerHTML = REFLECT.map((q,i)=>`<div class="field"><label for="r${i}">${i+1}. ${q}</label><textarea id="r${i}" data-r="${i}">${esc(S.refl[i]||"")}</textarea><div class="saved" id="sv${i}"></div></div>`).join("");
+}
+let saveTimer;
+$("#reflectFields").addEventListener("input",e=>{
+  const t = e.target; if(!t.dataset.r) return;
+  S.refl[t.dataset.r] = t.value;
+  clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ save(); const m=$("#sv"+t.dataset.r); if(m) m.textContent="Saved"; renderNav(); }, 400);
+});
+$("#studentName").addEventListener("input",e=>{ S.name = e.target.value; save(); });
+$("#copyBtn").addEventListener("click",async()=>{
+  const g = grade(), found = g.filter(x=>x.status==="found").length;
+  const quick = QUICK.filter((q,i)=>S.quick[i]===q.a).length;
+  const scen = SCEN.filter((s,i)=>S.scen[i]===s.a).length;
+  let text = `Family Roles in Codependency: ${S.name||"(no name)"}\n` +
+    `Quick check: ${quick}/${QUICK.length} correct\nStory highlights: ${found}/${KEYS.length} key moments found\nScenarios: ${scen}/${SCEN.length} solved\n\n` +
+    REFLECT.map((q,i)=>`${i+1}. ${q}\n${(S.refl[i]||"(no answer)").trim()}`).join("\n\n");
+  text += `\n\nVideo watched: ${S.watched?"yes":"no"}\nVideo notes:\n${(S.notes||"(no notes)").trim()}`;
+  const out = $("#copyOut");
+  try{ await navigator.clipboard.writeText(text); $("#copyMsg").textContent="Copied. Paste your answers where your teacher asked."; out.style.display="none"; }
+  catch(err){ out.value = text; out.style.display="block"; out.focus(); out.select(); $("#copyMsg").textContent="Select all the text below and copy it."; }
+});
+$("#resetBtn").addEventListener("click",()=>{
+  if(!confirm("This erases all your answers and highlights. Start over?")) return;
+  S = {quick:{}, tags:{}, checked:false, scen:{}, refl:{}, name:"", pen:"dependent"}; save(); renderAll(); go("learn");
+});
+
+/* ---------- PDF download ---------- */
+if(window.jspdf) $("#pdfBtn").hidden = false;
+function buildPdf(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:"pt", format:"letter"});
+  const M = 60, W = 612 - M*2, BOTTOM = 792 - 60;
+  let y = M;
+  function block(str, {size=11, bold=false, gray=false, gap=6, indent=0}={}){
+    doc.setFont("helvetica", bold?"bold":"normal");
+    doc.setFontSize(size);
+    doc.setTextColor(gray?110:29, gray?120:42, gray?130:58);
+    const lh = size*1.4;
+    doc.splitTextToSize(String(str), W-indent).forEach(line=>{
+      if(y + lh > BOTTOM){ doc.addPage(); y = M; }
+      doc.text(line, M+indent, y + size);
+      y += lh;
+    });
+    y += gap;
+  }
+  function heading(t){ if(y > BOTTOM-80){ doc.addPage(); y = M; } y += 10; block(t,{size:14,bold:true,gap:4}); doc.setDrawColor(200); doc.line(M,y,M+W,y); y += 10; }
+  const found = grade().filter(x=>x.status==="found").length;
+  const quick = QUICK.filter((q,i)=>S.quick[i]===q.a).length;
+  const scen = SCEN.filter((s,i)=>S.scen[i]===s.a).length;
+
+  block("Family Roles in Codependency",{size:20,bold:true,gap:2});
+  block(`Name: ${S.name||"(no name)"}`,{size:12,gap:0});
+  block(`Date: ${new Date().toLocaleDateString()}`,{size:12,gray:true,gap:10});
+
+  heading("Progress");
+  block(`Video watched: ${S.watched?"Yes":"No"}`,{gap:2});
+  block(`Quick check: ${quick} of ${QUICK.length} correct`,{gap:2});
+  block(`Story highlights: ${found} of ${KEYS.length} key moments found`,{gap:2});
+  block(`Real scenarios: ${scen} of ${SCEN.length} solved`);
+
+  heading("Video notes");
+  block((S.notes||"").trim()||"(no notes)");
+
+  heading("Story highlights");
+  const all = STORY.flat();
+  let any = false;
+  PENS.forEach(r=>{
+    const lines = all.filter(([id])=>S.tags[id]===r.key);
+    if(!lines.length) return;
+    any = true;
+    block(r.name,{bold:true,gap:2});
+    lines.forEach(([,t])=>block("• "+t,{size:10.5,indent:12,gap:3}));
+    y += 4;
+  });
+  if(!any) block("(no highlights)");
+
+  heading("Reflection");
+  REFLECT.forEach((q,i)=>{
+    block(`${i+1}. ${q}`,{bold:true,gap:3});
+    block((S.refl[i]||"").trim()||"(no answer)",{gap:12});
+  });
+
+  const n = doc.getNumberOfPages();
+  for(let p=1;p<=n;p++){ doc.setPage(p); doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(130); doc.text(`${S.name||"Student"}  |  Page ${p} of ${n}`, M, 792-30); }
+  return doc.output("blob");
+}
+let pdfUrl = null;
+$("#pdfBtn").addEventListener("click", ()=>{
+  const msg = $("#copyMsg");
+  const slug = (S.name||"answers").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "answers";
+  try{
+    if(pdfUrl) URL.revokeObjectURL(pdfUrl);
+    pdfUrl = URL.createObjectURL(buildPdf());
+    const a = document.createElement("a");
+    a.href = pdfUrl; a.download = `codependency-lesson-${slug}.pdf`;
+    document.body.appendChild(a); a.click(); a.remove();
+    msg.innerHTML = `PDF created. If it didn’t download, <a href="${pdfUrl}" target="_blank" rel="noopener">open the PDF</a> and save it from there.`;
+  }catch(err){
+    msg.textContent = "The PDF couldn’t be created. Use Copy my answers instead.";
+  }
+});
+
+/* ---------- navigation ---------- */
+const STEPS = ["learn","read","apply","reflect"];
+function doneMap(){
+  return {
+    learn: !!S.watched && QUICK.every((q,i)=>S.quick[i]===q.a),
+    read: S.checked && grade().every(x=>x.status==="found"),
+    apply: SCEN.every((s,i)=>S.scen[i]===s.a),
+    reflect: REFLECT.every((q,i)=>(S.refl[i]||"").trim().length>20)
+  };
+}
+function renderNav(){
+  const d = doneMap(), cur = current();
+  document.querySelectorAll("nav.steps label").forEach(a=>{
+    a.classList.toggle("done", d[a.dataset.step]);
+    if(a.dataset.step===cur) a.setAttribute("aria-current","step"); else a.removeAttribute("aria-current");
+  });
+}
+// Steps switch with radio buttons and CSS, so they work even inside restricted embeds like Google Sites.
+let curStep = (()=>{ const h = (location.hash||"").replace("#",""); return STEPS.includes(h) ? h : (STEPS.includes(S.step) ? S.step : "learn"); })();
+function current(){ return curStep; }
+function show(){ const r = document.getElementById("go-"+curStep); if(r) r.checked = true; renderNav(); }
+function go(step){ if(!STEPS.includes(step)) return; curStep = step; S.step = step; save(); show(); try{ window.scrollTo(0,0); }catch(e){} }
+document.addEventListener("change", e=>{
+  const t = e.target;
+  if(t && t.classList && t.classList.contains("steprad") && t.checked){
+    curStep = t.id.slice(3); S.step = curStep; save(); renderNav();
+    try{ window.scrollTo(0,0); }catch(err){}
+  }
+});
+function renderVideo(){ $("#videoNotes").value = S.notes||""; $("#watched").checked = !!S.watched; }
+let notesTimer;
+$("#videoNotes").addEventListener("input",e=>{ S.notes = e.target.value; clearTimeout(notesTimer); notesTimer = setTimeout(()=>{ save(); $("#svv").textContent="Saved"; },400); });
+$("#watched").addEventListener("change",e=>{ S.watched = e.target.checked; save(); renderNav(); });
+function renderAll(){ renderVideo(); renderRoles(); renderQuick(); renderStory(); renderPens(); renderResults(); renderScen(); renderReflect(); renderNav(); }
+renderAll(); show();
+</script>
+</body>
+</html>
