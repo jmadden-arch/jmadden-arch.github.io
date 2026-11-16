@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drug Categories Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#EDF3F0; --surface:#FFFFFF; --ink:#12302F; --muted:#4D6663; --line:#C9D9D3;
+  --teal:#1D6B66; --teal-soft:#D7EAE6; --amber:#B8741A; --amber-soft:#FBEBD2;
+  --good:#2F7A3B; --good-soft:#DCEFDD; --bad:#B23A2B; --bad-soft:#F7DEDA;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1D1C; --surface:#172927; --ink:#E3EEEB; --muted:#9DB5B0; --line:#2C4542;
+    --teal:#6CC3BA; --teal-soft:#1E3B38; --amber:#F0B45E; --amber-soft:#3A2D18;
+    --good:#7BCB86; --good-soft:#1D3522; --bad:#F08C7E; --bad-soft:#3E201C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1D1C; --surface:#172927; --ink:#E3EEEB; --muted:#9DB5B0; --line:#2C4542;
+  --teal:#6CC3BA; --teal-soft:#1E3B38; --amber:#F0B45E; --amber-soft:#3A2D18;
+  --good:#7BCB86; --good-soft:#1D3522; --bad:#F08C7E; --bad-soft:#3E201C;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.6 "Atkinson Hyperlegible",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;line-height:1.15;margin:0}
+a{color:var(--teal)}
+.wrap{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+header.hero{padding:2rem 0 1.5rem;border-bottom:3px solid var(--ink);margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2rem,6vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+.hero p{max-width:62ch;color:var(--muted);margin:.75rem 0 0}
+.name-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.25rem;align-items:end}
+.name-row label{display:flex;flex-direction:column;font-weight:700;font-size:.95rem;gap:.3rem}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:6px;padding:.55rem .7rem;width:100%}
+input[type=text]:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.name-row input{min-width:240px}
+.save-note{font-size:.85rem;color:var(--muted)}
+
+/* Category shelf */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem;margin:1.5rem 0}
+.shelf button{font:700 .95rem/1.25 "Atkinson Hyperlegible",sans-serif;text-align:left;padding:.7rem .8rem;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;gap:.5rem;align-items:center}
+.shelf button[aria-current="true"]{border-color:var(--ink);background:var(--teal-soft)}
+.shelf .mark{font-size:.8rem;font-weight:400;color:var(--muted);white-space:nowrap}
+.shelf .done .mark{color:var(--good);font-weight:700}
+
+.panel{background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:1.5rem;}
+.panel h2{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:800}
+.panel .tag{color:var(--muted);margin:.35rem 0 1.25rem;max-width:65ch}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.5rem}
+.fact h3{font-size:1.05rem;font-weight:600;color:var(--teal);margin-bottom:.35rem;border-bottom:1px solid var(--line);padding-bottom:.25rem}
+.fact ul{margin:0;padding-left:1.15rem}
+.fact li{margin:.15rem 0}
+.fact.wide{grid-column:1/-1}
+.callout{background:var(--amber-soft);border-left:5px solid var(--amber);padding:.8rem 1rem;border-radius:0 6px 6px 0;margin-top:1rem}
+.callout strong{display:block;margin-bottom:.2rem}
+.readmore{display:inline-block;margin-top:1rem;font-weight:700}
+
+.notes{margin-top:1.75rem;border-top:2px dashed var(--line);padding-top:1.25rem}
+.notes h3{font-size:1.2rem;margin-bottom:.75rem}
+.notes label{display:block;font-weight:700;margin:.75rem 0 .3rem}
+.notes textarea{min-height:70px;resize:vertical}
+
+.check{margin-top:1.5rem;background:var(--teal-soft);border-radius:8px;padding:1.1rem 1.2rem}
+.check h3{font-size:1.15rem;margin-bottom:.5rem}
+.check .q{font-weight:700;margin:0 0 .6rem}
+.opts{display:grid;gap:.45rem}
+.opts button{font:inherit;text-align:left;padding:.6rem .8rem;border:2px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opts button:disabled{cursor:default}
+.opts button.right{border-color:var(--good);background:var(--good-soft)}
+.opts button.wrong{border-color:var(--bad);background:var(--bad-soft);text-decoration:line-through}
+.feedback{margin-top:.7rem;font-size:.98rem}
+.feedback.ok{color:var(--good)} .feedback.no{color:var(--bad)}
+
+.navrow{display:flex;justify-content:space-between;gap:.75rem;margin-top:1.5rem;flex-wrap:wrap}
+.btn{font:700 1rem "Atkinson Hyperlegible",sans-serif;padding:.7rem 1.2rem;border-radius:6px;border:2px solid var(--ink);background:var(--ink);color:var(--surface);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.finish-list{list-style:none;padding:0;margin:1rem 0;display:grid;gap:.35rem}
+.finish-list li{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:.35rem 0;gap:1rem}
+.status-ok{color:var(--good);font-weight:700}
+.status-miss{color:var(--bad);font-weight:700}
+.video-card{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;background:var(--teal-soft);padding:1rem;border-radius:8px;margin:1rem 0}
+
+.chart{display:grid;grid-template-columns:1fr 1fr;gap:.25rem 1.25rem}
+.chart .wide{grid-column:1/-1}
+.chart label,.mf label{display:block;font-weight:700;margin:.8rem 0 .3rem}
+.chart textarea{min-height:90px}
+.mf{margin-top:1.5rem;border-top:2px dashed var(--line);padding-top:1.1rem}
+.mf h3,.compare h3{font-size:1.2rem}
+.mf .hint{font-size:.9rem;color:var(--muted);margin:.25rem 0 0}
+textarea[readonly]{background:var(--bg);border-style:dashed}
+.step-intro{background:var(--teal-soft);border-radius:8px;padding:.8rem 1rem;margin:0 0 1rem}
+.compare{margin-top:1.5rem;border:2px solid var(--amber);border-radius:10px;padding:1.2rem}
+.compare.locked{border-style:dashed;border-color:var(--line);color:var(--muted)}
+.compare ul.todo{margin:.5rem 0 1rem;padding-left:1.2rem}
+.missed{margin-top:1.25rem;border-top:2px dashed var(--amber);padding-top:1rem}
+.missed label{font-weight:700;display:block;margin-bottom:.3rem}
+@media (max-width:640px){.chart{grid-template-columns:1fr}}
+@media (max-width:640px){.facts{grid-template-columns:1fr}.panel{padding:1.1rem}}
+@media (prefers-reduced-motion:no-preference){.panel{animation:in .25s ease-out}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Drug Categories Field Guide</h1>
+    <p>You are the researcher. For each of the nine categories, open the article, fill in the note chart in your own words, and answer the must-find questions. Then try the check question (two tries). Once all of that is done, you can unlock the key facts and compare them to your notes, adding anything you missed. Tomorrow your team uses this research to break out of the Toxicology Lab escape room. Your work saves automatically on this device.</p>
+    <div class="name-row">
+      <label>Your name<input type="text" id="studentName" autocomplete="name"></label>
+      <label>Class period<input type="text" id="period" style="min-width:110px;max-width:140px"></label>
+      <span class="save-note" id="saveNote" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <nav class="shelf" id="shelf" aria-label="Drug categories"></nav>
+  <main id="panel"></main>
+</div>
+
+<script>
+const CATS = [
+{ id:"steroids", name:"Anabolic Steroids",
+  tag:"Man-made versions of the hormone testosterone. They are not taken to get high, but they are still misused and can be addictive.",
+  purpose:["Build muscle size and strength quickly","Improve athletic performance or change appearance","Medical uses: treat low hormone levels and muscle loss from diseases"],
+  short:["Acne and oily skin","Mood swings, irritability, and aggression (sometimes called \u201croid rage\u201d)","Fluid retention and bloating","Higher blood pressure"],
+  long:["Liver damage and tumors","Heart disease, high cholesterol, and stroke risk","In teens: stunted growth, because steroids can close bone growth plates early","Males: shrunken testicles, lower sperm count, breast growth","Females: deeper voice, facial hair, menstrual changes","Depression when stopping; can become addictive"],
+  examples:["Testosterone","Nandrolone","Stanozolol","Taken as pills or injections"],
+  info:"Steroids affect far more than muscles. They are banned in nearly every sport and are illegal to use without a prescription.",
+  link:"http://www.teenhealthandwellness.com/article/311?search=anabolic%20Steroids",
+  q:"Anabolic steroids are man-made versions of which hormone?",
+  opts:["Adrenaline","Testosterone","Insulin","Melatonin"], ans:1,
+  why:"Anabolic steroids copy testosterone. In teens they can close growth plates early and permanently stunt growth."},
+{ id:"stimulants", name:"Stimulants",
+  tag:"Drugs that speed up the central nervous system, the messages traveling between your brain and body.",
+  purpose:["Feel more energy, alertness, and focus","Feel euphoric or confident","Lose weight (stimulants lower appetite)","Medical uses: ADHD and narcolepsy"],
+  short:["Increased heart rate and blood pressure","Decreased appetite","Trouble sleeping, feeling wide awake","Higher body temperature and dilated pupils","At high amounts: irregular heartbeat, paranoia, seizures"],
+  long:["Addiction","Heart damage, heart attack, and stroke","Severe weight loss and poor nutrition","Anxiety, paranoia, and psychosis","Damage to the nose (snorting cocaine) and teeth (meth)"],
+  examples:["Caffeine","Nicotine","Cocaine","Methamphetamine","Prescription amphetamines (Adderall)","Methylphenidate (Ritalin)"],
+  info:"Using someone else\u2019s ADHD medication as a \u201cstudy drug\u201d is misuse and is not shown to improve grades. Stimulants are usually followed by a crash: exhaustion and low mood.",
+  link:"http://www.teenhealthandwellness.com/article/41?search=stimulants",
+  q:"A student\u2019s heart is racing, they aren\u2019t hungry, and they can\u2019t fall asleep. Which category best fits?",
+  opts:["Depressant","Stimulant","Narcotic","Inhalant"], ans:1,
+  why:"Fast heart rate, low appetite, and trouble sleeping are classic stimulant effects. Stimulants speed the body up."},
+{ id:"depressants", name:"Depressants",
+  tag:"Drugs that slow down the central nervous system. Think \u201cslow\u201d: slower breathing, slower heart rate, slower reactions.",
+  purpose:["Relax and reduce anxiety","Help with sleep","Lower inhibitions","Medical uses: anxiety, insomnia, and seizures"],
+  short:["Drowsiness and relaxed muscles","Slowed breathing and heart rate","Slurred speech and poor coordination","Confusion and poor judgment"],
+  long:["Tolerance, dependence, and addiction","Memory problems","Withdrawal can be dangerous, even cause seizures, and may need a doctor"],
+  examples:["Alcohol","Benzodiazepines (Xanax, Valium)","Barbiturates","Sleeping pills (Ambien)"],
+  info:"Mixing depressants, such as alcohol with Xanax or with opioids, is especially deadly. Their effects stack, and breathing can slow until it stops.",
+  link:"http://www.teenhealthandwellness.com/article/59?search=depressants",
+  q:"Why is mixing alcohol with another depressant so dangerous?",
+  opts:["The drugs cancel each other out","The effects stack and can slow breathing until it stops","It makes the alcohol wear off faster","It only causes a headache the next day"], ans:1,
+  why:"Two depressants together slow the body even more than either alone, and breathing can stop."},
+{ id:"hallucinogens", name:"Hallucinogens",
+  tag:"Drugs that change how a person sees, hears, and feels reality.",
+  purpose:["Experience altered perceptions or \u201cmind-expanding\u201d feelings","Curiosity"],
+  short:["Hallucinations: seeing or hearing things that aren\u2019t there","Distorted sense of time, space, and self","Intense emotions that swing quickly","Increased heart rate, nausea","A \u201cbad trip\u201d: terrifying panic, paranoia, or fear"],
+  long:["Flashbacks: effects returning days or months later","Lasting changes in vision (rare)","Ongoing anxiety, mood problems, or psychosis (rare)","PCP can be addictive"],
+  examples:["LSD (acid)","Psilocybin (\u201cmushrooms\u201d)","Peyote / mescaline","DMT","PCP","Ketamine (a dissociative)"],
+  info:"Effects are unpredictable, even for someone who has used before. Many injuries happen because of what people do while their sense of reality is distorted.",
+  link:"http://www.teenhealthandwellness.com/article/460?search=hallucinogens",
+  q:"What is a \u201cbad trip\u201d?",
+  opts:["A frightening experience with panic, paranoia, or fear","When the drug doesn\u2019t work","A hangover from alcohol","A side effect of steroids"], ans:0,
+  why:"A bad trip is a terrifying hallucinogen experience. It can lead to panic and dangerous behavior."},
+{ id:"daterape", name:"Date Rape Drugs",
+  tag:"Drugs someone uses on another person, without their knowledge, to make them unable to resist or remember an assault.",
+  purpose:["Not taken by choice: given to a victim secretly, usually slipped into a drink","Used by the attacker to make a victim confused, weak, or unconscious"],
+  short:["Dizziness, confusion, and drowsiness","Trouble moving or speaking","Memory blackouts: the victim may not remember what happened","Loss of consciousness, slowed breathing"],
+  long:["Emotional trauma after an assault","Overdose and death, especially when combined with alcohol"],
+  examples:["Rohypnol (\u201croofies\u201d)","GHB","Ketamine","Alcohol is the substance most often involved"],
+  info:"Many of these drugs are colorless, odorless, and tasteless. Protect yourself and friends: watch your drink, don\u2019t accept drinks you didn\u2019t see poured, and leave together. If you think you or a friend was drugged, get to a safe place, call 911, and get medical help right away, since some drugs leave the body quickly. It is never the victim\u2019s fault.",
+  link:"http://www.teenhealthandwellness.com/article/139/2?search=date%20rape%20drugs",
+  q:"Why are date rape drugs so hard for a victim to notice?",
+  opts:["They turn drinks bright blue","They are often colorless, odorless, and tasteless","They only work in hot drinks","They make the victim feel more alert"], ans:1,
+  why:"Most are colorless, odorless, and tasteless, so watching your drink and looking out for friends matters."},
+{ id:"narcotics", name:"Narcotics (Opioids)",
+  tag:"Drugs made from the opium poppy or made in labs to act like it. They relieve pain and slow the body down.",
+  purpose:["Medical use: relieve moderate to severe pain","Misused for a relaxed, euphoric high"],
+  short:["Euphoria and drowsiness","Pinpoint (very tiny) pupils","Nausea and constipation","Slowed breathing, which can lead to overdose"],
+  long:["Tolerance, dependence, and addiction","Painful withdrawal","Overdose and death","Infections from shared needles"],
+  examples:["Heroin","Fentanyl","Oxycodone (OxyContin)","Hydrocodone (Vicodin)","Morphine","Codeine"],
+  info:"Signs of an opioid overdose: unresponsive, pinpoint pupils, slow or stopped breathing, blue lips. Naloxone (brand name Narcan) can reverse an opioid overdose and is sold over the counter. Call 911. Illinois has a Good Samaritan law that protects people who call for help during an overdose from some drug possession charges. Fentanyl is extremely strong and is often hidden in fake pills.",
+  link:"http://www.teenhealthandwellness.com/article/186/heroin",
+  q:"Someone is unresponsive with pinpoint pupils and very slow breathing. After calling 911, which medicine can reverse an opioid overdose?",
+  opts:["Adderall","Ibuprofen","Naloxone (Narcan)","Epinephrine (EpiPen)"], ans:2,
+  why:"Naloxone, sold as Narcan, reverses an opioid overdose. Always call 911 too, since it can wear off."},
+{ id:"inhalants", name:"Inhalants",
+  tag:"Chemical vapors breathed in through the nose or mouth. Many are everyday household products.",
+  purpose:["A fast, cheap high","Easy to get, often already in the house"],
+  short:["Dizziness and a short \u201cdrunk\u201d feeling","Slurred speech and loss of coordination","Headache and nausea","Sudden sniffing death: the heart can stop, even the first time"],
+  long:["Brain damage, with problems in memory and learning","Hearing loss","Liver and kidney damage","Nerve damage, muscle spasms"],
+  examples:["Spray paint and aerosol cans","Glue and markers","Gasoline","Computer duster","Nitrous oxide (\u201cwhippets\u201d)","\u201cPoppers\u201d (nitrites)"],
+  info:"Being legal or found at home does not make a product safe to inhale. Inhalants are most often tried by younger teens.",
+  link:"http://www.teenhealthandwellness.com/article/196?search=inhalants",
+  q:"Which statement about inhalants is true?",
+  opts:["They are safe because they are household products","They can cause death even the first time they are used","They only affect the lungs","They are a type of stimulant"], ans:1,
+  why:"Sudden sniffing death can happen on the very first use. Legal does not mean safe."},
+{ id:"club", name:"Club Drugs",
+  tag:"A group of drugs often used at parties, raves, and concerts. Some overlap with other categories.",
+  purpose:["Extra energy to dance for hours","Euphoria and feeling close to others","Heightened senses at music events"],
+  short:["MDMA: overheating (hyperthermia) and dehydration","Clenched jaw and teeth grinding","Fast heart rate","Ketamine: feeling detached from your body"],
+  long:["Depression and anxiety","Memory and sleep problems","Possible damage to the brain\u2019s serotonin system","Ketamine: bladder damage"],
+  examples:["MDMA (ecstasy, \u201cmolly\u201d)","GHB","Ketamine","Rohypnol","Methamphetamine"],
+  info:"Pills and powders sold as \u201cmolly\u201d often contain other drugs, including meth or fentanyl. You can\u2019t know what you are really taking.",
+  link:"http://www.teenhealthandwellness.com/article/286/3?search=Club%20drugs",
+  q:"At a crowded, hot concert, what is one of MDMA\u2019s most immediate physical dangers?",
+  opts:["Overheating and dehydration","Falling asleep","Stunted growth","Pinpoint pupils"], ans:0,
+  why:"MDMA can push body temperature dangerously high, especially in a hot crowd while dancing."},
+{ id:"cannabis", name:"Cannabinoids",
+  tag:"Chemicals from the cannabis (marijuana) plant. The two best known are THC and CBD.",
+  purpose:["Relaxation and a \u201chigh\u201d (from THC)","Medical uses: nausea, appetite, and certain seizures"],
+  short:["Changes in mood and senses","Slower reaction time and poor coordination, which makes driving dangerous","Short-term memory problems","Increased appetite and heart rate","Anxiety or paranoia in some people"],
+  long:["Harms the developing teen brain: memory, learning, attention","Cannabis use disorder (addiction), more likely when use starts young","Breathing problems if smoked","Severe repeated vomiting (cannabinoid hyperemesis)"],
+  examples:["Marijuana","Edibles","Vapes and concentrates (\u201cdabs\u201d)","Hashish","Synthetic cannabinoids (K2, Spice)"],
+  info:"THC causes the high. CBD does not, and a CBD medicine (Epidiolex) is FDA-approved for certain seizures. In Illinois, marijuana is legal only for adults 21 and older. Today\u2019s THC levels are much higher than in the past, and edibles take a long time to kick in, so people often take too much.",
+  link:"http://www.teenhealthandwellness.com/article/223?search=marijuana",
+  q:"Which chemical in marijuana causes the \u201chigh\u201d?",
+  opts:["CBD","THC","Nicotine","Caffeine"], ans:1,
+  why:"THC is the psychoactive part that causes the high. CBD does not cause a high."}
+];
+
+const MF = {
+ steroids:["How can anabolic steroids affect a teenager\u2019s growth, and why?","Name two effects of steroids on the body that have nothing to do with muscles."],
+ stimulants:["What do stimulants do to the central nervous system?","Name three short-term effects of stimulants."],
+ depressants:["List three examples of depressants.","What do depressants do to breathing and heart rate?"],
+ hallucinogens:["What is a flashback?","Why are the effects of hallucinogens described as unpredictable?"],
+ daterape:["Name two ways you can protect yourself and your friends at a party.","What should you do if you think you or a friend has been drugged?"],
+ narcotics:["What are three signs of an opioid overdose?","What is fentanyl, and why is it so dangerous?","Use the NIDA naloxone article: What is naloxone (Narcan), and what does it do? Why should you still call 911 after giving it?"],
+ inhalants:["List four household products that are misused as inhalants.","What is \u201csudden sniffing death\u201d?"],
+ club:["Why are club drugs often used at parties, raves, and concerts?","Why can\u2019t someone be sure what is really in a pill sold as \u201cmolly\u201d?"],
+ cannabis:["Why is marijuana more harmful to a teenager\u2019s brain than an adult\u2019s?","List three different forms that cannabinoids come in."]
+};
+const EXTRA = {
+ narcotics:{label:"Also read: Naloxone DrugFacts (National Institute on Drug Abuse)", url:"https://nida.nih.gov/publications/drugfacts/naloxone"}
+};
+const COLS = [
+ {k:"purpose", label:"Purpose: why do people take it?"},
+ {k:"examples", label:"Examples"},
+ {k:"short", label:"Short-term effects on the body"},
+ {k:"long", label:"Long-term effects on the body"},
+ {k:"other", label:"Other important or interesting information", wide:true}
+];
+const VIDEO_URL = "https://www.youtube.com/watch?v=1iIENII-lVo";
+const KEY = "drugFieldGuide_v1";
+let state = { name:"", period:"", notes:{}, checks:{}, video:"", current:0, mf:{}, revealed:{}, missed:{} };
+
+function load(){ try{ const s = localStorage.getItem(KEY); if(s) state = Object.assign(state, JSON.parse(s)); }catch(e){} }
+let saveTimer;
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); flash("Saved on this device"); }
+  catch(e){ flash("Saving isn\u2019t available here. Download your PDF before closing."); }
+}
+function flash(t){ const n=document.getElementById("saveNote"); n.textContent=t; clearTimeout(saveTimer); saveTimer=setTimeout(()=>n.textContent="",2500); }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+const PAGES = CATS.length + 2; // categories + video + finish
+function filled(v){ return !!(v && String(v).trim()); }
+function chartDone(c){ const n=state.notes[c.id]||{}; return COLS.every(col=>filled(n[col.k])); }
+function mfDone(c){ const a=state.mf[c.id]||[]; return MF[c.id].every((_,k)=>filled(a[k])); }
+function readyToReveal(c){ const ch=state.checks[c.id]; return chartDone(c) && mfDone(c) && ch && ch.done; }
+function catDone(c){ return !!(state.revealed[c.id] && filled(state.missed[c.id])); }
+
+function renderShelf(){
+  const shelf = document.getElementById("shelf");
+  const items = CATS.map((c,i)=>({label:c.name, done:catDone(c), i}));
+  items.push({label:"THC vs. CBD video", done:!!state.video.trim(), i:CATS.length});
+  items.push({label:"Finish and download", done:false, i:CATS.length+1});
+  shelf.innerHTML = items.map(it=>`<button class="${it.done?'done':''}" data-i="${it.i}" aria-current="${state.current===it.i}">${esc(it.label)}<span class="mark">${it.done?'\u2713 Done':''}</span></button>`).join("");
+  shelf.querySelectorAll("button").forEach(b=>b.onclick=()=>go(+b.dataset.i));
+}
+
+function list(a){ return "<ul>"+a.map(x=>`<li>${esc(x)}</li>`).join("")+"</ul>"; }
+
+function go(i){ state.current=i; save(); render(); document.getElementById("panel").scrollIntoView({behavior:"smooth",block:"start"}); }
+
+function navRow(i){
+  return `<div class="navrow"><button class="btn ghost" ${i===0?'disabled':''} id="prevBtn">Previous</button><button class="btn" id="nextBtn">${i===PAGES-2?'Finish':'Next'}</button></div>`;
+}
+function wireNav(i){
+  const p=document.getElementById("prevBtn"), n=document.getElementById("nextBtn");
+  if(p) p.onclick=()=>go(i-1);
+  if(n) n.onclick=()=>go(Math.min(i+1,PAGES-1));
+}
+
+function renderCat(i){
+  const c = CATS[i], n = state.notes[c.id]||{}, mfa = state.mf[c.id]||[], ch = state.checks[c.id]||{tries:0,picked:[],done:false,correct:false};
+  const revealed = !!state.revealed[c.id];
+  const ro = revealed ? "readonly" : "";
+  const panel = document.getElementById("panel");
+  panel.innerHTML = `<section class="panel" aria-labelledby="h-${c.id}">
+    <h2 id="h-${c.id}">${esc(c.name)}</h2>
+    <div class="step-intro">Open the article and research this category. Write in your own words, not copy and paste. If the article doesn\u2019t answer something, try another reliable health source.
+      <br><a class="readmore" style="margin-top:.5rem" href="${c.link}" target="_blank" rel="noopener">Open the Teen Health &amp; Wellness article</a>${EXTRA[c.id]?`<br><a class="readmore" style="margin-top:.4rem" href="${EXTRA[c.id].url}" target="_blank" rel="noopener">${esc(EXTRA[c.id].label)}</a>`:""}</div>
+
+    <h3 style="font-size:1.2rem">Note chart</h3>
+    ${revealed?'<p class="save-note">Your research is locked now that you\u2019ve unlocked the key facts. Add anything new in \u201cWhat I missed\u201d below.</p>':''}
+    <div class="chart">${COLS.map(col=>`<div class="${col.wide?'wide':''}"><label for="${col.k}-${c.id}">${esc(col.label)}</label><textarea id="${col.k}-${c.id}" ${ro}>${esc(n[col.k]||"")}</textarea></div>`).join("")}</div>
+
+    <div class="mf">
+      <h3>Must-find questions</h3>
+      <p class="hint">Find these answers in your research, using the article link above. You\u2019ll need them tomorrow.</p>
+      ${MF[c.id].map((q,k)=>`<label for="mf${k}-${c.id}">${esc(q)}</label><textarea id="mf${k}-${c.id}" ${ro}>${esc(mfa[k]||"")}</textarea>`).join("")}
+    </div>
+
+    <div class="check">
+      <h3>Check yourself</h3>
+      <p class="q">${esc(c.q)}</p>
+      <div class="opts" role="group">${c.opts.map((o,k)=>`<button data-k="${k}">${esc(o)}</button>`).join("")}</div>
+      <div class="feedback" id="fb" aria-live="polite"></div>
+    </div>
+
+    <div id="compare"></div>
+    ${navRow(i)}
+  </section>`;
+
+  COLS.forEach(col=>{
+    const t=document.getElementById(`${col.k}-${c.id}`);
+    t.oninput=()=>{ state.notes[c.id]=state.notes[c.id]||{}; state.notes[c.id][col.k]=t.value; save(); renderShelf(); paintCompare(); };
+  });
+  MF[c.id].forEach((_,k)=>{
+    const t=document.getElementById(`mf${k}-${c.id}`);
+    t.oninput=()=>{ state.mf[c.id]=state.mf[c.id]||[]; state.mf[c.id][k]=t.value; save(); renderShelf(); paintCompare(); };
+  });
+
+  const btns=[...panel.querySelectorAll(".opts button")], fb=document.getElementById("fb");
+  function paint(){
+    btns.forEach((b,k)=>{
+      b.classList.toggle("wrong", ch.picked.includes(k) && k!==c.ans);
+      b.classList.toggle("right", ch.done && k===c.ans);
+      b.disabled = ch.done || ch.picked.includes(k);
+    });
+    if(ch.done){
+      fb.className="feedback "+(ch.correct?"ok":"no");
+      fb.textContent=(ch.correct?"Correct. ":"The correct answer is highlighted. ")+c.why;
+    } else if(ch.tries===1){
+      fb.className="feedback no"; fb.textContent="Not quite. Look back at your research and try once more.";
+    } else fb.textContent="";
+  }
+  btns.forEach((b,k)=>b.onclick=()=>{
+    if(ch.done) return;
+    ch.tries++; ch.picked.push(k);
+    if(k===c.ans){ ch.done=true; ch.correct=true; }
+    else if(ch.tries>=2){ ch.done=true; ch.correct=false; }
+    state.checks[c.id]=ch; save(); paint(); renderShelf(); paintCompare();
+  });
+
+  function paintCompare(){
+    const box=document.getElementById("compare");
+    if(state.revealed[c.id]){
+      if(box.dataset.mode==="open") return;
+      box.dataset.mode="open";
+      box.innerHTML = `<div class="compare">
+        <h3>Compare your notes: key facts</h3>
+        <p class="tag" style="margin:.35rem 0 1rem">${esc(c.tag)}</p>
+        <div class="facts">
+          <div class="fact"><h3>Why people take it</h3>${list(c.purpose)}</div>
+          <div class="fact"><h3>Examples</h3>${list(c.examples)}</div>
+          <div class="fact"><h3>Short-term effects</h3>${list(c.short)}</div>
+          <div class="fact"><h3>Long-term effects</h3>${list(c.long)}</div>
+        </div>
+        <div class="callout"><strong>Important to know</strong>${esc(c.info)}</div>
+        <div class="missed">
+          <label for="missed-${c.id}">What I missed: list the important facts above that weren\u2019t in your notes. If you found everything, say which fact you think matters most and why.</label>
+          <textarea id="missed-${c.id}" style="min-height:100px">${esc(state.missed[c.id]||"")}</textarea>
+        </div>
+      </div>`;
+      const t=document.getElementById(`missed-${c.id}`);
+      t.oninput=()=>{ state.missed[c.id]=t.value; save(); renderShelf(); };
+      return;
+    }
+    box.dataset.mode="locked";
+    const todo=[];
+    if(!chartDone(c)) todo.push("Fill in all five boxes of the note chart");
+    if(!mfDone(c)) todo.push("Answer all the must-find questions");
+    if(!(ch && ch.done)) todo.push("Answer the check question");
+    box.innerHTML = `<div class="compare ${todo.length?'locked':''}">
+      <h3>Compare your notes</h3>
+      ${todo.length ? `<p style="margin:.4rem 0 0">Unlocks when you:</p><ul class="todo">${todo.map(t=>`<li>${t}</li>`).join("")}</ul>`
+       : `<p style="margin:.4rem 0 1rem">Your research is done. When you unlock the key facts, your note chart and must-find answers will lock so your teacher can see what you found on your own.</p><button class="btn" id="revealBtn">Unlock the key facts</button>`}
+    </div>`;
+    const rb=document.getElementById("revealBtn");
+    if(rb) rb.onclick=()=>{
+      if(!confirm("Unlocking locks your notes for this category. You can still add to \u201cWhat I missed.\u201d Unlock now?")) return;
+      state.revealed[c.id]=true; save(); renderCat(i); renderShelf();
+      document.getElementById("compare").scrollIntoView({behavior:"smooth",block:"start"});
+    };
+  }
+  paint(); paintCompare(); wireNav(i);
+}
+
+function renderVideo(){
+  const i=CATS.length;
+  document.getElementById("panel").innerHTML = `<section class="panel">
+    <h2>More on cannabinoids: THC vs. CBD</h2>
+    <p class="tag">Watch the short video, then summarize the difference between THC and CBD.</p>
+    <div class="video-card"><a class="btn" href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the THC vs. CBD video</a><span>Opens in a new tab. Come back here when you\u2019re done.</span></div>
+    <div class="notes" style="border-top:0;padding-top:0">
+      <label for="vid">Summary: How are THC and CBD different? Include at least two differences and one thing that surprised you.</label>
+      <textarea id="vid" style="min-height:140px">${esc(state.video)}</textarea>
+    </div>
+    ${navRow(i)}
+  </section>`;
+  const t=document.getElementById("vid"); t.oninput=()=>{state.video=t.value;save();renderShelf();};
+  wireNav(i);
+}
+
+function renderFinish(){
+  const rows = CATS.map(c=>{
+    const ch=state.checks[c.id];
+    const missing=[];
+    if(!chartDone(c)) missing.push("note chart");
+    if(!mfDone(c)) missing.push("must-find");
+    if(!(ch&&ch.done)) missing.push("check");
+    if(!state.revealed[c.id]) missing.push("compare");
+    else if(!filled(state.missed[c.id])) missing.push("what I missed");
+    const status = missing.length ? `<span class="status-miss">Needs: ${missing.join(", ")}</span>` : (ch.correct ? `<span class="status-ok">Done, check correct${ch.tries===2?' (2nd try)':''}</span>` : '<span class="status-ok">Done</span> <span class="status-miss">(check missed)</span>');
+    return `<li><span>${esc(c.name)}</span><span>${status}</span></li>`;
+  }).join("");
+  const score = CATS.filter(c=>state.checks[c.id]&&state.checks[c.id].correct).length;
+  document.getElementById("panel").innerHTML = `<section class="panel">
+    <h2>Finish and download</h2>
+    <p class="tag">Check your list. Anything in red still needs work. Click a category above to go back to it.</p>
+    <p><strong>Check questions correct: ${score} of ${CATS.length}</strong></p>
+    <ul class="finish-list">${rows}<li><span>THC vs. CBD summary</span>${filled(state.video)?'<span class="status-ok">Done</span>':'<span class="status-miss">Missing</span>'}</li></ul>
+    <div class="navrow"><button class="btn ghost" id="prevBtn">Previous</button><button class="btn" id="pdfBtn">Download my PDF</button></div>
+    <p class="save-note" style="margin-top:1rem">Upload the PDF to Google Classroom. Bring what you learned to class tomorrow: your team will need it.</p>
+  </section>`;
+  document.getElementById("prevBtn").onclick=()=>go(CATS.length);
+  document.getElementById("pdfBtn").onclick=makePDF;
+}
+
+function makePDF(){
+  if(!state.name.trim()){ alert("Type your name at the top of the page before downloading."); document.getElementById("studentName").focus(); return; }
+  if(!window.jspdf){ alert("The PDF tool didn\u2019t load. Check your internet connection and refresh the page; your work is saved."); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:"pt",format:"letter"});
+  const M=50, W=612-2*M; let y=M;
+  function need(h){ if(y+h>742){ doc.addPage(); y=M; } }
+  function text(t,size,style,color){
+    doc.setFont("helvetica",style||"normal"); doc.setFontSize(size); doc.setTextColor(...(color||[20,40,40]));
+    const lines=doc.splitTextToSize(String(t||"").replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[\u2013\u2014]/g,"-"),W);
+    lines.forEach(l=>{ need(size*1.35); doc.text(l,M,y); y+=size*1.35; });
+  }
+  text("Drug Categories Field Guide",20,"bold");
+  text(`${state.name}   |   Period ${state.period||"-"}   |   ${new Date().toLocaleDateString()}`,11);
+  const score = CATS.filter(c=>state.checks[c.id]&&state.checks[c.id].correct).length;
+  text(`Check questions correct: ${score} of ${CATS.length}`,11,"bold"); y+=8;
+  CATS.forEach(c=>{
+    const n=state.notes[c.id]||{}, ch=state.checks[c.id], mfa=state.mf[c.id]||[];
+    need(70); doc.setDrawColor(29,107,102); doc.line(M,y,M+W,y); y+=16;
+    text(c.name,14,"bold",[29,107,102]);
+    text("My research",10.5,"bold",[90,90,90]);
+    COLS.forEach(col=>{ text(col.label+":",10,"bold"); text(n[col.k]||"(blank)",10); });
+    MF[c.id].forEach((q,k)=>{ text("Must-find: "+q,10,"bold"); text(mfa[k]||"(blank)",10); });
+    text("Check: "+(!ch||!ch.done?"not answered":ch.correct?("correct"+(ch.tries===2?" on 2nd try":"")):"missed"),10,"italic");
+    text("What I missed (after comparing):",10,"bold",[184,116,26]);
+    text(state.revealed[c.id] ? (state.missed[c.id]||"(blank)") : "(key facts not unlocked)",10); y+=6;
+  });
+  need(60); doc.line(M,y,M+W,y); y+=16;
+  text("THC vs. CBD summary",14,"bold",[29,107,102]); text(state.video||"(blank)",10);
+  doc.save(`Drug_Categories_${state.name.trim().replace(/\s+/g,"_")}.pdf`);
+}
+
+function render(){
+  renderShelf();
+  const i=state.current;
+  if(i<CATS.length) renderCat(i); else if(i===CATS.length) renderVideo(); else renderFinish();
+}
+
+load();
+const nm=document.getElementById("studentName"), pd=document.getElementById("period");
+nm.value=state.name; pd.value=state.period;
+nm.oninput=()=>{state.name=nm.value;save();};
+pd.oninput=()=>{state.period=pd.value;save();};
+render();
+</script>
+</body>
+</html>
