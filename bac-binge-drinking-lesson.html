@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BAC & Binge Drinking – Independent Lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ================= TEACHER SETTINGS =================
+   Edit the two links in the CONFIG block at the bottom of this file (search "CONFIG").
+   ==================================================== */
+:root{
+  --paper:#EDF1F3; --surface:#FFFFFF; --ink:#172433; --muted:#506071; --line:#C9D3DB;
+  --amber:#C88A1E; --amber-ink:#7C5207; --amber-soft:#F7ECD6;
+  --red:#B3261E; --red-soft:#FBE7E5; --teal:#1E6B64; --teal-soft:#DDF0EC;
+  --focus:#2B5FD9;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#111A23; --surface:#192530; --ink:#E3E9EF; --muted:#9BA9B7; --line:#2E3D4A;
+    --amber:#E3A646; --amber-ink:#F0C27A; --amber-soft:#3A2D16;
+    --red:#F07A72; --red-soft:#3D1F1E; --teal:#62C3B7; --teal-soft:#16332F;
+    --focus:#8FB0FF;
+    color-scheme: dark;
+  }
+}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",Verdana,Segoe UI,sans-serif;font-size:1.0625rem;line-height:1.55}
+h1,h2,h3{font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;line-height:1.15;margin:0 0 .5em}
+h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.6em}
+p{margin:0 0 1em}
+a{color:var(--focus)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+button{font:inherit;cursor:pointer}
+img,svg{max-width:100%}
+
+/* ---------- layout ---------- */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1rem;justify-content:space-between;
+  padding:.6rem 1.2rem;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar .brand{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.05rem}
+.topbar .who{color:var(--muted);font-size:.95rem;display:flex;gap:1rem;align-items:center}
+.status{font-size:.85rem;color:var(--teal)}
+.shell{display:grid;grid-template-columns:250px 1fr;max-width:1180px;margin:0 auto;gap:2rem;padding:1.5rem 1.2rem 4rem}
+nav.rail ol{list-style:none;margin:0;padding:0;position:sticky;top:4.5rem}
+nav.rail li{margin:0}
+nav.rail button{display:flex;gap:.7rem;align-items:center;width:100%;text-align:left;background:none;border:0;
+  padding:.55rem .6rem;border-radius:8px;color:var(--muted);font-size:.98rem}
+nav.rail button:hover{background:var(--surface)}
+nav.rail button[aria-current="step"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--amber)}
+.dot{flex:none;width:1.6rem;height:1.6rem;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;
+  font-size:.8rem;font-weight:700;color:var(--muted)}
+.dot.done{background:var(--teal);border-color:var(--teal);color:var(--surface)}
+main{min-width:0}
+section.step{max-width:760px}
+section.step[hidden]{display:none}
+.lede{font-size:1.15rem;color:var(--muted);max-width:62ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.4rem;margin:1.2rem 0}
+.panel > :last-child{margin-bottom:0}
+.callout{border-left:5px solid var(--amber);background:var(--amber-soft);padding:1rem 1.2rem;border-radius:0 10px 10px 0;margin:1.2rem 0}
+.callout.red{border-color:var(--red);background:var(--red-soft)}
+.callout > :last-child{margin-bottom:0}
+.navrow{display:flex;justify-content:space-between;gap:1rem;margin-top:2.2rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+.btn{border:2px solid var(--ink);background:var(--ink);color:var(--surface);padding:.65rem 1.2rem;border-radius:999px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.amber{background:var(--amber);border-color:var(--amber);color:#1b1305}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.task-tag{display:inline-block;font-size:.85rem;font-weight:700;color:var(--amber-ink);margin-bottom:.3rem}
+
+/* ---------- start ---------- */
+.hero{display:grid;grid-template-columns:1fr 170px;gap:1.5rem;align-items:center}
+.hero svg{width:170px}
+.fields{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+label.f{display:block;font-weight:700;font-size:.95rem}
+input[type=text],input[type=number],textarea,select{font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);
+  border-radius:8px;padding:.55rem .7rem;width:100%;margin-top:.3rem}
+textarea{min-height:7.5rem;resize:vertical;line-height:1.5}
+.targets{margin:0;padding-left:1.2rem}
+.targets li{margin:.3rem 0}
+
+/* ---------- questions ---------- */
+.mc .q-prompt,.sa .q-prompt{font-weight:700;margin-bottom:.7rem}
+.opts{display:grid;gap:.5rem}
+.opt{text-align:left;background:var(--paper);border:1.5px solid var(--line);color:var(--ink);border-radius:10px;padding:.65rem .9rem}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft);text-decoration:line-through;text-decoration-thickness:1px}
+.opt.right{border-color:var(--teal);background:var(--teal-soft);font-weight:700}
+.opt:disabled{cursor:default}
+.fb{margin-top:.8rem;font-size:.98rem}
+.fb.bad{color:var(--red)} .fb.good{color:var(--teal)}
+.fb .why{display:block;color:var(--ink);margin-top:.3rem}
+.counter{font-size:.85rem;color:var(--muted);text-align:right;margin-top:.2rem}
+
+/* ---------- match ---------- */
+.mrow{display:grid;grid-template-columns:1fr 210px;gap:.8rem;align-items:center;padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.mrow:last-of-type{border-bottom:0}
+.mrow select{margin:0}
+.mrow.bad select{border-color:var(--red);background:var(--red-soft)}
+.mrow.good select{border-color:var(--teal);background:var(--teal-soft)}
+.mrow .fix{grid-column:1/-1;font-size:.9rem;color:var(--teal);font-weight:700}
+
+/* ---------- BAC meter ---------- */
+.meter{display:grid;grid-template-columns:1fr;gap:1rem}
+.bacread{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap}
+.bacnum{font-family:"Bricolage Grotesque",sans-serif;font-size:3.2rem;font-weight:800;line-height:1}
+.zone{font-weight:700;padding:.2rem .7rem;border-radius:999px;background:var(--paper)}
+input[type=range]{width:100%;accent-color:var(--amber)}
+.scale{position:relative;height:16px;border-radius:8px;background:linear-gradient(90deg,#8DB3D9 0%,#C98FB9 12%,#E0577A 38%,#D0242E 72%,#8E0E14 100%)}
+.scale .limit{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--ink)}
+.scale-labels{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted)}
+.effects{margin:0;padding-left:1.2rem}
+
+/* ---------- factor cards ---------- */
+.big4{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
+.big4 div{background:var(--paper);border-radius:10px;padding:.9rem 1rem}
+.big4 b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.15rem}
+.numlist{margin:0;padding-left:1.6rem}
+.numlist li{margin:.35rem 0}
+
+/* ---------- 90/8/2 ---------- */
+.exitbar{display:flex;height:46px;border-radius:10px;overflow:hidden;font-weight:700;font-size:.9rem;margin:.6rem 0 1rem}
+.exitbar span{display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* ---------- liver ---------- */
+.stages{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.stages button{border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:.4rem .9rem}
+.stages button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.liverwrap{display:grid;grid-template-columns:200px 1fr;gap:1.2rem;align-items:center}
+
+/* ---------- solo cup (the centerpiece) ---------- */
+.cupgrid{display:grid;grid-template-columns:240px 1fr;gap:1.5rem;align-items:start}
+.cup svg{width:240px;touch-action:none;user-select:none}
+.drinktabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.drinktabs button{border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:.45rem 1rem;font-weight:700}
+.drinktabs button[aria-pressed="true"]{border-color:var(--amber);background:var(--amber-soft)}
+.drinktabs button .chk{color:var(--teal)}
+.ozread{font-family:"Bricolage Grotesque",sans-serif;font-size:2.4rem;font-weight:800}
+.results{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.98rem}
+.results th,.results td{text-align:left;padding:.45rem .5rem;border-bottom:1px solid var(--line)}
+
+/* ---------- binge ---------- */
+.bottles{display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center}
+.bottles .row{display:flex;justify-content:center;gap:4px;margin-bottom:.3rem}
+.bottles svg{width:22px;height:54px}
+.chartbox{overflow-x:auto}
+.effects6{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+.effects6 div{background:var(--paper);border-radius:10px;padding:.8rem;font-size:.95rem}
+.effects6 b{display:block}
+.versus{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.versus .panel{margin:0}
+
+/* ---------- CUPS ---------- */
+.cups{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}
+.cups button{background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:.8rem .4rem;color:var(--ink);min-height:132px;
+  display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.cups .L{font-family:"Bricolage Grotesque",sans-serif;font-size:2.6rem;font-weight:800;line-height:1;color:var(--red)}
+.cups .t{font-size:.92rem;opacity:0}
+.cups button[aria-expanded="true"]{border-color:var(--red)}
+.cups button[aria-expanded="true"] .t{opacity:1}
+.steps3{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+.steps3 li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.9rem;counter-increment:s}
+.steps3 li::before{content:counter(s);display:block;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.8rem;color:var(--red)}
+.timer{font-family:"Bricolage Grotesque",sans-serif;font-size:2.4rem;font-weight:800}
+.video{position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000;margin:1rem 0}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.check{display:flex;gap:.6rem;align-items:center;font-weight:700}
+.check input{width:1.2rem;height:1.2rem;accent-color:var(--teal)}
+
+/* ---------- finish ---------- */
+.finishlist{list-style:none;padding:0;margin:0}
+.finishlist li{display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.ok{color:var(--teal);font-weight:700} .miss{color:var(--red);font-weight:700}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr;gap:1rem;padding-top:.8rem}
+  nav.rail ol{position:static;display:flex;overflow-x:auto;gap:.3rem;padding-bottom:.4rem}
+  nav.rail button{width:auto;white-space:nowrap;padding:.4rem .6rem}
+  nav.rail button .lbl{display:none}
+  nav.rail button[aria-current="step"] .lbl{display:inline}
+  .hero{grid-template-columns:1fr}.hero svg{display:none}
+  .cupgrid,.liverwrap{grid-template-columns:1fr}
+  .cup svg{margin:0 auto;display:block}
+  .effects6{grid-template-columns:1fr 1fr}
+  .steps3{grid-template-columns:1fr}
+  .cups{grid-template-columns:1fr 1fr}
+  .mrow{grid-template-columns:1fr}
+  .topbar .who .nm{display:none}
+}
+@media (max-width:520px){
+  .big4,.versus,.fields,.bottles{grid-template-columns:1fr}
+  .effects6{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="brand">BAC & Binge Drinking</span>
+  <span class="who"><span class="nm" id="whoName"></span><span class="status" id="status" aria-live="polite"></span></span>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Lesson sections"><ol id="rail"></ol></nav>
+  <main id="main">
+
+<!-- ===================== 0. START ===================== -->
+<section class="step" data-title="Start" data-nocheck>
+  <div class="hero">
+    <div>
+      <h1>BAC & Binge Drinking</h1>
+      <p class="lede">What actually happens to your blood, your liver, and your brain when someone drinks too much, and what you can do when someone is in danger.</p>
+    </div>
+    <svg viewBox="0 0 120 170" aria-hidden="true">
+      <defs><clipPath id="hc"><path d="M8 10 H112 L98 162 H22 Z"/></clipPath></defs>
+      <rect x="0" y="70" width="120" height="100" fill="var(--amber)" clip-path="url(#hc)"/>
+      <path d="M8 10 H112 L98 162 H22 Z" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+      <line x1="10" y1="70" x2="110" y2="70" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 4"/>
+    </svg>
+  </div>
+
+  <div class="panel">
+    <div class="fields">
+      <label class="f">Your full name<input type="text" id="stuName" autocomplete="name"></label>
+      <label class="f">Class period<input type="text" id="stuPeriod"></label>
+    </div>
+    <p style="margin-top:1rem;color:var(--muted);font-size:.95rem">Your work saves automatically on this device and browser. At the end you’ll download a PDF of your answers to turn in.</p>
+  </div>
+
+  <h3>By the end of this lesson you will be able to</h3>
+  <ul class="targets">
+    <li>Define blood alcohol concentration (BAC) and explain the factors that affect it</li>
+    <li>Explain how alcohol leaves the body and what it does to the liver and other organs</li>
+    <li>Define binge drinking and a standard drink</li>
+    <li>Recognize alcohol poisoning and respond to an emergency</li>
+    <li>Understand the consequences of binge drinking through a real-life example</li>
+  </ul>
+  <p style="margin-top:1rem"><b>Target sheet:</b> this lesson covers targets 9, 12, and 13.</p>
+  <div class="callout"><p><b>Reminder:</b> the best way to reduce harm from alcohol is not to use it. This lesson also covers how to keep yourself and others safe, because knowing what to do in an emergency can save a life.</p></div>
+  <div class="navrow"><span></span><button class="btn amber" data-next>Start the lesson</button></div>
+</section>
+
+<!-- ===================== 1. BAC ===================== -->
+<section class="step" data-title="What is BAC?">
+  <h2>Blood alcohol concentration</h2>
+  <p class="lede"><b>BAC</b> is the percent of alcohol (ethyl alcohol, or ethanol) in a person’s bloodstream.</p>
+  <p>A BAC of 0.10% means a person’s blood contains <b>one part alcohol for every 1,000 parts blood</b>. That sounds tiny, but alcohol is a depressant: it slows the brain and nervous system, so even small amounts change how a person thinks, moves, and reacts.</p>
+
+  <div class="panel meter">
+    <span class="task-tag">Explore: drag the slider to raise the BAC</span>
+    <div class="bacread"><span class="bacnum" id="bacNum">0.02%</span><span class="zone" id="bacZone">Mild impairment</span></div>
+    <input type="range" id="bacSlider" min="0" max="0.40" step="0.01" value="0.02" aria-label="Blood alcohol concentration">
+    <div class="scale" aria-hidden="true"><span class="limit" style="left:20%"></span></div>
+    <div class="scale-labels"><span>0.00</span><span>0.08 (IL limit, 21+)</span><span>0.20</span><span>0.30</span><span>0.40</span></div>
+    <div>
+      <b id="bacHead">What happens at this level</b>
+      <ul class="effects" id="bacEffects"></ul>
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);margin:0">Sources: CDC (driving effects) and NIAAA (impairment ranges).</p>
+  </div>
+
+  <div class="callout red">
+    <p><b>Driving and BAC in Illinois</b><br>The legal limit for drivers 21 and older is <b>0.08</b>. If you are under 21, there is <b>no acceptable BAC</b> for driving. Illinois has <b>zero tolerance</b>.</p>
+  </div>
+
+  <div class="panel mc" data-id="q_bac1" data-answer="1" data-pdf>
+    <div class="q-prompt">1. A BAC of 0.10% means…</div>
+    <div class="opts">
+      <button class="opt">10 parts alcohol for every 100 parts blood</button>
+      <button class="opt">1 part alcohol for every 1,000 parts blood</button>
+      <button class="opt">The person has had 10 drinks</button>
+      <button class="opt">1 part alcohol for every 10 parts blood</button>
+    </div>
+    <p class="hint" hidden>Hint: 0.10% is one tenth of one percent. Re-read the definition above the slider.</p>
+    <p class="explain" hidden>0.10% = 0.1 out of 100 = 1 out of 1,000.</p>
+  </div>
+
+  <div class="panel mc" data-id="q_bac2" data-answer="2" data-pdf>
+    <div class="q-prompt">2. Jordan is 17 and has a BAC of 0.03 after one drink. Can Jordan legally drive in Illinois?</div>
+    <div class="opts">
+      <button class="opt">Yes, because 0.03 is below 0.08</button>
+      <button class="opt">Yes, as long as Jordan waits 15 minutes</button>
+      <button class="opt">No. Drivers under 21 have zero tolerance for any BAC</button>
+      <button class="opt">Only if someone 21 or older is in the car</button>
+    </div>
+    <p class="hint" hidden>Hint: the 0.08 limit only applies to drivers 21 and older.</p>
+    <p class="explain" hidden>Under 21, any measurable BAC while driving breaks Illinois’s zero-tolerance law.</p>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next</button></div>
+</section>
+
+<!-- ===================== 2. FACTORS ===================== -->
+<section class="step" data-title="What affects BAC">
+  <h2>What affects BAC</h2>
+  <p class="lede">Ten factors go into someone’s BAC. Four of them matter most.</p>
+  <div class="big4">
+    <div><b>1. Amount</b>How much alcohol is consumed. This is the single biggest factor.</div>
+    <div><b>2. Speed</b>How fast it’s consumed. Drinking quickly means the liver can’t keep up.</div>
+    <div><b>3. Biological sex</b>Females typically have a higher body-fat percentage and less body water, so the same drink produces a higher BAC.</div>
+    <div><b>4. Body size</b>Smaller bodies have less blood volume and body water to dilute alcohol.</div>
+  </div>
+  <h3>Other factors</h3>
+  <ol class="numlist" start="5">
+    <li><b>Age.</b> Older adults have lower blood volume.</li>
+    <li><b>Food in the stomach.</b> Food delays absorption. It does not prevent it.</li>
+    <li><b>Feelings.</b> Stress, anger, and fear can change how alcohol is absorbed and how it affects you.</li>
+    <li><b>Medications</b> (prescription or over-the-counter). Many interact dangerously with alcohol.</li>
+    <li><b>Carbonated beverages.</b> Bubbles move alcohol into the bloodstream <i>faster</i>.</li>
+    <li><b>Hormone levels.</b> Hormones affect how quickly the body processes alcohol, which is part of why males and females differ.</li>
+  </ol>
+  <div class="callout">
+    <p><b>Tolerance is NOT a factor in BAC.</b> Tolerance means a person needs more alcohol to feel the same effect. It changes how drunk someone <i>feels</i>, but the amount of alcohol in their blood is the same. Someone with high tolerance can have a dangerous BAC and not realize it.</p>
+  </div>
+
+  <div class="panel match" data-id="m_factors" data-options="Higher or faster BAC|Lower or slower BAC|No change to BAC" data-pdf>
+    <span class="task-tag">Sort it</span>
+    <div class="q-prompt"><b>3. For each situation, choose how it affects BAC.</b></div>
+    <div class="mrow"><span>Drinking 4 drinks in 1 hour instead of over 4 hours</span><select data-answer="0"></select></div>
+    <div class="mrow"><span>Eating a full meal before drinking</span><select data-answer="1"></select></div>
+    <div class="mrow"><span>Mixing liquor with soda</span><select data-answer="0"></select></div>
+    <div class="mrow"><span>Having a high tolerance</span><select data-answer="2"></select></div>
+    <div class="mrow"><span>A smaller person drinks the same amount as a larger person</span><select data-answer="0"></select></div>
+    <div class="mrow"><span>Drinking coffee after drinking alcohol</span><select data-answer="2"></select></div>
+    <button class="btn" data-check style="margin-top:1rem">Check answers</button>
+    <p class="fb" aria-live="polite"></p>
+  </div>
+
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">4. Your friend says, “I can handle my alcohol. I barely feel anything after 5 drinks.” Explain why your friend’s BAC could still be dangerous.</div>
+    <textarea data-save="r_tolerance" data-req data-label="4. Why can someone with high tolerance still have a dangerous BAC?"></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next</button></div>
+</section>
+
+<!-- ===================== 3. LEAVING THE BODY ===================== -->
+<section class="step" data-title="Leaving the body">
+  <h2>How alcohol leaves the body</h2>
+  <p class="lede">Alcohol leaves in three ways. Before you read the answer, try matching each one.</p>
+
+  <div class="panel match" data-id="m_exit" data-options="90%|8%|2%" data-pdf>
+    <span class="task-tag">Predict</span>
+    <div class="q-prompt"><b>5. What percent of alcohol leaves the body each way?</b></div>
+    <div class="mrow"><span><b>Oxidation</b>: broken down by the liver</span><select data-answer="0"></select></div>
+    <div class="mrow"><span><b>Respiration</b>: breathed out</span><select data-answer="1"></select></div>
+    <div class="mrow"><span><b>Perspiration</b>: sweated out</span><select data-answer="2"></select></div>
+    <button class="btn" data-check style="margin-top:1rem">Check answers</button>
+    <p class="fb" aria-live="polite"></p>
+  </div>
+
+  <div class="exitbar" aria-label="90% liver, 8% breath, 2% sweat">
+    <span style="width:90%;background:#7A2E1C">Liver 90%</span><span style="width:8%;background:#2E6E9E">8%</span><span style="width:2%;background:#5D8F4A"></span>
+  </div>
+  <p>The 8% that leaves through your breath is how a <b>breathalyzer</b> measures BAC.</p>
+
+  <div class="callout">
+    <p><b>It all falls to the liver.</b> A healthy liver can process about <b>one standard drink per hour</b>. Nothing speeds this up: not coffee, cold showers, exercise, or eating after drinking. Only time lowers BAC.</p>
+  </div>
+
+  <div class="panel mc" data-id="q_liver" data-answer="1" data-pdf>
+    <div class="q-prompt">6. Your friend finished 4 standard drinks at 11 p.m. About how long will it take the liver to process all of that alcohol?</div>
+    <div class="opts">
+      <button class="opt">About 1 hour, if they drink coffee</button>
+      <button class="opt">About 4 hours</button>
+      <button class="opt">About 30 minutes, if they take a cold shower</button>
+      <button class="opt">It depends only on their tolerance</button>
+    </div>
+    <p class="hint" hidden>Hint: the liver handles about one standard drink per hour, and nothing speeds it up.</p>
+    <p class="explain" hidden>4 drinks ÷ 1 drink per hour ≈ 4 hours. Coffee and showers don’t change the liver’s pace.</p>
+  </div>
+
+  <h3>What heavy drinking does to the liver</h3>
+  <div class="panel">
+    <div class="stages" role="group" aria-label="Stages of liver damage">
+      <button data-stage="0" aria-pressed="true">Healthy</button>
+      <button data-stage="1" aria-pressed="false">Fatty liver</button>
+      <button data-stage="2" aria-pressed="false">Fibrosis</button>
+      <button data-stage="3" aria-pressed="false">Cirrhosis</button>
+    </div>
+    <div class="liverwrap">
+      <svg viewBox="0 0 200 130" id="liverSvg" aria-hidden="true">
+        <path id="liverShape" d="M14 52 C20 18 70 8 120 14 C160 18 192 28 188 48 C184 70 150 78 118 92 C90 104 70 124 48 118 C22 110 8 82 14 52 Z" fill="#9C3B2A" stroke="var(--ink)" stroke-width="2.5"/>
+        <g id="liverMarks"></g>
+      </svg>
+      <p id="stageText" style="margin:0"></p>
+    </div>
+  </div>
+  <p>Cirrhosis symptoms can include weight loss, nausea and vomiting, easy bruising, bleeding gums, yellowing of the skin and eyes, swelling of the abdomen, and loss of appetite.</p>
+
+  <h3>Effects on other organs and body functions</h3>
+  <ul>
+    <li>Alcohol <b>decreases</b> body temperature, even though the drinker feels warmer.</li>
+    <li>Alcohol <b>increases</b> urine output, which causes <b>dehydration</b>.</li>
+    <li>Alcohol increases <b>gastric juices</b>, which can cause or irritate an <b>ulcer</b>.</li>
+  </ul>
+
+  <div class="panel mc" data-id="q_temp" data-answer="2" data-pdf>
+    <div class="q-prompt">7. Someone who has been drinking says they don’t need a jacket outside in winter because they feel warm. What’s really happening?</div>
+    <div class="opts">
+      <button class="opt">Alcohol raises body temperature, so they’re right</button>
+      <button class="opt">Alcohol has no effect on body temperature</button>
+      <button class="opt">Alcohol lowers body temperature while making them feel warmer, so they’re at risk</button>
+      <button class="opt">They’ll be fine once they sweat the alcohol out</button>
+    </div>
+    <p class="hint" hidden>Hint: look at the first bullet above. Feeling and reality don’t match.</p>
+    <p class="explain" hidden>Alcohol lowers core body temperature while making skin feel warm. Low body temperature is also a warning sign of alcohol poisoning.</p>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next</button></div>
+</section>
+
+<!-- ===================== 4. STANDARD DRINK ===================== -->
+<section class="step" data-title="Standard drink">
+  <h2>What’s a standard drink?</h2>
+  <p class="lede">One reason alcohol poisoning happens is that people don’t know how much alcohol is in what they’re drinking: the <b>dose</b>.</p>
+  <p>A standard drink in the U.S. contains about <b>0.6 ounces (14 grams) of pure alcohol</b>. But how much liquid is that for beer, wine, or liquor? Make your predictions on a red party cup.</p>
+
+  <div class="panel cup" data-pdf>
+    <span class="task-tag">Predict: drag the line or use the slider, then save each prediction</span>
+    <div class="cupgrid">
+      <svg viewBox="0 0 240 300" id="cupSvg" aria-hidden="true">
+        <defs><clipPath id="cupClip"><path id="cupInner" d=""/></clipPath></defs>
+        <rect id="liquid" x="0" y="300" width="240" height="0" fill="var(--amber)" opacity=".85" clip-path="url(#cupClip)"/>
+        <g id="cupLines"></g>
+        <path id="cupOutline" d="" fill="none" stroke="#C0262D" stroke-width="7" stroke-linejoin="round"/>
+        <line id="dragLine" x1="0" x2="240" y1="0" y2="0" stroke="var(--ink)" stroke-width="3"/>
+        <circle id="dragKnob" r="11" cx="222" cy="0" fill="var(--ink)"/>
+      </svg>
+      <div>
+        <div class="drinktabs" role="group" aria-label="Choose a drink">
+          <button data-drink="beer" aria-pressed="true">Beer <span class="chk"></span></button>
+          <button data-drink="wine" aria-pressed="false">Wine <span class="chk"></span></button>
+          <button data-drink="spirits" aria-pressed="false">Liquor <span class="chk"></span></button>
+        </div>
+        <div class="ozread"><span id="ozVal">8</span> oz</div>
+        <label class="sr" for="ozSlider">Fill level in ounces</label>
+        <input type="range" id="ozSlider" min="0.5" max="16" step="0.5" value="8">
+        <p style="font-size:.92rem;color:var(--muted)">Liquor means spirits like vodka, tequila, whiskey, or rum.</p>
+        <button class="btn" id="saveLine">Save my beer prediction</button>
+        <button class="btn amber" id="revealCup" disabled style="margin-top:.6rem">Reveal the real amounts</button>
+      </div>
+    </div>
+    <div id="cupResults"></div>
+  </div>
+
+  <div class="callout" id="cupTakeaway" hidden>
+    <p><b>The whole cup is 16 ounces.</b> One full red cup is <i>more</i> than one standard drink no matter what’s in it. A cup of beer is about 1.3 drinks, a cup of wine is about 3, and a cup of straight liquor would be more than 10.</p>
+  </div>
+
+  <div class="panel mc" data-id="q_mixed" data-answer="2" data-pdf>
+    <div class="q-prompt">8. Someone pours 4.5 ounces of vodka into a red cup and fills the rest with soda. How many standard drinks is that?</div>
+    <div class="opts">
+      <button class="opt">1, because it’s one cup</button>
+      <button class="opt">Less than 1, because the soda waters it down</button>
+      <button class="opt">3, and the soda makes it absorb faster</button>
+      <button class="opt">16, because the cup holds 16 ounces</button>
+    </div>
+    <p class="hint" hidden>Hint: one standard drink of liquor is 1.5 ounces. Mixers don’t change the amount of alcohol.</p>
+    <p class="explain" hidden>4.5 oz ÷ 1.5 oz = 3 standard drinks. Carbonation (factor 9) moves alcohol into the blood faster.</p>
+  </div>
+
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">9. Do you think knowing standard drink sizes would change the way teens drink? Why or why not?</div>
+    <textarea data-save="r_standard" data-req data-label="9. Would knowing standard drink sizes change the way teens drink? Why or why not?"></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next</button></div>
+</section>
+
+<!-- ===================== 5. BINGE ===================== -->
+<section class="step" data-title="Binge drinking">
+  <h2>Binge drinking</h2>
+  <p class="lede">A <b>binge</b> is a pattern of drinking that brings BAC to <b>0.08 or above</b>. For a typical adult, that’s about <b>5 or more drinks for males</b> or <b>4 or more drinks for females</b> in about <b>2 hours</b>.</p>
+  <div class="panel bottles" aria-label="Binge drinking: 4 drinks in 2 hours for females, 5 drinks in 2 hours for males">
+    <div><div class="row" data-bottles="4"></div><b>Females</b><br>4+ drinks in 2 hours</div>
+    <div><div class="row" data-bottles="5"></div><b>Males</b><br>5+ drinks in 2 hours</div>
+  </div>
+  <p>Binge drinking is dangerous for the drinker and for everyone around them.</p>
+
+  <h3>Who binge drinks?</h3>
+  <div class="panel chartbox">
+    <svg viewBox="0 0 560 260" id="bingeChart" role="img" aria-label="Percent who binge drink by age group: high school students about 18%, ages 18 to 24 about 25%, 25 to 34 about 26%, 35 to 44 about 20%, 45 to 64 about 14%, 65 and older about 5%"></svg>
+    <p style="font-size:.85rem;color:var(--muted);margin:.4rem 0 0">Approximate values. Data: CDC Youth Risk Behavior Surveillance System and Behavioral Risk Factor Surveillance System, 2015.</p>
+  </div>
+  <p>Binge drinking is most common among young adults ages 18–34, and almost 1 in 5 high school students reported it.</p>
+
+  <h3>How binge drinking changes your body</h3>
+  <div class="effects6">
+    <div><b>Brain</b>Mood swings, behavior changes, trouble with balance.</div>
+    <div><b>Heart</b>Irregular heartbeat, stroke risk, high blood pressure.</div>
+    <div><b>Lungs</b>Can make breathing more difficult.</div>
+    <div><b>Liver</b>Fatty liver, alcoholic hepatitis, fibrosis, cirrhosis.</div>
+    <div><b>Immune system</b>Weakened for about 24 hours after a binge.</div>
+    <div><b>Pancreas</b>Toxins can build up and lead to pancreatitis.</div>
+  </div>
+
+  <h3>Blackout vs. pass out</h3>
+  <div class="versus">
+    <div class="panel"><b>Blackout</b><p style="margin:.4rem 0 0">A period of time a person cannot remember. They may still be awake, walking, and talking, but their brain isn’t recording memories.</p></div>
+    <div class="panel"><b>Pass out</b><p style="margin:.4rem 0 0">The person loses consciousness and <b>cannot be woken up</b>. Roll them onto their side and <b>call 911 immediately</b>.</p></div>
+  </div>
+
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">10. Why are both blackouts and passing out dangerous? Give a reason for each.</div>
+    <textarea data-save="r_blackout" data-req data-label="10. Why are both blackouts and passing out dangerous?"></textarea>
+    <div class="counter"></div>
+  </div>
+
+  <div class="panel mc" data-id="q_binge" data-answer="3" data-pdf>
+    <div class="q-prompt">11. Which of these fits the definition of binge drinking?</div>
+    <div class="opts">
+      <button class="opt">A male has 2 beers over the course of a 4-hour dinner</button>
+      <button class="opt">A female has 1 glass of wine at a wedding</button>
+      <button class="opt">A male has 3 drinks spread across a whole day</button>
+      <button class="opt">A female has 4 drinks between 9 and 11 p.m.</button>
+    </div>
+    <p class="hint" hidden>Hint: look for the right number of drinks in about 2 hours.</p>
+    <p class="explain" hidden>4 or more drinks in about 2 hours meets the definition for females.</p>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next</button></div>
+</section>
+
+<!-- ===================== 6. EMERGENCY ===================== -->
+<section class="step" data-title="Emergency response">
+  <h2>Know how to respond to an emergency</h2>
+  <p class="lede"><b>Alcohol poisoning</b> happens when someone drinks so much that alcohol begins to shut down basic life functions like breathing, heart rate, and temperature control.</p>
+  <ol class="steps3">
+    <li><b>Recognize</b> the signs of alcohol poisoning</li>
+    <li><b>Call 911</b></li>
+    <li><b>Place them</b> in the recovery position</li>
+  </ol>
+
+  <h3>Step 1: Recognize the signs with C-U-P-S</h3>
+  <p>Tap each letter to reveal it.</p>
+  <div class="cups">
+    <button aria-expanded="false"><span class="L">C</span><span class="t">Cold, clammy skin</span></button>
+    <button aria-expanded="false"><span class="L">U</span><span class="t">Unconscious: can’t be woken up</span></button>
+    <button aria-expanded="false"><span class="L">P</span><span class="t">Puking, especially while passed out</span></button>
+    <button aria-expanded="false"><span class="L">S</span><span class="t">Slow or irregular breathing</span></button>
+  </div>
+  <p><b>Other warning signs:</b> pale skin, low body temperature, slurred speech, confusion about where they are, repeating words or phrases, and erratic or belligerent behavior.</p>
+
+  <div class="panel breath" data-pdf>
+    <span class="task-tag">Try it: what’s a normal breathing rate?</span>
+    <p>A healthy breathing rate for ages 13–17 is <b>12–16 breaths per minute</b>. Sit still, start the timer, and count how many times your chest rises in 30 seconds.</p>
+    <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+      <span class="timer" id="timer">0:30</span>
+      <button class="btn" id="timerBtn">Start 30-second timer</button>
+    </div>
+    <label class="f" style="margin-top:1rem;max-width:260px">Breaths I counted in 30 seconds
+      <input type="number" id="breathCount" min="0" max="60" inputmode="numeric"></label>
+    <p id="breathOut" style="margin:.8rem 0 0"></p>
+  </div>
+
+  <div class="panel mc" data-id="q_cups" data-answer="0" data-pdf>
+    <div class="q-prompt">12. At a party, you find a friend on the bathroom floor. They threw up, their skin is cold and clammy, and you can’t wake them. What should you do first?</div>
+    <div class="opts">
+      <button class="opt">Call 911 right away</button>
+      <button class="opt">Let them sleep it off and check on them in the morning</button>
+      <button class="opt">Put them in a cold shower to wake them up</button>
+      <button class="opt">Give them coffee to sober them up</button>
+    </div>
+    <p class="hint" hidden>Hint: count the C-U-P-S signs. This is a medical emergency.</p>
+    <p class="explain" hidden>They show C, U, and P. Call 911, then place them in the recovery position. Never leave them to “sleep it off.” BAC can keep rising after someone stops drinking.</p>
+  </div>
+
+  <h3>Step 2: Call 911</h3>
+  <p>Sometimes teens are afraid to call 911, especially if they’ve been drinking themselves. Many states, including Illinois, have <b>Good Samaritan</b> (medical amnesty) laws for this exact situation.</p>
+  <div class="callout">
+    <p><b>Illinois law for minors.</b> Since January 1, 2016, a person under 21 who calls 911 for someone who needs medical help because of alcohol, and the person who needs help, can be protected from underage drinking charges. To be protected, the caller must <b>give their full name</b>, <b>stay at the scene until help arrives</b>, and <b>cooperate</b> with police and medical staff. It does not protect everyone at the party.</p>
+    <p><a href="https://www.ilga.gov/legislation/ilcs/fulltext.asp?DocName=023500050K6-20" target="_blank" rel="noopener">Read the law (235 ILCS 5/6-20)</a></p>
+  </div>
+  <div class="callout red"><p>Not getting help has consequences too. A person can face criminal charges, including involuntary manslaughter, if their failure to get help leads to someone’s death. You’ll see this in Tim Piazza’s story.</p></div>
+
+  <div class="panel mc" data-id="q_goodsam" data-answer="1" data-pdf>
+    <div class="q-prompt">13. You’re 16, you had a drink at a party, and your friend shows signs of alcohol poisoning. What does Illinois law say about calling 911?</div>
+    <div class="opts">
+      <button class="opt">You’ll be arrested for underage drinking, so have someone sober call</button>
+      <button class="opt">You can be protected from underage drinking charges if you give your name, stay until help arrives, and cooperate</button>
+      <button class="opt">Everyone at the party is automatically protected</button>
+      <button class="opt">You should hang up once help is on the way</button>
+    </div>
+    <p class="hint" hidden>Hint: re-read the three requirements in the Illinois law box.</p>
+    <p class="explain" hidden>Name, stay, cooperate. Nothing should stop you from calling 911 in a medical emergency.</p>
+  </div>
+
+  <h3>Step 3: The recovery position</h3>
+  <p>After calling 911, place the person in the recovery position. It keeps their airway open, especially if they vomit. Watch the video, then practice with someone at home if you can.</p>
+  <p style="margin:.4rem 0 0"><a class="btn ghost" style="display:inline-block;text-decoration:none" href="https://www.youtube.com/watch?v=-HFa-SBi3uU" target="_blank" rel="noopener">Video not playing? Open it on YouTube</a></p>
+  <div class="video"><iframe src="https://www.youtube.com/embed/-HFa-SBi3uU" title="The recovery position: step-by-step guide" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+  <label class="check"><input type="checkbox" id="watchedRecovery" data-pdfcheck="I watched the recovery position video"> I watched the recovery position video</label>
+
+  <div class="panel mc" data-id="q_recovery" data-answer="3" data-pdf>
+    <div class="q-prompt">14. Why do we place someone in the recovery position?</div>
+    <div class="opts">
+      <button class="opt">It helps them sober up faster</button>
+      <button class="opt">It makes it easier to carry them</button>
+      <button class="opt">It wakes them up</button>
+      <button class="opt">It keeps their airway open so they don’t choke if they vomit</button>
+    </div>
+    <p class="hint" hidden>Hint: think about the P in C-U-P-S.</p>
+    <p class="explain" hidden>Lying on their side lets vomit drain out instead of blocking the airway.</p>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next</button></div>
+</section>
+
+<!-- ===================== 7. HARM REDUCTION ===================== -->
+<section class="step" data-title="Reducing harm">
+  <h2>Reducing alcohol-related harm</h2>
+  <p class="lede">The most effective strategies for teens are <b>not drinking</b> and <b>avoiding places where underage drinking is happening</b>.</p>
+  <div class="panel">
+    <b>If you or others are going to be around alcohol:</b>
+    <ul style="margin-bottom:0">
+      <li>Don’t drink and drive, and don’t get in a car with a driver who has been drinking. Call a sober friend, a parent, or a rideshare.</li>
+      <li>Don’t do risky activities like swimming, playing with fire, sexual activity, or operating vehicles or machinery.</li>
+      <li>Have a designated sober person who watches out for everyone. You can volunteer.</li>
+      <li>Use the buddy system and have a safe ride home planned before you go.</li>
+    </ul>
+  </div>
+  <h3>Four harm reduction strategies</h3>
+  <ol class="numlist">
+    <li><b>Best not to use</b> any depressants. If using, cut back.</li>
+    <li><b>Watch dose and dosage:</b> know what a standard drink is.</li>
+    <li><b>Don’t mix substances.</b> Combining depressants, like “benzos” and alcohol, drastically raises the risk of overdose and death.</li>
+    <li><b>Know how to respond</b> to an emergency.</li>
+  </ol>
+
+  <div class="panel sa" data-pdf>
+    <span class="task-tag">Plan ahead</span>
+    <div class="q-prompt">15. You’re invited to a party where you think there may be drinking. Using at least two strategies from this section, describe your plan: how you’ll get there and home, who you’ll be with, and what you’ll say or do if someone offers you a drink.</div>
+    <textarea data-save="r_plan" data-req data-label="15. Plan ahead: Using at least two strategies from this section, describe your plan for a party where there may be drinking (getting there and home, who you'll be with, what you'll say or do if offered a drink)."></textarea>
+    <div class="counter"></div>
+  </div>
+
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Next</button></div>
+</section>
+
+<!-- ===================== 8. TIM PIAZZA ===================== -->
+<section class="step" data-title="Tim Piazza’s story">
+  <h2>Tim Piazza’s story</h2>
+  <p class="lede">A real-life binge drinking tragedy, and why it matters to you.</p>
+  <p>Tim Piazza was a 19-year-old sophomore engineering student at Penn State. In February 2017, on the night he pledged the Beta Theta Pi fraternity, he was pressured to drink a dangerous amount of alcohol in a short time as part of a hazing ritual. He fell down a flight of basement stairs and was badly hurt. Fraternity members saw him throughout the night, but no one called 911 until the next morning, nearly 12 hours after his fall. Tim died two days later.</p>
+
+  <div class="panel">
+    <span class="task-tag">Watch (5:30)</span>
+    <p>The article read aloud in this video comes from <b>court transcripts</b> describing Tim’s last night. As you watch, <b>count how many people interacted with Tim and chose not to help</b>.</p>
+    <p id="piazzaVideoWrap"></p>
+    <label class="check"><input type="checkbox" id="watchedPiazza" data-pdfcheck="I watched the Tim Piazza video"> I watched the video</label>
+  </div>
+
+  <h3>Reflection</h3>
+  <p>Your answers here are included in your PDF.</p>
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">16. How many people interacted with Tim that night and chose not to help? Describe one moment when someone could have changed what happened.</div>
+    <textarea data-save="r_p1" data-req data-label="16. How many people interacted with Tim that night and chose not to help? Describe one moment when someone could have changed what happened."></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">17. Which C-U-P-S signs of alcohol poisoning did Tim show? Use details from the video.</div>
+    <textarea data-save="r_p2" data-req data-label="17. Which C-U-P-S signs did Tim show?"></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">18. What assumptions do you think Tim made when he started the evening?</div>
+    <textarea data-save="r_p3" data-req data-label="18. What assumptions do you think Tim made when he started the evening?"></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">19. What assumptions do you think others made about Tim that night?</div>
+    <textarea data-save="r_p4" data-req data-label="19. What assumptions do you think others made about Tim that night?"></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">20. What’s the problem with having assumptions? Connect your answer to what happened to Tim.</div>
+    <textarea data-save="r_p5" data-req data-label="20. What's the problem with having assumptions?"></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">21. Why do you think no one called 911 sooner? How does Illinois’s law for minors try to remove that fear?</div>
+    <textarea data-save="r_p6" data-req data-label="21. Why do you think no one called 911 sooner? How does Illinois's law for minors address that fear?"></textarea>
+    <div class="counter"></div>
+  </div>
+  <div class="panel sa" data-pdf>
+    <div class="q-prompt">22. What could have been done differently in this situation? What do you think you would have done? Use the three emergency steps you learned.</div>
+    <textarea data-save="r_p7" data-req data-label="22. What could have been done differently? What would you have done?"></textarea>
+    <div class="counter"></div>
+  </div>
+
+  <h3>The legal consequences</h3>
+  <div class="panel">
+    <p>The Piazza case became one of the largest hazing prosecutions in U.S. history. On May 5, 2017, after a grand jury investigation, <b>18 fraternity members were charged</b> in connection with Tim’s death. <b>Eight were charged with involuntary manslaughter</b>, and the rest with other offenses, including hazing.</p>
+    <p>The fraternity itself was also charged, and Penn State banned its chapter from campus indefinitely. As of September 2017, the fraternity and its 18 members faced a combined total of <b>more than 850 criminal charges</b>.</p>
+    <p>In 2018, Pennsylvania passed the <b>Timothy J. Piazza Antihazing Law</b>, which made serious hazing a felony.</p>
+    <p id="hazingLawWrap" style="margin:0"></p>
+  </div>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><button class="btn" data-next>Finish</button></div>
+</section>
+
+<!-- ===================== 9. FINISH ===================== -->
+<section class="step" data-title="Finish & download" data-nocheck>
+  <h2>Finish and download</h2>
+  <p class="lede">Check that every section is complete, then download your PDF and turn it in.</p>
+  <div class="panel"><ul class="finishlist" id="finishList"></ul></div>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap">
+    <button class="btn amber" id="pdfBtn">Download my PDF</button>
+    <button class="btn ghost" id="resetBtn">Start over</button>
+  </div>
+  <p class="fb" id="pdfMsg" aria-live="polite"></p>
+  <div class="navrow"><button class="btn ghost" data-prev>Back</button><span></span></div>
+</section>
+
+  </main>
+</div>
+
+<script>
+/* ===================== CONFIG (teacher edits) =====================
+   Paste the share link for your 5:30 Tim Piazza court-transcript video,
+   and the link you use for the Tim Piazza Anti-Hazing Law.
+   Leave as "" to hide the link.                                         */
+const CONFIG = {
+  piazzaVideoUrl: "https://drive.google.com/file/d/1v-WkntYwsP8Sm1XmBaFecZEkUTS_Aw9v/view?usp=sharing",
+  antiHazingLawUrl: ""
+};
+/* ================================================================== */
+
+const KEY = "bac-binge-lesson-v1";
+const blank = () => ({name:"",period:"",sec:0,mc:{},txt:{},match:{},cup:{pred:{},revealed:false},breath:null,checks:{}});
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || blank(); } catch(e){ S = blank(); }
+S = Object.assign(blank(), S);
+
+const $ = (q,r=document)=>r.querySelector(q);
+const $$ = (q,r=document)=>[...r.querySelectorAll(q)];
+const statusEl = $("#status");
+let saveT;
+function save(){
+  clearTimeout(saveT);
+  saveT = setTimeout(()=>{
+    try { localStorage.setItem(KEY, JSON.stringify(S)); statusEl.textContent = "Saved"; }
+    catch(e){ statusEl.textContent = "Not saving on this device. Download your PDF before closing."; }
+    updateProgress();
+  }, 250);
+}
+
+/* ---------- sections & rail ---------- */
+const secs = $$("section.step");
+const rail = $("#rail");
+secs.forEach((s,i)=>{
+  const li = document.createElement("li");
+  li.innerHTML = `<button type="button"><span class="dot">${i===0?"★":i===secs.length-1?"✓":i}</span><span class="lbl">${s.dataset.title}</span></button>`;
+  li.querySelector("button").onclick = ()=>show(i);
+  rail.appendChild(li);
+});
+function show(i){
+  secs.forEach((s,j)=>s.hidden = j!==i);
+  $$("button",rail).forEach((b,j)=>{ if(j===i) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current"); });
+  S.sec = i; save();
+  window.scrollTo({top:0});
+  if(i===secs.length-1) buildFinish();
+}
+$$("[data-next]").forEach(b=>b.onclick=()=>show(Math.min(S.sec+1,secs.length-1)));
+$$("[data-prev]").forEach(b=>b.onclick=()=>show(Math.max(S.sec-1,0)));
+
+/* ---------- name ---------- */
+const nameIn=$("#stuName"), perIn=$("#stuPeriod");
+nameIn.value=S.name; perIn.value=S.period;
+function showWho(){ $("#whoName").textContent = S.name ? S.name + (S.period?` · Period ${S.period}`:"") : ""; }
+nameIn.oninput=()=>{S.name=nameIn.value;showWho();save();};
+perIn.oninput=()=>{S.period=perIn.value;showWho();save();};
+showWho();
+
+/* ---------- multiple choice, two tries ---------- */
+$$(".mc").forEach(box=>{
+  const id=box.dataset.id, ans=+box.dataset.answer, opts=$$(".opt",box);
+  const hint=$(".hint",box).textContent, why=$(".explain",box).textContent;
+  const fb=document.createElement("p"); fb.className="fb"; fb.setAttribute("aria-live","polite"); box.appendChild(fb);
+  const st = S.mc[id] || (S.mc[id]={tries:0,wrong:[],done:false,correct:false,final:null});
+  function render(){
+    opts.forEach((o,k)=>{
+      o.classList.toggle("wrong", st.wrong.includes(k));
+      o.classList.toggle("right", st.done && k===ans);
+      o.disabled = st.done || st.wrong.includes(k);
+    });
+    if(st.done && st.correct){ fb.className="fb good"; fb.innerHTML=`${st.tries===1?"Correct on the first try.":"Correct on the second try."}<span class="why">${why}</span>`; }
+    else if(st.done){ fb.className="fb bad"; fb.innerHTML=`The correct answer is highlighted.<span class="why">${why}</span>`; }
+    else if(st.tries===1){ fb.className="fb bad"; fb.innerHTML=`Not quite. You have one more try.<span class="why">${hint}</span>`; }
+    else fb.textContent="";
+  }
+  opts.forEach((o,k)=>o.onclick=()=>{
+    if(st.done) return;
+    st.tries++; st.final=k;
+    if(k===ans){ st.done=true; st.correct=true; }
+    else { st.wrong.push(k); if(st.tries>=2){ st.done=true; st.correct=false; } }
+    render(); save();
+  });
+  box._pdf = ()=>({type:"mc", prompt:$(".q-prompt",box).textContent,
+    answer: st.final==null?"(not answered)":opts[st.final].textContent,
+    result: !st.done?"Not finished": st.correct?(st.tries===1?"Correct (1st try)":"Correct (2nd try)"):"Incorrect after 2 tries. Correct: "+opts[ans].textContent});
+  render();
+});
+
+/* ---------- matching, two tries ---------- */
+$$(".match").forEach(box=>{
+  const id=box.dataset.id, options=box.dataset.options.split("|"), rows=$$(".mrow",box), fb=$(".fb",box), btn=$("[data-check]",box);
+  const st = S.match[id] || (S.match[id]={sel:rows.map(()=>""),tries:0,done:false,score:0});
+  rows.forEach((r,k)=>{
+    const sel=$("select",r);
+    sel.setAttribute("aria-label", $("span",r).textContent);
+    sel.innerHTML = `<option value="">Choose…</option>` + options.map((o,j)=>`<option value="${j}">${o}</option>`).join("");
+    sel.value = st.sel[k];
+    sel.onchange=()=>{ st.sel[k]=sel.value; r.classList.remove("bad"); save(); };
+  });
+  function render(showAll){
+    rows.forEach((r,k)=>{
+      const sel=$("select",r), a=$("select",r).dataset.answer, good = st.sel[k]===a;
+      r.classList.toggle("good", st.tries>0 && good);
+      r.classList.toggle("bad", st.tries>0 && !good);
+      sel.disabled = st.done || (st.tries>0 && good);
+      let fix=$(".fix",r); if(fix) fix.remove();
+      if(st.done && !good){ fix=document.createElement("span"); fix.className="fix"; fix.textContent="Answer: "+options[+a]; r.appendChild(fix); }
+    });
+    if(st.done){ btn.hidden=true; fb.className="fb "+(st.score===rows.length?"good":"bad"); fb.textContent=`You got ${st.score} of ${rows.length}.`; }
+    else if(st.tries===1){ fb.className="fb bad"; fb.textContent=`${st.score} of ${rows.length} correct. Fix the ones marked in red, then check again.`; }
+  }
+  btn.onclick=()=>{
+    if(st.sel.some(v=>v==="")){ fb.className="fb bad"; fb.textContent="Choose an answer for every row first."; return; }
+    st.tries++;
+    st.score = rows.filter((r,k)=>st.sel[k]===$("select",r).dataset.answer).length;
+    if(st.score===rows.length || st.tries>=2) st.done=true;
+    render(); save();
+  };
+  box._pdf = ()=>({type:"match", prompt:$(".q-prompt",box).textContent,
+    rows: rows.map((r,k)=>{ const a=$("select",r).dataset.answer; return `${$("span",r).textContent}  ->  ${st.sel[k]===""?"(blank)":options[+st.sel[k]]}${st.done?(st.sel[k]===a?"  [correct]":"  [incorrect; answer: "+options[+a]+"]"):""}`; }),
+    result: st.done?`Score: ${st.score}/${rows.length}`:"Not finished"});
+  if(st.tries>0) render();
+});
+
+/* ---------- short answers ---------- */
+$$("textarea[data-save]").forEach(t=>{
+  const id=t.dataset.save, ctr=t.parentElement.querySelector(".counter");
+  t.value=S.txt[id]||"";
+  const upd=()=>{ const n=t.value.trim().split(/\s+/).filter(Boolean).length; ctr.textContent = n + (n===1?" word":" words"); };
+  t.oninput=()=>{ S.txt[id]=t.value; upd(); save(); };
+  upd();
+  t.closest(".sa")._pdf = ()=>({type:"sa", prompt:t.dataset.label, text:(S.txt[id]||"").trim()||"(no answer)"});
+});
+
+/* ---------- checkboxes ---------- */
+$$("input[data-pdfcheck]").forEach(c=>{ c.checked=!!S.checks[c.id]; c.onchange=()=>{S.checks[c.id]=c.checked;save();}; });
+
+/* ---------- BAC meter ---------- */
+const CDC = {"0.02":["Decline in visual functions","Trouble doing two tasks at once","Loss of judgment","Altered mood"],
+  "0.05":["Reduced coordination","Reduced ability to track moving objects","Difficulty steering","Slower response to driving emergencies"],
+  "0.08":["Reduced ability to concentrate","Short-term memory loss","Lack of speed control","Impaired perception and self-control"],
+  "0.10":["Clear decline in reaction time","Trouble staying in a lane","Trouble braking appropriately","Slurred speech"],
+  "0.15":["Substantial impairment in vehicle control","Trouble processing what you hear","Major loss of balance","Vomiting may occur"]};
+function zone(b){
+  if(b<=0.05) return ["Mild impairment",["Mild speech, memory, attention, coordination, and balance problems","Relaxed feeling","Sleepiness can begin"]];
+  if(b<=0.15) return ["Increased impairment",["Speech, memory, attention, coordination, and balance further impaired","Significant impairment in all driving skills","Increased risk of injury and aggression"]];
+  if(b<=0.30) return ["Severe impairment",["All driving skills dangerously impaired","Judgment and decision-making dangerously impaired","Blackouts, vomiting, and other signs of alcohol poisoning","Loss of consciousness"]];
+  return ["Life threatening",["Loss of consciousness","Danger of life-threatening alcohol poisoning","Significant risk of death from suppressed breathing and heart rate"]];
+}
+const bs=$("#bacSlider");
+function bacUpd(){
+  const b=+bs.value; $("#bacNum").textContent=b.toFixed(2)+"%";
+  const [z,list]=zone(b); const ze=$("#bacZone"); ze.textContent=z;
+  ze.style.background = b>0.30?"var(--red)":b>0.15?"var(--red-soft)":"var(--paper)"; ze.style.color = b>0.30?"#fff":"var(--ink)";
+  let items=[...list];
+  if(b>=0.02 && b<=0.15){ const keys=Object.keys(CDC).map(Number).filter(k=>k<=b+1e-9); const k=keys[keys.length-1]; items=items.concat(CDC[k.toFixed(2)].map(x=>"Driving: "+x)); }
+  if(b===0) items=["No alcohol in the bloodstream"];
+  $("#bacEffects").innerHTML=items.map(x=>`<li>${x}</li>`).join("");
+}
+bs.oninput=bacUpd; bacUpd();
+$(".scale .limit").style.left=(0.08/0.40*100)+"%";
+
+/* ---------- liver stages ---------- */
+const STAGES=[["#9C3B2A","A healthy liver breaks down alcohol and fats, filters toxins from the blood, and helps digest food."],
+ ["#C77B4A","Fatty liver: alcohol impairs the liver’s ability to break down fats, so fat builds up and the liver enlarges. This stage can often be reversed if drinking stops."],
+ ["#9E7B3E","Fibrosis: scar tissue starts to form as the liver is repeatedly damaged."],
+ ["#7A6A3A","Cirrhosis: heavy scarring replaces healthy liver cells. Once cirrhosis happens, the scarring cannot be undone."]];
+function stage(n){
+  $$(".stages button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.stage===n));
+  $("#liverShape").setAttribute("fill",STAGES[n][0]); $("#stageText").textContent=STAGES[n][1];
+  const g=$("#liverMarks"); g.innerHTML="";
+  const pts=[[50,50],[80,35],[110,45],[140,40],[160,52],[70,75],[100,70],[130,62],[60,95],[90,90],[40,70],[120,30]];
+  if(n===1) pts.forEach(([x,y])=>g.innerHTML+=`<circle cx="${x}" cy="${y}" r="7" fill="#F2D59A" opacity=".75"/>`);
+  if(n===2) pts.forEach(([x,y])=>g.innerHTML+=`<path d="M${x-8} ${y} q8 -6 16 0" stroke="#F2E6CF" stroke-width="2.5" fill="none"/>`);
+  if(n===3) pts.concat([[150,62],[75,55],[105,95]]).forEach(([x,y])=>g.innerHTML+=`<circle cx="${x}" cy="${y}" r="9" fill="#5B4D27" stroke="#C9B57A" stroke-width="1.5"/>`);
+}
+$$(".stages button").forEach(b=>b.onclick=()=>stage(+b.dataset.stage)); stage(0);
+
+/* ---------- solo cup ---------- */
+const ACTUAL={beer:12,wine:5,spirits:1.5}, NAMES={beer:"Beer",wine:"Wine",spirits:"Liquor"};
+const TOP=24,BOT=286,H=BOT-TOP,RT=105,RB=72,CX=120;
+const rAt=y=>RB+(RT-RB)*((BOT-y)/H);
+$("#cupOutline").setAttribute("d",`M${CX-RT-6} ${TOP} H${CX+RT+6} M${CX-RT} ${TOP} L${CX-RB} ${BOT} H${CX+RB} L${CX+RT} ${TOP}`);
+$("#cupInner").setAttribute("d",`M${CX-RT} ${TOP} L${CX-RB} ${BOT} H${CX+RB} L${CX+RT} ${TOP} Z`);
+// volume of frustum from bottom up to height h (unitless), normalized to 16 oz at full height
+const volTo=h=>{ const k=(RT-RB)/H; return Math.PI*(RB*RB*h + RB*k*h*h + k*k*h*h*h/3); };
+const FULL=volTo(H);
+const ozToY=oz=>{ let lo=0,hi=H; for(let i=0;i<40;i++){ const m=(lo+hi)/2; (volTo(m)/FULL*16<oz)?lo=m:hi=m; } return BOT-(lo+hi)/2; };
+const yToOz=y=>Math.max(0,Math.min(16, volTo(Math.max(0,Math.min(H,BOT-y)))/FULL*16));
+let drink="beer";
+const oz=$("#ozSlider");
+function setLevel(v){
+  v=Math.round(v*2)/2; v=Math.max(0.5,Math.min(16,v)); oz.value=v; $("#ozVal").textContent=v;
+  const y=ozToY(v); $("#liquid").setAttribute("y",y); $("#liquid").setAttribute("height",BOT-y);
+  const r=rAt(y); const dl=$("#dragLine"); dl.setAttribute("x1",CX-r+4); dl.setAttribute("x2",CX+r-4); dl.setAttribute("y1",y); dl.setAttribute("y2",y);
+  $("#dragKnob").setAttribute("cy",y); $("#dragKnob").setAttribute("cx",CX+r+10);
+}
+function drawLines(){
+  const g=$("#cupLines"); g.innerHTML="";
+  Object.entries(S.cup.pred).forEach(([d,v])=>{
+    const y=ozToY(v), r=rAt(y), idx=["beer","wine","spirits"].indexOf(d);
+    g.innerHTML+=`<line x1="${CX-r}" x2="${CX+r}" y1="${y}" y2="${y}" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 4"/><text x="${CX-r+6+idx*52}" y="${y-5}" font-size="12" fill="var(--ink)" font-weight="700">${NAMES[d]}?</text>`;
+  });
+  if(S.cup.revealed) Object.entries(ACTUAL).forEach(([d,v])=>{
+    const y=ozToY(v), r=rAt(y);
+    g.innerHTML+=`<line x1="${CX-r}" x2="${CX+r}" y1="${y}" y2="${y}" stroke="var(--teal)" stroke-width="4"/><text x="${CX+r-6}" y="${y+16}" font-size="13" text-anchor="end" fill="var(--teal)" font-weight="700">${NAMES[d]} ${v} oz</text>`;
+  });
+}
+function cupUI(){
+  $$(".drinktabs button").forEach(b=>{ b.setAttribute("aria-pressed",b.dataset.drink===drink); $(".chk",b).textContent=S.cup.pred[b.dataset.drink]!=null?"✓":""; });
+  const locked=S.cup.revealed;
+  $("#saveLine").textContent = locked?"Predictions locked":`Save my ${NAMES[drink].toLowerCase()} prediction`;
+  $("#saveLine").disabled=locked; oz.disabled=locked;
+  $("#revealCup").disabled = locked || Object.keys(S.cup.pred).length<3;
+  $("#revealCup").hidden = locked;
+  setLevel(locked?ACTUAL[drink]:(S.cup.pred[drink]??8));
+  drawLines();
+  if(locked){
+    $("#cupResults").innerHTML=`<table class="results"><thead><tr><th>Drink</th><th>My guess</th><th>Standard drink</th><th>Difference</th></tr></thead><tbody>`+
+      Object.keys(ACTUAL).map(d=>{const p=S.cup.pred[d],a=ACTUAL[d],df=p-a;return `<tr><td>${NAMES[d]}</td><td>${p} oz</td><td><b>${a} oz</b></td><td>${df===0?"Exact!":(df>0?"+":"")+df+" oz"}</td></tr>`;}).join("")+`</tbody></table>`;
+    $("#cupTakeaway").hidden=false;
+  }
+}
+oz.oninput=()=>setLevel(+oz.value);
+$$(".drinktabs button").forEach(b=>b.onclick=()=>{drink=b.dataset.drink;cupUI();});
+$("#saveLine").onclick=()=>{
+  S.cup.pred[drink]=+oz.value; save();
+  const next=["beer","wine","spirits"].find(d=>S.cup.pred[d]==null); if(next) drink=next;
+  cupUI();
+};
+$("#revealCup").onclick=()=>{S.cup.revealed=true;save();cupUI();};
+(function(){ // drag on the cup
+  const svg=$("#cupSvg"); let dragging=false;
+  const toY=e=>{ const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()).y; };
+  svg.addEventListener("pointerdown",e=>{ if(S.cup.revealed) return; dragging=true; svg.setPointerCapture(e.pointerId); setLevel(yToOz(toY(e))); });
+  svg.addEventListener("pointermove",e=>{ if(dragging) setLevel(yToOz(toY(e))); });
+  svg.addEventListener("pointerup",()=>dragging=false);
+})();
+$(".cup")._pdf=()=>({type:"cup", rows:Object.keys(ACTUAL).map(d=>`${NAMES[d]}: my guess ${S.cup.pred[d]??"(none)"} oz, standard drink ${ACTUAL[d]} oz`), result:S.cup.revealed?"Revealed":"Not finished"});
+cupUI();
+
+/* ---------- binge visuals ---------- */
+const bottle=c=>`<svg viewBox="0 0 22 54" aria-hidden="true"><path d="M8 2h6v12c0 3 6 6 6 12v24a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V26c0-6 6-9 6-12Z" fill="${c}"/></svg>`;
+$$("[data-bottles]").forEach(r=>r.innerHTML=bottle("var(--amber)").repeat(+r.dataset.bottles));
+(function(){
+  const data=[["High school",17.7],["18–24",25.1],["25–34",25.7],["35–44",19.6],["45–64",13.7],["65+",4.6]];
+  const svg=$("#bingeChart"), x0=50,y0=220,h=190,w=500/data.length; let s="";
+  [0,10,20,30].forEach(v=>{const y=y0-v/30*h; s+=`<line x1="${x0}" x2="550" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${x0-8}" y="${y+4}" text-anchor="end" font-size="12" fill="var(--muted)">${v}%</text>`;});
+  data.forEach(([l,v],i)=>{const bh=v/30*h,x=x0+i*w+12; s+=`<rect x="${x}" y="${y0-bh}" width="${w-24}" height="${bh}" rx="4" fill="${i===0?"var(--amber)":"var(--ink)"}" opacity="${i===0?1:.75}"/><text x="${x+(w-24)/2}" y="${y0-bh-6}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">≈${Math.round(v)}%</text><text x="${x+(w-24)/2}" y="${y0+18}" text-anchor="middle" font-size="12.5" fill="var(--muted)">${l}</text>`;});
+  svg.innerHTML=s;
+})();
+
+/* ---------- CUPS + breathing ---------- */
+$$(".cups button").forEach(b=>b.onclick=()=>b.setAttribute("aria-expanded", b.getAttribute("aria-expanded")!=="true"));
+let tInt=null;
+$("#timerBtn").onclick=()=>{
+  if(tInt) return; let t=30; const el=$("#timer"), b=$("#timerBtn"); b.disabled=true; b.textContent="Counting…";
+  tInt=setInterval(()=>{ t--; el.textContent=`0:${String(t).padStart(2,"0")}`; if(t<=0){ clearInterval(tInt); tInt=null; el.textContent="Done!"; b.disabled=false; b.textContent="Start again"; $("#breathCount").focus(); } },1000);
+};
+const bc=$("#breathCount");
+function breathUpd(){
+  const n=parseInt(bc.value,10); const out=$("#breathOut");
+  if(isNaN(n)){ out.textContent=""; S.breath=null; return; }
+  const r=n*2; S.breath=r;
+  out.innerHTML=`${n} × 2 = <b>${r} breaths per minute</b>. ${r>=12&&r<=16?"That’s in the healthy range.":r<12?"That’s below the typical range. Try again while sitting calmly.":"That’s a bit above the typical resting range, which is common if you just moved around."} Someone with alcohol poisoning may breathe <b>fewer than 8 times a minute</b> or have gaps of 10 seconds or more between breaths.`;
+}
+bc.value=S.breath!=null?S.breath/2:""; breathUpd();
+bc.oninput=()=>{breathUpd();save();};
+$(".breath")._pdf=()=>({type:"sa",prompt:"Breathing rate activity (optional)",text:S.breath!=null?`${S.breath} breaths per minute`:"(skipped)"});
+
+/* ---------- config links ---------- */
+(function(){
+  const u=CONFIG.piazzaVideoUrl, w=$("#piazzaVideoWrap");
+  if(!u){ w.innerHTML=`<i style="color:var(--muted)">Your teacher will share the video link.</i>`; return; }
+  const m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
+  w.innerHTML = (m?`<span class="video" style="display:block"><iframe src="https://drive.google.com/file/d/${m[1]}/preview" title="Tim Piazza court transcript video" allow="autoplay; fullscreen" allowfullscreen></iframe></span>`:"")
+    + `<a class="btn ghost" style="display:inline-block;text-decoration:none" href="${u}" target="_blank" rel="noopener">${m?"Video not playing? Open it in Google Drive":"Open the video in a new tab"}</a>`;
+})();
+$("#hazingLawWrap").innerHTML = CONFIG.antiHazingLawUrl ? `<a href="${CONFIG.antiHazingLawUrl}" target="_blank" rel="noopener">Read about the Tim Piazza Anti-Hazing Law</a>` : "";
+
+/* ---------- progress ---------- */
+function reqDone(el){
+  if(el.classList.contains("mc")) return !!(S.mc[el.dataset.id]&&S.mc[el.dataset.id].done);
+  if(el.classList.contains("match")) return !!(S.match[el.dataset.id]&&S.match[el.dataset.id].done);
+  if(el.classList.contains("cup")) return S.cup.revealed;
+  if(el.matches("textarea")) return (S.txt[el.dataset.save]||"").trim().split(/\s+/).filter(Boolean).length>=5;
+  return true;
+}
+function secStatus(s){ const req=$$(".mc,.match,.cup,textarea[data-req]",s); const d=req.filter(reqDone).length; return [d,req.length]; }
+function updateProgress(){
+  secs.forEach((s,i)=>{ if(s.hasAttribute("data-nocheck")) return; const [d,t]=secStatus(s); rail.children[i].querySelector(".dot").classList.toggle("done", d===t); });
+  if(S.sec===secs.length-1) buildFinish();
+}
+function buildFinish(){
+  $("#finishList").innerHTML = secs.filter(s=>!s.hasAttribute("data-nocheck")).map(s=>{const [d,t]=secStatus(s);return `<li><span>${s.dataset.title}</span><span class="${d===t?"ok":"miss"}">${d===t?"Complete":`${d} of ${t} done`}</span></li>`;}).join("");
+}
+
+/* ---------- PDF ---------- */
+const clean=s=>String(s).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/…/g,"...").replace(/≈/g,"~").replace(/×/g,"x").replace(/÷/g,"/").replace(/[^\x09\x0A\x0D\x20-\x7E]/g,"");
+$("#pdfBtn").onclick=()=>{
+  const msg=$("#pdfMsg");
+  if(!S.name.trim()){ msg.className="fb bad"; msg.textContent="Add your name on the Start page first."; show(0); nameIn.focus(); return; }
+  if(!window.jspdf){ msg.className="fb bad"; msg.textContent="The PDF tool didn’t load. Check your internet connection and refresh the page. Your work is saved."; return; }
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:"pt",format:"letter"});
+  const M=54, W=612-M*2; let y=M;
+  const need=h=>{ if(y+h>792-M){ doc.addPage(); y=M; } };
+  const write=(txt,{size=11,bold=false,color=[23,36,51],gap=4}={})=>{
+    doc.setFont("helvetica",bold?"bold":"normal"); doc.setFontSize(size); doc.setTextColor(...color);
+    doc.splitTextToSize(clean(txt),W).forEach(line=>{ need(size*1.35); doc.text(line,M,y); y+=size*1.35; }); y+=gap;
+  };
+  write("BAC & Binge Drinking - Independent Lesson",{size:18,bold:true});
+  write(`Name: ${S.name}    Period: ${S.period||"-"}    Date: ${new Date().toLocaleDateString()}`,{size:11,color:[80,96,113],gap:10});
+  secs.forEach(s=>{
+    const items=$$("[data-pdf]",s); const checks=$$("input[data-pdfcheck]",s);
+    if(!items.length && !checks.length) return;
+    need(40); y+=6; doc.setDrawColor(200,138,30); doc.setLineWidth(2); doc.line(M,y,M+W,y); y+=18;
+    write(s.dataset.title,{size:14,bold:true,gap:6});
+    items.forEach(el=>{
+      const d=el._pdf&&el._pdf(); if(!d) return;
+      if(d.type==="mc"){ write(d.prompt,{bold:true,gap:2}); write("Answer: "+d.answer,{gap:1}); write(d.result,{size:10,color:[80,96,113],gap:10}); }
+      else if(d.type==="sa"){ write(d.prompt,{bold:true,gap:2}); write(d.text,{gap:10}); }
+      else { if(d.prompt) write(d.prompt,{bold:true,gap:2}); else write("Standard drink predictions",{bold:true,gap:2}); d.rows.forEach(r=>write("- "+r,{size:10.5,gap:1})); write(d.result,{size:10,color:[80,96,113],gap:10}); }
+    });
+    checks.forEach(c=>write(`${c.dataset.pdfcheck}: ${c.checked?"Yes":"No"}`,{size:10.5,gap:4}));
+  });
+  const fn=`BAC-Binge-Drinking_${S.name.trim().replace(/[^a-z0-9]+/gi,"-")}.pdf`;
+  doc.save(fn); msg.className="fb good"; msg.textContent="Downloaded "+fn+". Turn it in where your teacher asked.";
+};
+$("#resetBtn").onclick=()=>{
+  if(!confirm("Erase all of your answers and start over? This can’t be undone.")) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  location.reload();
+};
+
+show(Math.min(S.sec||0, secs.length-1));
+updateProgress();
+</script>
+</body>
+</html>
