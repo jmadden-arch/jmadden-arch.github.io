@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Toxicology Lab Lockdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Martian+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF3F0; --surface:#FFFFFF; --ink:#12302F; --muted:#4D6663; --line:#C9D9D3;
+  --teal:#1D6B66; --teal-soft:#D7EAE6; --amber:#B8741A; --amber-soft:#FBEBD2;
+  --good:#2F7A3B; --good-soft:#DCEFDD; --bad:#B23A2B; --bad-soft:#F7DEDA;
+  color-scheme: light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1D1C; --surface:#172927; --ink:#E3EEEB; --muted:#9DB5B0; --line:#2C4542;
+    --teal:#6CC3BA; --teal-soft:#1E3B38; --amber:#F0B45E; --amber-soft:#3A2D18;
+    --good:#7BCB86; --good-soft:#1D3522; --bad:#F08C7E; --bad-soft:#3E201C; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1D1C; --surface:#172927; --ink:#E3EEEB; --muted:#9DB5B0; --line:#2C4542;
+  --teal:#6CC3BA; --teal-soft:#1E3B38; --amber:#F0B45E; --amber-soft:#3A2D18;
+  --good:#7BCB86; --good-soft:#1D3522; --bad:#F08C7E; --bad-soft:#3E201C; color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+h1,h2{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",sans-serif;margin:0;line-height:1.1}
+.wrap{max-width:820px;margin:0 auto;padding:1.25rem 1.25rem 3rem}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;border-bottom:3px solid var(--ink);padding-bottom:.9rem;margin-bottom:1.5rem}
+.topbar h1{font-size:1.5rem;font-weight:800}
+.team{color:var(--muted);font-size:.95rem}
+.clock{font:700 1.6rem "Martian Mono",ui-monospace,monospace;padding:.3rem .7rem;border:2px solid var(--ink);border-radius:6px;background:var(--surface)}
+.clock.low{color:var(--bad);border-color:var(--bad)}
+
+/* Lock rail: real sequence of six locks */
+.rail{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;margin-bottom:1.5rem}
+.rail div{height:44px;border:2px solid var(--line);border-radius:6px;display:grid;place-items:center;font:700 1rem "Martian Mono",monospace;color:var(--muted);background:var(--surface)}
+.rail .open{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.rail .now{border-color:var(--ink);color:var(--ink);background:var(--amber-soft)}
+
+.card{background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:1.5rem}
+.card h2{font-size:clamp(1.6rem,4.5vw,2.3rem);font-weight:800}
+.env{display:inline-block;margin-bottom:.6rem;font-weight:700;color:var(--amber)}
+.prompt{max-width:60ch;margin:.75rem 0 1.25rem}
+
+/* The memorable element: the specimen-label code dial */
+.dial{display:flex;gap:.45rem;flex-wrap:wrap;margin:1rem 0}
+.dial input{width:3.1rem;height:3.9rem;text-align:center;font:700 1.8rem "Martian Mono",ui-monospace,monospace;text-transform:uppercase;border:3px solid var(--ink);border-radius:8px;background:var(--bg);color:var(--ink)}
+.dial input:focus{outline:3px solid var(--amber);outline-offset:2px;background:var(--surface)}
+.dial.long input{width:2.6rem;font-size:1.45rem}
+.dial.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
+@media (prefers-reduced-motion:reduce){.dial.shake{animation:none}}
+
+.actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+.btn{font:700 1rem "Atkinson Hyperlegible",sans-serif;padding:.75rem 1.25rem;border-radius:6px;border:2px solid var(--ink);background:var(--ink);color:var(--surface);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.msg{margin-top:1rem;font-weight:700;min-height:1.5em}
+.msg.no{color:var(--bad)} .msg.ok{color:var(--good)}
+.hint{margin-top:1rem;background:var(--amber-soft);border-left:5px solid var(--amber);padding:.75rem 1rem;border-radius:0 6px 6px 0}
+.unlocked{background:var(--good-soft);border:2px solid var(--good);border-radius:8px;padding:1rem 1.1rem;margin-top:1rem}
+.unlocked strong{display:block;font-size:1.15rem;margin-bottom:.3rem}
+.stats{display:flex;gap:2rem;flex-wrap:wrap;margin:1rem 0}
+.stats div{font-size:.95rem;color:var(--muted)}
+.stats b{display:block;font:700 1.6rem "Martian Mono",monospace;color:var(--ink)}
+input.teamname{font:inherit;padding:.65rem .8rem;border:2px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);width:100%;max-width:420px}
+.reset{margin-top:2.5rem;text-align:right}
+.reset button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;font-size:.85rem}
+@media (max-width:520px){.dial input{width:2.6rem;height:3.4rem;font-size:1.45rem}.dial.long input{width:2.2rem;font-size:1.2rem}.rail div{height:36px;font-size:.85rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div><h1>Toxicology Lab Lockdown</h1><div class="team" id="teamLabel"></div></div>
+    <div class="clock" id="clock" aria-live="off">40:00</div>
+  </div>
+  <div class="rail" id="rail" aria-label="Lock progress"></div>
+  <div id="stage"></div>
+  <div class="reset"><button id="resetBtn">Reset this device (teacher)</button><div id="resetArea"></div></div>
+</div>
+
+<script>
+const LIMIT_MIN = 40, HINT_PENALTY_MIN = 2;
+function h(s){let x=5381;for(const c of ("tox|"+s))x=((x*33)^c.charCodeAt(0))>>>0;return x.toString(36)}
+
+const LOCKS = [
+ { title:"The Mixed-Up Shipment", len:4, kind:"letters",
+   prompt:"Open Envelope 1. A shipment of substances arrived unlabeled. Find every depressant and read its letter in order.",
+   codes:["16neezh"],
+   hint:"Depressants slow the central nervous system. Look for alcohol, Xanax, barbiturates, and sleeping pills.",
+   win:"SLOW. That\u2019s exactly what depressants do to breathing and heart rate. Open Envelope 2." },
+ { title:"The Racing Heart", len:3, kind:"digits",
+   prompt:"Open Envelope 2. A patient arrived after taking someone else\u2019s ADHD pills. Find the effects caused by stimulants and read their numbers from top to bottom.",
+   codes:["xkwytj"],
+   hint:"Stimulants speed you up. You are looking for three effects: one about the heart, one about hunger, one about sleep.",
+   win:"Stimulants speed up the body: racing heart, no appetite, no sleep. Open Envelope 3." },
+ { title:"Room 214", len:0, kind:"word",
+   prompt:"Open Envelope 3. Read the patient chart. Enter the name of the medicine that can reverse this kind of overdose.",
+   codes:["ur2yyy","1xt7nxn"],
+   hint:"Pinpoint pupils plus slow breathing points to opioids. The rescue medicine is sold over the counter as a nasal spray.",
+   win:"Naloxone (Narcan) reverses an opioid overdose. Always call 911 too. Open Envelope 4." },
+ { title:"The Party Report", len:4, kind:"digits",
+   prompt:"Open Envelope 4. Sort each witness statement into the right category, then enter the category numbers in order.",
+   codes:["16pg34p"],
+   hint:"Hallucinogens distort reality. Club drugs like MDMA cause overheating. Date rape drugs are slipped into drinks and cause blackouts.",
+   win:"You sorted the hallucinogens, club drugs, and date rape drugs. Open Envelope 5." },
+ { title:"The Locker Room Rumors", len:5, kind:"tf",
+   prompt:"Open Envelope 5. Decide whether each rumor is true (T) or false (F). Enter your five letters in order.",
+   codes:["1lvtvwu"],
+   hint:"Two of the five rumors are false. Think about \u201clegal means safe\u201d and \u201conly affects muscles.\u201d",
+   win:"Rumors busted. Inhalants can kill on first use, and steroids affect the whole body. Open Envelope 6." },
+ { title:"The Lab Results", len:4, kind:"letters",
+   prompt:"Open Envelope 6. Find every statement that describes THC (not CBD) and read its letter in order.",
+   codes:["16nikj8"],
+   hint:"THC is the psychoactive part: it causes the high and affects reaction time, memory, and anxiety. CBD does not cause a high.",
+   win:"THC causes the high. CBD doesn\u2019t. That was the last lock." }
+];
+
+const KEY="toxLabEscape_v1";
+let s = { team:"", start:null, lock:0, hints:0, hintShown:{}, wrong:0, finishedAt:null };
+function load(){ try{ const v=localStorage.getItem(KEY); if(v) s=Object.assign(s,JSON.parse(v)); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){} }
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function elapsedMs(){ if(!s.start) return 0; return ((s.finishedAt||Date.now())-s.start) + s.hints*HINT_PENALTY_MIN*60000; }
+function fmt(ms){ const neg=ms<0; ms=Math.abs(ms); const m=Math.floor(ms/60000), sec=Math.floor(ms%60000/1000); return (neg?"+":"")+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0"); }
+function tick(){
+  const c=document.getElementById("clock");
+  const left = LIMIT_MIN*60000 - elapsedMs();
+  c.textContent = left>=0 ? fmt(left) : fmt(-left).replace(/^/,"+");
+  c.classList.toggle("low", left<5*60000);
+  c.title = left>=0 ? "Time remaining" : "Overtime";
+}
+setInterval(tick,1000);
+
+function rail(){
+  document.getElementById("rail").innerHTML = LOCKS.map((L,i)=>`<div class="${i<s.lock?'open':i===s.lock&&s.start&&!s.finishedAt?'now':''}" aria-label="Lock ${i+1} ${i<s.lock?'open':'locked'}">${i<s.lock?'\u2713':i+1}</div>`).join("");
+  document.getElementById("teamLabel").textContent = s.team ? "Team: "+s.team : "";
+}
+
+function startScreen(){
+  document.getElementById("stage").innerHTML = `<section class="card">
+    <h2>The lab is on lockdown</h2>
+    <p class="prompt">Six patients came into the Riverbend Hospital ER overnight, and the toxicology lab sealed itself before anyone could report what they took. Each envelope on your table holds one case. Solve it, enter the code here, and the next lock opens. You have ${LIMIT_MIN} minutes. Each hint adds ${HINT_PENALTY_MIN} minutes to your time.</p>
+    <label for="tn" style="font-weight:700;display:block;margin-bottom:.35rem">Team name</label>
+    <input class="teamname" id="tn" maxlength="40" autocomplete="off">
+    <div class="actions"><button class="btn" id="go">Start the clock</button></div>
+    <div class="msg no" id="m"></div>
+  </section>`;
+  const tn=document.getElementById("tn"); tn.focus();
+  const go=()=>{ if(!tn.value.trim()){document.getElementById("m").textContent="Enter a team name to start.";return;} s.team=tn.value.trim(); s.start=Date.now(); save(); render(); };
+  document.getElementById("go").onclick=go; tn.onkeydown=e=>{if(e.key==="Enter")go();};
+}
+
+function lockScreen(){
+  const i=s.lock, L=LOCKS[i];
+  const isWord = L.kind==="word";
+  const boxes = isWord ? `<input id="wordIn" class="teamname" style="font:700 1.5rem 'Martian Mono',monospace;text-transform:uppercase;max-width:360px" autocomplete="off" aria-label="Answer">`
+    : Array.from({length:L.len},(_,k)=>`<input maxlength="1" inputmode="${L.kind==='digits'?'numeric':'text'}" aria-label="Character ${k+1} of ${L.len}" autocomplete="off">`).join("");
+  const fmtNote = L.kind==="digits" ? `${L.len}-digit code` : L.kind==="tf" ? `${L.len} letters, each T or F` : L.kind==="letters" ? `${L.len}-letter word` : "one word";
+  document.getElementById("stage").innerHTML = `<section class="card">
+    <span class="env">Envelope ${i+1} of ${LOCKS.length}</span>
+    <h2>${esc(L.title)}</h2>
+    <p class="prompt">${esc(L.prompt)}</p>
+    <div style="font-size:.9rem;color:var(--muted)">Enter a ${fmtNote}</div>
+    <div class="dial ${L.len>4?'long':''}" id="dial">${boxes}</div>
+    <div class="actions">
+      <button class="btn" id="try">Try this code</button>
+      <button class="btn ghost" id="hintBtn">${s.hintShown[i]?'Hint shown below':'Get a hint (+'+HINT_PENALTY_MIN+' min)'}</button>
+    </div>
+    <div class="msg" id="m" aria-live="assertive"></div>
+    <div id="hintBox">${s.hintShown[i]?`<div class="hint"><strong>Hint:</strong> ${esc(L.hint)}</div>`:''}</div>
+  </section>`;
+
+  const dial=document.getElementById("dial");
+  const ins=[...dial.querySelectorAll("input")];
+  if(!isWord){
+    ins.forEach((inp,k)=>{
+      inp.oninput=()=>{ inp.value=inp.value.slice(-1).toUpperCase(); if(inp.value && k<ins.length-1) ins[k+1].focus(); };
+      inp.onkeydown=e=>{ if(e.key==="Backspace"&&!inp.value&&k>0){ins[k-1].focus();} if(e.key==="Enter")attempt(); };
+      inp.onpaste=e=>{ e.preventDefault(); const t=(e.clipboardData.getData("text")||"").replace(/[^a-z0-9]/gi,"").toUpperCase(); ins.forEach((x,j)=>{ if(t[j]) x.value=t[j]; }); };
+    });
+  } else { ins[0].onkeydown=e=>{if(e.key==="Enter")attempt();}; }
+  ins[0].focus();
+
+  function attempt(){
+    const val = ins.map(x=>x.value).join("").replace(/[^a-z0-9]/gi,"").toUpperCase();
+    const m=document.getElementById("m");
+    if(!isWord && val.length<L.len){ m.className="msg no"; m.textContent="Fill in every box before you try the code."; return; }
+    if(isWord && !val){ m.className="msg no"; m.textContent="Type a word before you try the code."; return; }
+    if(L.codes.includes(h(val))){
+      s.lock++; if(s.lock>=LOCKS.length) s.finishedAt=Date.now(); save();
+      document.querySelector(".card").insertAdjacentHTML("beforeend",`<div class="unlocked"><strong>Lock ${i+1} open</strong>${esc(L.win)}</div>`);
+      document.getElementById("try").disabled=true; ins.forEach(x=>x.disabled=true);
+      m.className="msg ok"; m.textContent="";
+      const next=document.createElement("button"); next.className="btn"; next.style.marginTop="1rem";
+      next.textContent = s.lock>=LOCKS.length ? "See your results" : "Go to lock "+(s.lock+1);
+      next.onclick=render; document.querySelector(".card").appendChild(next); next.focus(); rail();
+    } else {
+      s.wrong++; save();
+      m.className="msg no"; m.textContent="That code doesn\u2019t open the lock. Check your clue and try again.";
+      dial.classList.remove("shake"); void dial.offsetWidth; dial.classList.add("shake");
+    }
+  }
+  document.getElementById("try").onclick=attempt;
+  document.getElementById("hintBtn").onclick=()=>{
+    if(s.hintShown[i]) return;
+    const box=document.getElementById("hintBox");
+    box.innerHTML=`<div class="hint"><p style="margin:0 0 .6rem">A hint adds ${HINT_PENALTY_MIN} minutes to your team\u2019s time. Show it?</p><div class="actions" style="margin:0"><button class="btn" id="hintYes">Show the hint</button><button class="btn ghost" id="hintNo">Keep trying without it</button></div></div>`;
+    document.getElementById("hintYes").onclick=()=>{ s.hintShown[i]=true; s.hints++; save(); lockScreen(); tick(); };
+    document.getElementById("hintNo").onclick=()=>{ box.innerHTML=""; };
+    document.getElementById("hintYes").focus();
+  };
+}
+
+function doneScreen(){
+  const total = elapsedMs();
+  document.getElementById("stage").innerHTML = `<section class="card">
+    <h2>Lab cleared</h2>
+    <p class="prompt">All six patients have results, ${esc(s.team)}. Raise your hand and show your teacher this screen, then open the Lab Report envelope and finish the debrief together.</p>
+    <div class="stats">
+      <div><b>${fmt(total)}</b>Final time (with hint penalties)</div>
+      <div><b>${s.hints}</b>Hints used</div>
+      <div><b>${s.wrong}</b>Wrong codes</div>
+    </div>
+    <p style="color:var(--muted);font-size:.95rem">Finished ${new Date(s.finishedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</p>
+  </section>`;
+}
+
+function render(){ rail(); tick(); if(!s.start) startScreen(); else if(s.lock>=LOCKS.length) doneScreen(); else lockScreen(); }
+
+document.getElementById("resetBtn").onclick=()=>{
+  const area=document.getElementById("resetArea");
+  if(area.innerHTML){ area.innerHTML=""; return; }
+  area.innerHTML=`<p style="margin:.5rem 0 .4rem;text-align:left">This erases this team\u2019s progress on this device. Type RESET to confirm.</p><div style="display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap"><input id="resetIn" class="teamname" style="max-width:200px" autocomplete="off" aria-label="Type RESET to confirm"><button class="btn" id="resetGo">Erase progress</button></div><p id="resetMsg" class="msg no" style="text-align:left"></p>`;
+  const inp=document.getElementById("resetIn"); inp.focus();
+  const go=()=>{
+    if(inp.value.trim().toUpperCase()!=="RESET"){ document.getElementById("resetMsg").textContent="Type RESET exactly to erase progress."; return; }
+    try{localStorage.removeItem(KEY);}catch(e){}
+    s={team:"",start:null,lock:0,hints:0,hintShown:{},wrong:0,finishedAt:null}; area.innerHTML=""; render();
+  };
+  document.getElementById("resetGo").onclick=go; inp.onkeydown=e=>{if(e.key==="Enter")go();};
+};
+
+load(); render();
+</script>
+</body>
+</html>
