@@ -178,6 +178,13 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .finishlist li{display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid var(--line)}
 .ok{color:var(--teal);font-weight:700} .miss{color:var(--red);font-weight:700}
 
+/* embed mode: one section at a time inside Canva */
+.act-head{display:none}
+body.activities .act-head{display:block;font-size:1.3rem;margin-bottom:.2rem}
+body.activities .act-hidden{display:none!important}
+body.embed .rail, body.embed .navrow, body.embed .brand{display:none}
+body.embed .shell{grid-template-columns:1fr;max-width:820px;padding:1rem 1rem 2rem}
+body.embed .topbar{justify-content:flex-end;padding:.35rem 1rem}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
 @media (max-width:860px){
@@ -214,7 +221,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   <main id="main">
 
 <!-- ===================== 0. START ===================== -->
-<section class="step" data-title="Start" data-nocheck>
+<section class="step" data-part="start" data-title="Start" data-nocheck>
   <div class="hero">
     <div>
       <h1>BAC & Binge Drinking</h1>
@@ -250,12 +257,12 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 1. BAC ===================== -->
-<section class="step" data-title="What is BAC?">
+<section class="step" data-part="bac" data-title="What is BAC?">
   <h2>Blood alcohol concentration</h2>
   <p class="lede"><b>BAC</b> is the percent of alcohol (ethyl alcohol, or ethanol) in a person’s bloodstream.</p>
   <p>A BAC of 0.10% means a person’s blood contains <b>one part alcohol for every 1,000 parts blood</b>. That sounds tiny, but alcohol is a depressant: it slows the brain and nervous system, so even small amounts change how a person thinks, moves, and reacts.</p>
 
-  <div class="panel meter">
+  <div class="panel meter" data-act>
     <span class="task-tag">Explore: drag the slider to raise the BAC</span>
     <div class="bacread"><span class="bacnum" id="bacNum">0.02%</span><span class="zone" id="bacZone">Mild impairment</span></div>
     <input type="range" id="bacSlider" min="0" max="0.40" step="0.01" value="0.02" aria-label="Blood alcohol concentration">
@@ -299,7 +306,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 2. FACTORS ===================== -->
-<section class="step" data-title="What affects BAC">
+<section class="step" data-part="factors" data-title="What affects BAC">
   <h2>What affects BAC</h2>
   <p class="lede">Ten factors go into someone’s BAC. Four of them matter most.</p>
   <div class="big4">
@@ -343,7 +350,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 3. LEAVING THE BODY ===================== -->
-<section class="step" data-title="Leaving the body">
+<section class="step" data-part="body" data-title="Leaving the body">
   <h2>How alcohol leaves the body</h2>
   <p class="lede">Alcohol leaves in three ways. Before you read the answer, try matching each one.</p>
 
@@ -379,7 +386,8 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   </div>
 
   <h3>What heavy drinking does to the liver</h3>
-  <div class="panel">
+  <div class="panel" data-act>
+    <span class="task-tag">Explore: tap each stage of liver damage</span>
     <div class="stages" role="group" aria-label="Stages of liver damage">
       <button data-stage="0" aria-pressed="true">Healthy</button>
       <button data-stage="1" aria-pressed="false">Fatty liver</button>
@@ -418,7 +426,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 4. STANDARD DRINK ===================== -->
-<section class="step" data-title="Standard drink">
+<section class="step" data-part="drink" data-title="Standard drink">
   <h2>What’s a standard drink?</h2>
   <p class="lede">One reason alcohol poisoning happens is that people don’t know how much alcohol is in what they’re drinking: the <b>dose</b>.</p>
   <p>A standard drink in the U.S. contains about <b>0.6 ounces (14 grams) of pure alcohol</b>. But how much liquid is that for beer, wine, or liquor? Make your predictions on a red party cup.</p>
@@ -476,7 +484,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 5. BINGE ===================== -->
-<section class="step" data-title="Binge drinking">
+<section class="step" data-part="binge" data-title="Binge drinking">
   <h2>Binge drinking</h2>
   <p class="lede">A <b>binge</b> is a pattern of drinking that brings BAC to <b>0.08 or above</b>. For a typical adult, that’s about <b>5 or more drinks for males</b> or <b>4 or more drinks for females</b> in about <b>2 hours</b>.</p>
   <div class="panel bottles" aria-label="Binge drinking: 4 drinks in 2 hours for females, 5 drinks in 2 hours for males">
@@ -529,7 +537,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 6. EMERGENCY ===================== -->
-<section class="step" data-title="Emergency response">
+<section class="step" data-part="emergency" data-title="Emergency response">
   <h2>Know how to respond to an emergency</h2>
   <p class="lede"><b>Alcohol poisoning</b> happens when someone drinks so much that alcohol begins to shut down basic life functions like breathing, heart rate, and temperature control.</p>
   <ol class="steps3">
@@ -540,7 +548,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 
   <h3>Step 1: Recognize the signs with C-U-P-S</h3>
   <p>Tap each letter to reveal it.</p>
-  <div class="cups">
+  <div class="cups" data-act>
     <button aria-expanded="false"><span class="L">C</span><span class="t">Cold, clammy skin</span></button>
     <button aria-expanded="false"><span class="L">U</span><span class="t">Unconscious: can’t be woken up</span></button>
     <button aria-expanded="false"><span class="L">P</span><span class="t">Puking, especially while passed out</span></button>
@@ -596,7 +604,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   <p>After calling 911, place the person in the recovery position. It keeps their airway open, especially if they vomit. Watch the video, then practice with someone at home if you can.</p>
   <p style="margin:.4rem 0 0"><a class="btn ghost" style="display:inline-block;text-decoration:none" href="https://www.youtube.com/watch?v=-HFa-SBi3uU" target="_blank" rel="noopener">Video not playing? Open it on YouTube</a></p>
   <div class="video"><iframe src="https://www.youtube.com/embed/-HFa-SBi3uU" title="The recovery position: step-by-step guide" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-  <label class="check"><input type="checkbox" id="watchedRecovery" data-pdfcheck="I watched the recovery position video"> I watched the recovery position video</label>
+  <label class="check" data-act><input type="checkbox" id="watchedRecovery" data-pdfcheck="I watched the recovery position video"> I watched the recovery position video</label>
 
   <div class="panel mc" data-id="q_recovery" data-answer="3" data-pdf>
     <div class="q-prompt">14. Why do we place someone in the recovery position?</div>
@@ -613,7 +621,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 7. HARM REDUCTION ===================== -->
-<section class="step" data-title="Reducing harm">
+<section class="step" data-part="harm" data-title="Reducing harm">
   <h2>Reducing alcohol-related harm</h2>
   <p class="lede">The most effective strategies for teens are <b>not drinking</b> and <b>avoiding places where underage drinking is happening</b>.</p>
   <div class="panel">
@@ -644,7 +652,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 8. TIM PIAZZA ===================== -->
-<section class="step" data-title="Tim Piazza’s story">
+<section class="step" data-part="piazza" data-title="Tim Piazza’s story">
   <h2>Tim Piazza’s story</h2>
   <p class="lede">A real-life binge drinking tragedy, and why it matters to you.</p>
   <p>Tim Piazza was a 19-year-old sophomore engineering student at Penn State. In February 2017, on the night he pledged the Beta Theta Pi fraternity, he was pressured to drink a dangerous amount of alcohol in a short time as part of a hazing ritual. He fell down a flight of basement stairs and was badly hurt. Fraternity members saw him throughout the night, but no one called 911 until the next morning, nearly 12 hours after his fall. Tim died two days later.</p>
@@ -653,7 +661,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <span class="task-tag">Watch (5:30)</span>
     <p>The article read aloud in this video comes from <b>court transcripts</b> describing Tim’s last night. As you watch, <b>count how many people interacted with Tim and chose not to help</b>.</p>
     <p id="piazzaVideoWrap"></p>
-    <label class="check"><input type="checkbox" id="watchedPiazza" data-pdfcheck="I watched the Tim Piazza video"> I watched the video</label>
+    <label class="check" data-act><input type="checkbox" id="watchedPiazza" data-pdfcheck="I watched the Tim Piazza video"> I watched the video</label>
   </div>
 
   <h3>Reflection</h3>
@@ -705,9 +713,13 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 </section>
 
 <!-- ===================== 9. FINISH ===================== -->
-<section class="step" data-title="Finish & download" data-nocheck>
+<section class="step" data-part="finish" data-title="Finish & download" data-nocheck>
   <h2>Finish and download</h2>
   <p class="lede">Check that every section is complete, then download your PDF and turn it in.</p>
+  <div class="panel fields" style="margin-bottom:0">
+    <label class="f">Your full name<input type="text" id="finName" autocomplete="name"></label>
+    <label class="f">Class period<input type="text" id="finPeriod"></label>
+  </div>
   <div class="panel"><ul class="finishlist" id="finishList"></ul></div>
   <div style="display:flex;gap:1rem;flex-wrap:wrap">
     <button class="btn amber" id="pdfBtn">Download my PDF</button>
@@ -737,6 +749,9 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || blank(); } catch(e){ S = blank(); }
 S = Object.assign(blank(), S);
 
+const PARAMS = new URLSearchParams(location.search);
+const PART = (PARAMS.get("part")||location.hash.slice(1)||"").toLowerCase();
+const loadStored = ()=>{ let f=null; try{ f=JSON.parse(localStorage.getItem(KEY)); }catch(e){} return Object.assign(blank(), f||{}); };
 const $ = (q,r=document)=>r.querySelector(q);
 const $$ = (q,r=document)=>[...r.querySelectorAll(q)];
 const statusEl = $("#status");
@@ -744,7 +759,7 @@ let saveT;
 function save(){
   clearTimeout(saveT);
   saveT = setTimeout(()=>{
-    try { localStorage.setItem(KEY, JSON.stringify(S)); statusEl.textContent = "Saved"; }
+    try { if(EMBED){ Object.assign(S, mergedState()); } localStorage.setItem(KEY, JSON.stringify(S)); statusEl.textContent = "Saved"; }
     catch(e){ statusEl.textContent = "Not saving on this device. Download your PDF before closing."; }
     updateProgress();
   }, 250);
@@ -752,6 +767,29 @@ function save(){
 
 /* ---------- sections & rail ---------- */
 const secs = $$("section.step");
+const EMBED_SEC = secs.find(s=>s.dataset.part===PART) || null;
+const EMBED = !!EMBED_SEC;
+if(EMBED) document.body.classList.add("embed");
+/* In embed mode several copies of this page run at once (one per Canva embed).
+   Each copy only writes the answers that live in its own section, so they never erase each other. */
+let nameDirty=false; // true only after a name is typed in this copy of the page
+function mergedState(){
+  const f = loadStored(), sec = EMBED_SEC;
+  $$(".mc",sec).forEach(b=>{ if(S.mc[b.dataset.id]) f.mc[b.dataset.id]=S.mc[b.dataset.id]; });
+  $$(".match",sec).forEach(b=>{ if(S.match[b.dataset.id]) f.match[b.dataset.id]=S.match[b.dataset.id]; });
+  $$("textarea[data-save]",sec).forEach(t=>{ if(t.dataset.save in S.txt) f.txt[t.dataset.save]=S.txt[t.dataset.save]; });
+  $$("input[data-pdfcheck]",sec).forEach(c=>{ if(c.id in S.checks) f.checks[c.id]=S.checks[c.id]; });
+  if($(".cup",sec)) f.cup=S.cup;
+  if($(".breath",sec)) f.breath=S.breath;
+  if(nameDirty){ f.name=S.name; f.period=S.period; }
+  return f;
+}
+function refreshFromStorage(){
+  if(EMBED) Object.assign(S, mergedState()); else Object.assign(S, loadStored());
+  if(typeof showWho==="function") showWho();
+  if(typeof syncNames==="function") syncNames();
+  if(EMBED_SEC && EMBED_SEC.dataset.part==="finish") buildFinish();
+}
 const rail = $("#rail");
 secs.forEach((s,i)=>{
   const li = document.createElement("li");
@@ -762,7 +800,7 @@ secs.forEach((s,i)=>{
 function show(i){
   secs.forEach((s,j)=>s.hidden = j!==i);
   $$("button",rail).forEach((b,j)=>{ if(j===i) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current"); });
-  S.sec = i; save();
+  if(!EMBED){ S.sec = i; save(); }
   window.scrollTo({top:0});
   if(i===secs.length-1) buildFinish();
 }
@@ -773,8 +811,11 @@ $$("[data-prev]").forEach(b=>b.onclick=()=>show(Math.max(S.sec-1,0)));
 const nameIn=$("#stuName"), perIn=$("#stuPeriod");
 nameIn.value=S.name; perIn.value=S.period;
 function showWho(){ $("#whoName").textContent = S.name ? S.name + (S.period?` · Period ${S.period}`:"") : ""; }
-nameIn.oninput=()=>{S.name=nameIn.value;showWho();save();};
-perIn.oninput=()=>{S.period=perIn.value;showWho();save();};
+const finName=$("#finName"), finPer=$("#finPeriod");
+function syncNames(){ [nameIn,finName].forEach(i=>{ if(document.activeElement!==i) i.value=S.name; }); [perIn,finPer].forEach(i=>{ if(document.activeElement!==i) i.value=S.period; }); }
+[nameIn,finName].forEach(i=>i.oninput=()=>{S.name=i.value;nameDirty=true;syncNames();showWho();save();});
+[perIn,finPer].forEach(i=>i.oninput=()=>{S.period=i.value;nameDirty=true;syncNames();showWho();save();});
+syncNames();
 showWho();
 
 /* ---------- multiple choice, two tries ---------- */
@@ -801,9 +842,9 @@ $$(".mc").forEach(box=>{
     else { st.wrong.push(k); if(st.tries>=2){ st.done=true; st.correct=false; } }
     render(); save();
   });
-  box._pdf = ()=>({type:"mc", prompt:$(".q-prompt",box).textContent,
-    answer: st.final==null?"(not answered)":opts[st.final].textContent,
-    result: !st.done?"Not finished": st.correct?(st.tries===1?"Correct (1st try)":"Correct (2nd try)"):"Incorrect after 2 tries. Correct: "+opts[ans].textContent});
+  box._pdf = ()=>{ const q=S.mc[id]||{done:false,final:null}; return {type:"mc", prompt:$(".q-prompt",box).textContent,
+    answer: q.final==null?"(not answered)":opts[q.final].textContent,
+    result: !q.done?"Not finished": q.correct?(q.tries===1?"Correct (1st try)":"Correct (2nd try)"):"Incorrect after 2 tries. Correct: "+opts[ans].textContent}; };
   render();
 });
 
@@ -837,9 +878,9 @@ $$(".match").forEach(box=>{
     if(st.score===rows.length || st.tries>=2) st.done=true;
     render(); save();
   };
-  box._pdf = ()=>({type:"match", prompt:$(".q-prompt",box).textContent,
-    rows: rows.map((r,k)=>{ const a=$("select",r).dataset.answer; return `${$("span",r).textContent}  ->  ${st.sel[k]===""?"(blank)":options[+st.sel[k]]}${st.done?(st.sel[k]===a?"  [correct]":"  [incorrect; answer: "+options[+a]+"]"):""}`; }),
-    result: st.done?`Score: ${st.score}/${rows.length}`:"Not finished"});
+  box._pdf = ()=>{ const q=S.match[id]||{sel:rows.map(()=>""),done:false,score:0}; return {type:"match", prompt:$(".q-prompt",box).textContent,
+    rows: rows.map((r,k)=>{ const a=$("select",r).dataset.answer, v=q.sel[k]||""; return `${$("span",r).textContent}  ->  ${v===""?"(blank)":options[+v]}${q.done?(v===a?"  [correct]":"  [incorrect; answer: "+options[+a]+"]"):""}`; }),
+    result: q.done?`Score: ${q.score}/${rows.length}`:"Not finished"}; };
   if(st.tries>0) render();
 });
 
@@ -1013,14 +1054,16 @@ function updateProgress(){
   if(S.sec===secs.length-1) buildFinish();
 }
 function buildFinish(){
+  if(EMBED) Object.assign(S, mergedState());
   $("#finishList").innerHTML = secs.filter(s=>!s.hasAttribute("data-nocheck")).map(s=>{const [d,t]=secStatus(s);return `<li><span>${s.dataset.title}</span><span class="${d===t?"ok":"miss"}">${d===t?"Complete":`${d} of ${t} done`}</span></li>`;}).join("");
 }
 
 /* ---------- PDF ---------- */
 const clean=s=>String(s).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/…/g,"...").replace(/≈/g,"~").replace(/×/g,"x").replace(/÷/g,"/").replace(/[^\x09\x0A\x0D\x20-\x7E]/g,"");
 $("#pdfBtn").onclick=()=>{
+  refreshFromStorage();
   const msg=$("#pdfMsg");
-  if(!S.name.trim()){ msg.className="fb bad"; msg.textContent="Add your name on the Start page first."; show(0); nameIn.focus(); return; }
+  if(!S.name.trim()){ msg.className="fb bad"; msg.textContent="Type your name above first."; finName.focus(); return; }
   if(!window.jspdf){ msg.className="fb bad"; msg.textContent="The PDF tool didn’t load. Check your internet connection and refresh the page. Your work is saved."; return; }
   const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:"pt",format:"letter"});
   const M=54, W=612-M*2; let y=M;
@@ -1042,7 +1085,7 @@ $("#pdfBtn").onclick=()=>{
       else if(d.type==="sa"){ write(d.prompt,{bold:true,gap:2}); write(d.text,{gap:10}); }
       else { if(d.prompt) write(d.prompt,{bold:true,gap:2}); else write("Standard drink predictions",{bold:true,gap:2}); d.rows.forEach(r=>write("- "+r,{size:10.5,gap:1})); write(d.result,{size:10,color:[80,96,113],gap:10}); }
     });
-    checks.forEach(c=>write(`${c.dataset.pdfcheck}: ${c.checked?"Yes":"No"}`,{size:10.5,gap:4}));
+    checks.forEach(c=>write(`${c.dataset.pdfcheck}: ${S.checks[c.id]?"Yes":"No"}`,{size:10.5,gap:4}));
   });
   const fn=`BAC-Binge-Drinking_${S.name.trim().replace(/[^a-z0-9]+/gi,"-")}.pdf`;
   doc.save(fn); msg.className="fb good"; msg.textContent="Downloaded "+fn+". Turn it in where your teacher asked.";
@@ -1053,7 +1096,26 @@ $("#resetBtn").onclick=()=>{
   location.reload();
 };
 
-show(Math.min(S.sec||0, secs.length-1));
+if(EMBED && (PARAMS.get("mode")||"").toLowerCase().startsWith("activit") && !EMBED_SEC.hasAttribute("data-nocheck")){
+  // Activities only: hide reading content, keep questions and interactive pieces
+  document.body.classList.add("activities");
+  const KEEP=".mc,.match,.sa,.cup,.breath,[data-act]";
+  const prune=el=>[...el.children].forEach(c=>{
+    if(c.matches(KEEP)) return;
+    if(c.querySelector(KEEP)) prune(c); else c.classList.add("act-hidden");
+  });
+  prune(EMBED_SEC);
+  const h=document.createElement("h2"); h.className="act-head"; h.textContent="Your turn: "+EMBED_SEC.dataset.title;
+  EMBED_SEC.prepend(h);
+}
+if(EMBED){
+  show(secs.indexOf(EMBED_SEC));
+  window.addEventListener("storage", e=>{ if(e.key===KEY) refreshFromStorage(); });
+  document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) refreshFromStorage(); });
+  window.addEventListener("focus", refreshFromStorage);
+} else {
+  show(Math.min(S.sec||0, secs.length-1));
+}
 updateProgress();
 </script>
 </body>
