@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clear the Air: A Vaping Webquest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#EEF3FB; --surface:#FFFFFF; --ink:#14213D; --muted:#4E5B78; --line:#C8D3E6;
+  --teal:#2747C7; --teal-ink:#FFFFFF; --teal-soft:#E3E9FB;
+  --good:#1B7A43; --good-soft:#DFF3E6; --bad:#B42318; --bad-soft:#FCE6E3;
+  --fog:#B9B3C9; --bubble:#E6EAF3; --stat-bg:#FFF0B3; --stat-ink:#14213D;
+  --display:"Unbounded", "Arial Black", "Segoe UI", system-ui, sans-serif;
+  --body:"Lexend", "Verdana", "Segoe UI", system-ui, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1427; --surface:#151F38; --ink:#E6ECF8; --muted:#9FB0CF; --line:#2A3758;
+    --teal:#8EA6FF; --teal-ink:#0B1430; --teal-soft:#1D2A52;
+    --good:#6FD49A; --good-soft:#13311F; --bad:#FF8F84; --bad-soft:#3D1A17;
+    --fog:#3A3552; --bubble:#1E2944; --stat-bg:#3A3215; --stat-ink:#FFD966; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1427; --surface:#151F38; --ink:#E6ECF8; --muted:#9FB0CF; --line:#2A3758;
+  --teal:#8EA6FF; --teal-ink:#0B1430; --teal-soft:#1D2A52;
+  --good:#6FD49A; --good-soft:#13311F; --bad:#FF8F84; --bad-soft:#3D1A17;
+  --fog:#3A3552; --bubble:#1E2944; --stat-bg:#3A3215; --stat-ink:#FFD966; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6}
+a{color:var(--teal)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+/* Hero with the haze that clears */
+.hero{position:relative;overflow:hidden;padding:clamp(2.5rem,7vw,4.5rem) 1.25rem clamp(2rem,5vw,3rem);border-bottom:1px solid var(--line)}
+.fog{position:absolute;inset:0;pointer-events:none;opacity:var(--haze,1);transition:opacity 1.2s ease}
+.fog span{position:absolute;border-radius:50%;background:var(--fog);filter:blur(38px)}
+.fog span:nth-child(1){width:60%;height:120%;left:-10%;top:-30%;opacity:.75}
+.fog span:nth-child(2){width:45%;height:90%;left:35%;top:10%;opacity:.6}
+.fog span:nth-child(3){width:50%;height:110%;right:-12%;top:-40%;opacity:.7}
+.fog span:nth-child(4){width:35%;height:70%;left:15%;bottom:-35%;opacity:.55}
+.hero-inner{position:relative;max-width:62rem;margin:0 auto}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,8vw,4.6rem);line-height:1;letter-spacing:-.03em;margin:0 0 .9rem}
+.hero p{max-width:38rem;margin:0 0 1.5rem;font-size:1.125rem}
+.hero-row{display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:end}
+.name-field label{display:block;font-weight:700;font-size:.95rem;margin-bottom:.3rem}
+.name-field input{width:min(20rem,80vw);padding:.6rem .75rem;border:2px solid var(--line);border-radius:10px;background:var(--surface)}
+.cleared{font-family:var(--display);font-weight:600;font-size:1.05rem}
+.cleared strong{font-size:1.6rem;font-weight:800}
+
+/* Shell */
+.shell{max-width:62rem;margin:0 auto;padding:1.5rem 1.25rem 4rem;display:grid;grid-template-columns:15rem 1fr;gap:2.5rem;align-items:start}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 1rem)}
+.rail ol{list-style:none;margin:0 0 1rem;padding:0;display:grid;gap:.25rem}
+.rail button{width:100%;text-align:left;display:grid;grid-template-columns:2rem 1fr auto;gap:.5rem;align-items:center;padding:.55rem .6rem;border:0;border-radius:10px;background:transparent;cursor:pointer}
+.rail button:hover{background:var(--surface)}
+.rail button[aria-current="step"]{background:var(--surface);box-shadow:inset 3px 0 0 var(--teal)}
+.rail .num{font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--muted)}
+.rail [aria-current="step"] .num{color:var(--teal)}
+.rail .tick{color:var(--good);font-weight:700}
+.rail .summary-btn{display:block;width:100%;padding:.7rem;border:2px solid var(--teal);border-radius:10px;background:transparent;color:var(--teal);font-weight:700;cursor:pointer;text-align:center}
+
+main{min-width:0}
+.step-head{margin-bottom:1.5rem}
+.step-no{font-family:var(--display);font-weight:800;font-size:4rem;line-height:1;color:var(--teal);margin:0}
+.step-head h2{font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,4.5vw,2.4rem);line-height:1.1;margin:.25rem 0 .5rem}
+.step-head p{margin:0;color:var(--muted);max-width:40rem}
+.btn{display:inline-block;padding:.65rem 1.1rem;border-radius:10px;border:2px solid var(--teal);background:var(--teal);color:var(--teal-ink);font-weight:700;cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--teal)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Built-in reading */
+.reading{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--teal);border-radius:6px 16px 16px 6px;padding:1.4rem clamp(1rem,3.5vw,2rem) 1.2rem;margin:1.25rem 0 0;scroll-margin-top:1rem}
+.reading:focus{outline:none}
+.reading-top{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem 1rem;flex-wrap:wrap;margin-bottom:.2rem}
+.reading-top h3{font-family:var(--display);font-weight:800;font-size:1.5rem;margin:0}
+.reading-top span{color:var(--muted);font-size:.95rem}
+.reading h4{font-family:var(--display);font-weight:600;font-size:1.2rem;line-height:1.25;margin:1.4rem 0 .4rem;color:var(--teal)}
+.reading p,.reading ul{margin:0 0 .75rem;max-width:40rem}
+.reading ul{padding-left:1.2rem}
+.reading li{margin-bottom:.3rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr));gap:.6rem;margin:.25rem 0 .9rem;max-width:40rem}
+.stat{background:var(--stat-bg);border-radius:12px;padding:.7rem .85rem}
+.stat b{display:block;font-family:var(--display);font-weight:800;font-size:1.45rem;line-height:1.15;color:var(--stat-ink)}
+.stat span{font-size:.93rem}
+.credit{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padding-top:.75rem;margin:1.1rem 0 0 !important}
+.q-head{font-family:var(--display);font-weight:800;font-size:1.5rem;margin:2rem 0 0;padding-top:.25rem}
+.reread{display:inline-block;margin-top:.5rem;padding:0;border:0;background:none;color:var(--teal);font-weight:700;text-decoration:underline;cursor:pointer}
+
+.q{padding:1.6rem 0;border-bottom:1px solid var(--line)}
+.q:last-of-type{border-bottom:0}
+.q h3{font-size:1.1rem;margin:0 0 .85rem;line-height:1.4}
+.q h3 .qn{color:var(--teal);margin-right:.4rem}
+.q .opt-tag{font-weight:400;color:var(--muted);font-size:.9rem}
+fieldset{border:0;margin:0;padding:0}
+.choices{display:grid;gap:.5rem;margin-bottom:1rem}
+.choice{display:flex;gap:.7rem;align-items:flex-start;padding:.65rem .8rem;border:2px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer}
+.choice:has(input:checked){border-color:var(--teal)}
+.choice input{margin-top:.3rem;accent-color:var(--teal);width:1.05rem;height:1.05rem;flex:none}
+.blank-text{font-size:1.1rem;line-height:2.4;margin:0 0 1rem;max-width:40rem}
+.blank-text input{width:4.5rem;padding:.2rem .4rem;border:0;border-bottom:3px solid var(--teal);background:var(--surface);text-align:center;font-weight:700}
+.blank-text input.ok{border-color:var(--good);background:var(--good-soft)}
+.blank-text input.no{border-color:var(--bad);background:var(--bad-soft)}
+textarea{width:100%;min-height:7.5rem;padding:.75rem;border:2px solid var(--line);border-radius:10px;background:var(--surface);resize:vertical}
+textarea:focus{border-color:var(--teal)}
+.hint{color:var(--muted);font-size:.95rem;margin:-.4rem 0 .7rem}
+.feedback{margin-top:.85rem;padding:.75rem .9rem;border-radius:10px;max-width:42rem}
+.feedback.ok{background:var(--good-soft);color:var(--good)}
+.feedback.no{background:var(--bad-soft);color:var(--bad)}
+.feedback.info{background:var(--teal-soft)}
+.feedback.ok b,.feedback.no b{display:block}
+.feedback p{margin:.25rem 0 0;color:var(--ink)}
+
+.order{list-style:none;margin:0 0 1rem;padding:0;display:grid;gap:.45rem;counter-reset:o}
+.order li{display:grid;grid-template-columns:2rem auto 1fr auto;gap:.6rem;align-items:center;padding:.55rem .7rem;border:2px solid var(--line);border-radius:10px;background:var(--surface);counter-increment:o;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.order li{transition:transform .18s ease}
+.order li:hover{border-color:var(--teal)}
+.order li.dragging{cursor:grabbing;transition:none;border-color:var(--teal);box-shadow:0 8px 20px rgba(0,0,0,.18);position:relative;z-index:2}
+@media (prefers-reduced-motion: reduce){ .order li{transition:none} }
+.order .grip{color:var(--muted);font-size:1.3rem;line-height:1}
+.order li::before{content:counter(o);font-family:var(--display);font-weight:800;color:var(--teal);text-align:center}
+.order .moves{display:flex;gap:.3rem}
+.order .moves button{width:2.2rem;height:2.2rem;border:2px solid var(--line);border-radius:8px;background:transparent;cursor:pointer}
+.order .moves button:disabled{opacity:.3;cursor:default}
+
+.match{display:grid;gap:.6rem;margin-bottom:1rem}
+.match .row{display:grid;grid-template-columns:1fr 13rem;gap:.8rem;align-items:center;padding:.6rem .8rem;border:2px solid var(--line);border-radius:10px;background:var(--surface)}
+.match .row.ok{border-color:var(--good)}
+.match .row.no{border-color:var(--bad)}
+.match select{padding:.5rem;border:2px solid var(--line);border-radius:8px;background:var(--bg)}
+
+.videos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:1rem;margin-bottom:1rem}
+.video{display:grid;gap:.55rem;align-content:start;padding:.9rem;border:2px solid var(--line);border-radius:12px;background:var(--surface)}
+.video:has(input:checked){border-color:var(--teal)}
+.video .player{position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video .vt{font-weight:700;line-height:1.35;margin:0}
+.video .len{color:var(--muted);font-size:.9rem}
+.video .yt{font-size:.92rem}
+.video label{display:flex;gap:.5rem;align-items:center;font-weight:700;cursor:pointer}
+.video input{accent-color:var(--teal);width:1.1rem;height:1.1rem}
+
+.guess{display:grid;gap:.5rem;max-width:30rem;margin-bottom:1rem}
+.guess output{font-family:var(--display);font-weight:800;font-size:2.4rem;color:var(--teal)}
+.guess input[type=range]{width:100%;accent-color:var(--teal)}
+
+.chat{max-width:34rem;display:grid;gap:.6rem;margin-bottom:.5rem}
+.bubble{padding:.6rem .9rem;border-radius:16px;max-width:85%}
+.bubble.friend{background:var(--bubble);border-bottom-left-radius:4px;justify-self:start}
+.bubble.me{background:var(--teal);color:var(--teal-ink);border-bottom-right-radius:4px;justify-self:end}
+.chat-opts{display:grid;gap:.45rem;margin-top:.4rem}
+.chat-opts button{text-align:left;padding:.6rem .8rem;border:2px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer}
+.chat-opts button:hover{border-color:var(--teal)}
+
+.resources{margin-top:1rem;padding:1rem 1.15rem;border-left:4px solid var(--teal);background:var(--surface);border-radius:0 12px 12px 0}
+.resources h3{margin:0 0 .4rem;font-size:1.05rem}
+.resources ul{margin:.3rem 0 0;padding-left:1.2rem}
+
+.pager{display:flex;justify-content:space-between;gap:1rem;margin-top:2rem;padding-top:1.5rem;border-top:2px solid var(--line)}
+
+/* Summary */
+.score{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6vw,3rem);margin:.2rem 0 .3rem}
+.sum-step{margin:2rem 0 0}
+.sum-step h3{font-family:var(--display);font-size:1.35rem;margin:0 0 .6rem}
+.sum-item{padding:.7rem 0;border-bottom:1px solid var(--line)}
+.sum-item .sq{font-weight:700;margin:0 0 .2rem}
+.sum-item .sa{margin:0;white-space:pre-wrap}
+.sum-item .empty{color:var(--muted);font-style:italic}
+.tag{display:inline-block;font-size:.85rem;font-weight:700;padding:.05rem .5rem;border-radius:999px;margin-left:.4rem}
+.tag.ok{background:var(--good-soft);color:var(--good)}
+.tag.no{background:var(--bad-soft);color:var(--bad)}
+.actions{display:flex;flex-wrap:wrap;gap:.7rem;margin:1.2rem 0}
+.plain{margin-top:1rem}
+.plain textarea{min-height:12rem;font-size:.9rem}
+.status{min-height:1.5rem;color:var(--good);font-weight:700}
+.reset{margin-top:2.5rem;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0}
+
+@media (max-width: 760px){
+  .shell{grid-template-columns:1fr;gap:1rem}
+  .rail{position:static}
+  .rail ol{grid-auto-flow:column;grid-auto-columns:minmax(3rem,1fr);overflow-x:auto}
+  .rail button{grid-template-columns:1fr;justify-items:center;text-align:center;padding:.5rem .3rem}
+  .rail .label{display:none}
+  .rail .tick{font-size:.8rem}
+  .match .row{grid-template-columns:1fr}
+  .step-no{font-size:3rem}
+}
+@media (prefers-reduced-motion: reduce){ .fog{transition:none} }
+@media print{
+  .hero,.rail,.no-print,.pager{display:none !important}
+  body{background:#fff;color:#000}
+  .shell{display:block;padding:0}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="fog" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="hero-inner">
+    <h1>Clear the air</h1>
+    <p>A vaping webquest in six stops. Each stop starts with a short reading built from real sources. Read, answer as you go, and watch the haze lift as you finish each stop.</p>
+    <div class="hero-row">
+      <div class="name-field">
+        <label for="name">Your name</label>
+        <input id="name" autocomplete="name" placeholder="First and last name">
+      </div>
+      <div class="cleared" id="cleared" aria-live="polite"></div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Webquest stops">
+    <ol id="rail"></ol>
+    <button class="summary-btn" id="toSummary" type="button">My answers</button>
+  </nav>
+  <main id="panel" tabindex="-1"></main>
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: 'The big picture',
+    intro: 'Start with the reading, then answer the questions below it. Everything you need is on this page.',
+    credit: { text: 'Adapted from “E-cigarettes: facts, stats and regulations,” Truth Initiative (updated 2024).', url: 'https://truthinitiative.org/research-resources/emerging-tobacco-products/e-cigarettes-facts-stats-and-regulations' },
+    reading: [
+      { h: 'Who is using e-cigarettes?',
+        p: ['Youth vaping hit its peak in 2019, when JUUL was the most popular brand. That year, 27.5% of high school students said they used e-cigarettes.',
+            'Since then, the numbers have dropped a lot. In 2024, about 5.9% of middle and high school students currently used e-cigarettes. That still adds up to about 1.63 million students, so vaping is still a real problem.'],
+        stats: [{ n: '27.5%', t: 'of high school students vaped in 2019' }, { n: '5.9%', t: 'of middle and high school students vaped in 2024' }, { n: '1.63 million', t: 'students currently vaping in 2024' }] },
+      { h: 'Which devices are most popular?',
+        p: ['Disposable e-cigarettes are used more than any other type. In 2024, 55.6% of students who vaped used disposables. Many disposables now contain some of the highest nicotine levels ever found in a tobacco product.',
+            'Other types include refillable pods or cartridges and larger devices with tanks, sometimes called mods.'] },
+      { h: 'Where do young people get them?',
+        p: ['Most young people don’t buy vapes for themselves. In 2022, 56.9% got them through social sources, such as friends or other people they know. The other 43.1% got them from stores.'] },
+      { h: 'Vaping and smoking',
+        p: ['Truth Initiative researchers followed a group of young people over time. Compared with young people who had never vaped, those who had ever vaped had 7 times higher odds of trying cigarettes, and 8 times higher odds of currently smoking cigarettes one year later.'] },
+      { h: 'How companies market to young people',
+        p: ['E-cigarette companies sell candy- and fruit-flavored products, often in packaging that looks like toys, snacks, or cartoon characters. They advertise in stores, online, and on TV.',
+            'When JUUL launched in 2015, it had a whole department focused on social media influencers. Influencers often posted about vaping without saying they were being paid, and without warning their followers that nicotine is addictive.'] }
+    ],
+    blocks: [
+      { type: 'blanks', id: 's1t_blanks', q: 'Fill in the blanks from the reading.',
+        parts: ['In 2019, at the height of JUUL’s popularity, ', { k: 'a', ans: 27.5 }, '% of high school students reported using e-cigarettes. By 2024, about ', { k: 'b', ans: 5.9 }, '% of middle and high school students currently used them.'],
+        right: 'Youth vaping has dropped a lot since 2019, but about 1.63 million students still vape.',
+        retry: 'Red blanks need another look. Check the “Who is using e-cigarettes?” part of the reading.' },
+      { type: 'mc', id: 's1t_device', q: 'Among students who vaped in 2024, which type of device was used most?',
+        options: ['Disposable e-cigarettes', 'Tanks or mods', 'Refillable pods', 'Vapes shaped like regular cigarettes'], answer: 0,
+        explain: '55.6% of students who vaped used disposables. Many disposables now have some of the highest nicotine levels ever seen in tobacco products.' },
+      { type: 'mc', id: 's1t_get', q: 'In 2022, where did most young people get their e-cigarettes?',
+        options: ['Ordering them online', 'From friends and other people they know', 'From vending machines', 'From vape shops'], answer: 1,
+        explain: '56.9% got them through social sources, like friends, compared with 43.1% from stores.' },
+      { type: 'mc', id: 's1t_odds', q: 'Young people who had ever vaped had how many times higher odds of currently smoking cigarettes one year later, compared with those who never vaped?',
+        options: ['About the same', '2 times', '8 times', '20 times'], answer: 2,
+        explain: 'Truth Initiative research found 7 times higher odds of ever trying cigarettes and 8 times higher odds of currently smoking a year later.' },
+      { type: 'text', id: 's1t_marketing', q: 'How do e-cigarette companies use marketing and social media to target young people? Give at least two examples.',
+        compare: 'Companies sell candy- and food-flavored products in packaging that looks like toys, food, or cartoon characters, and advertise in stores, online, and on TV. JUUL launched in 2015 with a whole department devoted to social media influencers, and influencers often posted vaping content without saying they were paid or warning that nicotine is addictive.' },
+      { type: 'text', id: 's1t_think', optional: true, q: 'Does the “8 times higher odds” finding prove that vaping causes smoking? What else might explain the link?',
+        hint: 'Think about what kinds of teens might be more likely to try both.' }
+    ]
+  },
+  {
+    title: 'Hear it from real people',
+    intro: 'Pick 2 videos and watch them right here on the page. If a video won’t play, use the link under it to watch it on YouTube.',
+    blocks: [
+      { type: 'videos', id: 's2_videos', q: 'Check the 2 videos you watched.', videos: [
+        { t: 'Dangers of Vaping | Flavors (real California teens talk about vaping)', len: '3:12', yt: 'gjYT4YG7jOk', url: 'https://www.youtube.com/watch?v=gjYT4YG7jOk&list=PLurbAZks39wgVS9XmCHdCg7IKX6PIQFQs&index=20' },
+        { t: 'Electronic Cigarettes and Vaping', len: '4:39', yt: '9dZS_Rniak0', url: 'https://www.youtube.com/watch?v=9dZS_Rniak0' },
+        { t: 'Why Vaping Is Bad For You', len: '5:14', yt: 'wGJpGSCBzZ8', url: 'https://www.youtube.com/watch?v=wGJpGSCBzZ8' },
+        { t: 'Teen was in the fight for her life after vaping a cartridge a day | Nightline', len: '8:25', yt: 'LIyzUVfJpN4', url: 'https://www.youtube.com/watch?v=LIyzUVfJpN4' }
+      ] },
+      { type: 'text', id: 's2_reflect', q: 'What stood out to you or surprised you in the videos you watched?' }
+    ]
+  },
+  {
+    title: 'Inside the device',
+    intro: 'What an e-cigarette is, how it works, and what’s really in the aerosol.',
+    credit: { text: 'Adapted from “About E-Cigarettes (Vapes),” Centers for Disease Control and Prevention (CDC).', url: 'https://www.cdc.gov/tobacco/e-cigarettes/about.html' },
+    reading: [
+      { h: 'What is an e-cigarette?',
+        p: ['E-cigarettes are battery-powered devices that heat a liquid to make an aerosol, a mist of tiny particles that the user breathes into their lungs. They go by many names, including vapes, e-cigs, vape pens, mods, tanks, and electronic nicotine delivery systems (ENDS).',
+            'Some look like regular cigarettes, cigars, or pipes. Others are designed to look like everyday items, such as USB flash drives, pens, or highlighters, which makes them easy to hide.'] },
+      { h: 'How it works',
+        p: ['Inside the device, a battery powers a heating element. When the heating element warms up, it turns the e-liquid into an aerosol. The user inhales that aerosol into their lungs. When they breathe out, people nearby can breathe in the aerosol too, so vaping affects more than just the person using the device.'] },
+      { h: 'Battery safety',
+        p: ['Faulty e-cigarette batteries have caused fires and explosions, and some people have been seriously hurt.'] },
+      { h: 'Three main types',
+        list: ['Disposable: comes already filled with e-liquid. It may be rechargeable, but it isn’t designed to be refilled. When it runs out, it gets thrown away.',
+               'Pre-filled pod or cartridge: the device is rechargeable and reused. You swap in new pods that come already filled.',
+               'Refillable: the device is rechargeable and has a tank or chamber that you fill with e-liquid yourself. Some can be modified.'],
+        p: ['Disposables are now the best-selling type.'] },
+      { h: 'What’s in the aerosol?',
+        p: ['Many people think vapes give off harmless water vapor. They don’t. E-cigarette aerosol can contain:'],
+        list: ['Nicotine, which is highly addictive',
+               'Ultrafine particles that can be breathed deep into the lungs',
+               'Flavorings such as diacetyl, a chemical linked to serious lung disease',
+               'Volatile organic compounds',
+               'Chemicals that can cause cancer',
+               'Heavy metals such as nickel, tin, and lead'] },
+      { h: '',
+        p: ['Labels can’t always be trusted, either. Some vapes sold as “0% nicotine” have been tested and found to contain nicotine.'] },
+      { h: 'Big business',
+        p: ['E-cigarette sales in U.S. stores keep growing. In February 2020, about 15.7 million units were sold every 4 weeks. By June 2024, that number had reached about 21.1 million. Over the same time, disposables grew from 26.0% to 58.1% of all e-cigarettes sold. Most e-cigarettes sold come in flavors other than tobacco, such as menthol, mint, or fruit.',
+            'In June 2024 alone, people spent about $488.9 million on e-cigarettes in U.S. stores. That number doesn’t even include online sales or vape shops.'],
+        stats: [{ n: '21.1 million', t: 'e-cigarettes sold every 4 weeks (June 2024)' }, { n: '$488.9 million', t: 'spent in U.S. stores in one month' }] }
+    ],
+    blocks: [
+      { type: 'mc', id: 's3_power', q: 'What is the power source that heats the liquid in an e-cigarette?',
+        options: ['A butane lighter', 'A battery', 'A small solar panel', 'Heat from your hand'], answer: 1,
+        explain: 'E-cigarettes are battery-operated devices that heat a liquid and produce an aerosol.' },
+      { type: 'order', id: 's3_how', q: 'How does an e-cigarette work? Put the steps in order.',
+        items: ['The battery powers the device', 'The heating element warms up', 'Heat turns the e-liquid into an aerosol', 'The user inhales the aerosol into their lungs', 'People nearby can breathe in the aerosol the user breathes out'],
+        start: [2, 4, 0, 3, 1],
+        explain: 'Bystanders can breathe in the aerosol too, so vaping affects more than just the user.' },
+      { type: 'text', id: 's3_battery', q: 'Why do you think e-cigarette batteries can be a risk?',
+        hint: 'Think about other battery-powered devices you carry, and what happens when batteries overheat or get damaged.' },
+      { type: 'match', id: 's3_types', q: 'Match each description to the type of e-cigarette.',
+        choices: ['Disposable', 'Refillable', 'Pre-filled pod or cartridge'],
+        rows: [
+          { t: 'Comes pre-filled and may be rechargeable, but isn’t designed to be refilled.', ans: 0 },
+          { t: 'Rechargeable, with a tank or chamber you fill with e-liquid. Some can be modified.', ans: 1 },
+          { t: 'Rechargeable and meant to be reused by swapping in a pre-filled pod.', ans: 2 }
+        ],
+        explain: 'Disposables are now the best-selling type, and some vapes are designed to look like USB drives, pens, or highlighters.' },
+      { type: 'multi', id: 's3_subs', q: 'Which of these can be found in e-cigarette aerosol? Select all that apply.',
+        options: [
+          { t: 'Nicotine', ok: true }, { t: 'Only harmless water vapor', ok: false },
+          { t: 'Cancer-causing chemicals', ok: true }, { t: 'Heavy metals like nickel, tin, and lead', ok: true },
+          { t: 'Vitamins that protect your lungs', ok: false }, { t: 'Tiny particles that reach deep into the lungs', ok: true },
+          { t: 'Volatile organic compounds', ok: true }, { t: 'Flavorings like diacetyl, linked to serious lung disease', ok: true }
+        ],
+        explain: 'E-cigarette aerosol is not harmless water vapor. Even some vapes labeled zero nicotine have been found to contain nicotine.' },
+      { type: 'guess', id: 's3_flavor', q: 'Make a guess: in June 2024, what percent of e-cigarettes sold in U.S. stores were flavors other than tobacco (like menthol, mint, or fruit)?',
+        answer: 80.6, explain: 'About 4 out of 5 e-cigarettes sold were flavored. Flavors are one of the biggest reasons young people try vaping.' },
+      { type: 'mc', id: 's3_growth', q: 'From February 2020 to June 2024, e-cigarette sales went from 15.7 million to 21.1 million units per 4-week period. About how big an increase is that?',
+        options: ['About 5%', 'About 35%', 'About 100%', 'About 300%'], answer: 1,
+        explain: 'Sales grew 34.7%. Over the same time, disposables went from 26.0% to 58.1% of all e-cigarettes sold.' },
+      { type: 'mc', id: 's3_dollars', q: 'How much money was spent on e-cigarettes in U.S. stores in June 2024 alone?',
+        options: ['$4.9 million', '$48.9 million', '$488.9 million', '$4.89 billion'], answer: 2,
+        explain: 'Almost half a billion dollars in a single month, and that only counts regular stores, not online or vape shops.' }
+    ]
+  },
+  {
+    title: 'Teens and vaping',
+    intro: 'How many young people vape, and why vaping often starts during the teen years.',
+    credit: { text: 'Adapted from “E-Cigarette Use Among Youth,” Centers for Disease Control and Prevention (CDC).', url: 'https://www.cdc.gov/tobacco/e-cigarettes/youth.html' },
+    reading: [
+      { h: 'How many teens vape?',
+        p: ['Since 2014, e-cigarettes have been the most commonly used tobacco product among U.S. middle and high school students. In 2024, about 1.63 million students currently used them.',
+            'That’s about 5.9% of middle and high school students. In other words, most teens do not vape.'],
+        stats: [{ n: '1.63 million', t: 'middle and high school students vaped in 2024' }, { n: 'About 94%', t: 'of students did not vape' }] },
+      { h: 'Why vaping often starts in the teen years',
+        p: ['Most tobacco use, including vaping, starts during adolescence. The CDC points to several factors that play a part:'],
+        list: ['Tobacco advertising aimed at young people', 'How easy the products are to get', 'Flavored products', 'Social influences, like friends and family', 'The teen brain’s sensitivity to nicotine'] },
+      { h: 'The developing brain',
+        p: ['The brain keeps developing until about age 25. Nicotine can harm the parts of the brain that control attention, learning, mood, and impulse control.',
+            'Because the teen brain is still developing, it is especially sensitive to nicotine. Young people can show signs of addiction quickly, sometimes even before they vape regularly.'] },
+      { h: 'Vaping and other substances',
+        p: ['Many young people who vape also use other tobacco products, such as cigarettes and cigars. Using more than one tobacco product is called dual use.',
+            'E-cigarettes can also be used to vape cannabis (marijuana). In 2016, nearly 1 in 3 students who had ever used an e-cigarette had used marijuana in it.'] },
+      { h: 'Many want to quit',
+        p: ['Most students who vape say they want to quit, and many have already tried.'] }
+    ],
+    blocks: [
+      { type: 'mc', id: 's4_common', q: 'What is the most commonly used tobacco product among U.S. middle and high school students?',
+        options: ['Cigarettes', 'Cigars', 'E-cigarettes', 'Nicotine pouches'], answer: 2,
+        explain: 'In 2024, about 1.63 million middle and high school students currently used e-cigarettes.' },
+      { type: 'multi', id: 's4_factors', q: 'Most tobacco use, including vaping, starts during adolescence. Which of these are factors the CDC lists? Select all that apply.',
+        options: [
+          { t: 'Tobacco advertising that targets youth', ok: true }, { t: 'How easy the products are to get', ok: true },
+          { t: 'Most teens vape, so everyone tries it', ok: false }, { t: 'Availability of flavored products', ok: true },
+          { t: 'Social influences', ok: true }, { t: 'Vapes have been proven safe for teens', ok: false },
+          { t: 'The teen brain’s sensitivity to nicotine', ok: true }
+        ],
+        explain: 'Most teens do NOT vape. In 2024, about 5.9% of middle and high school students currently used e-cigarettes.' },
+      { type: 'text', id: 's4_brain', q: 'Using what you’ve learned in class so far, why can adolescents get addicted more easily than adults?',
+        compare: 'The adolescent brain is still developing, which makes it especially sensitive to nicotine. Nicotine can harm the parts of the brain that control attention, learning, mood, and impulse control. Young people can show signs of addiction quickly, sometimes before they vape regularly.' },
+      { type: 'text', id: 's4_other', q: 'E-cigarette use among young people is linked to the use of what other substances?',
+        compare: 'Many young people who vape also use other tobacco products, like cigarettes and cigars. This is called dual use. E-cigarettes can also be used for cannabis: in 2016, nearly 1 in 3 students who had ever vaped had used marijuana in the device.' },
+      { type: 'guess', id: 's4_quit', q: 'Make a guess: what percent of students who currently vape said they want to quit?',
+        answer: 63.9, explain: 'In 2020, 63.9% of students who vaped wanted to quit, and 67.4% had tried to quit in the past year. Most young people who vape want out.' }
+    ]
+  },
+  {
+    title: 'Why youth vape',
+    intro: 'The CDC names four main reasons young people start or keep vaping.',
+    credit: { text: 'Adapted from “Why Youth Vape,” Centers for Disease Control and Prevention (CDC).', url: 'https://www.cdc.gov/tobacco/e-cigarettes/why-youth-vape.html' },
+    reading: [
+      { h: '',
+        p: ['The CDC names four big reasons young people start vaping or keep going: advertising, flavors, social influences, and nicotine itself.'] },
+      { h: '1. Advertising',
+        p: ['In 2021, about 7 in 10 middle and high school students saw e-cigarette marketing. Much of it showed up in stores and on social media, where young people spend a lot of their time.'] },
+      { h: '2. Flavors',
+        p: ['Nearly 9 in 10 students who vape use flavored products, and most young people who vape started with a flavor. Sweet, fruity, and minty flavors cover up the harsh taste and can make vaping seem harmless.'] },
+      { h: '3. Social influences',
+        p: ['When friends or family members vape, it can start to seem normal, and vapes become easier to get. The most common reason students give for first trying a vape is that a friend used one.'] },
+      { h: '4. Nicotine',
+        p: ['Nicotine is highly addictive, and the teen brain gets used to it quickly. What starts as experimenting can turn into addiction.',
+            'The most common reason students give for continuing to vape is feeling anxious, stressed, or depressed. But nicotine withdrawal can make those feelings worse, which keeps the cycle going.'] }
+    ],
+    blocks: [
+      { type: 'match', id: 's5_sort', q: 'Sort each situation into the reason it shows.',
+        choices: ['Advertising', 'Flavors', 'Social influences', 'Nicotine'],
+        rows: [
+          { t: 'Maya sees vape posts and ads almost every time she scrolls.', ans: 0 },
+          { t: 'Jordan’s first vape was blue raspberry. It tasted like candy.', ans: 1 },
+          { t: 'Eli tried it because his best friend offered him one.', ans: 2 },
+          { t: 'Sam started for fun, but now he feels anxious and on edge without it.', ans: 3 },
+          { t: 'Ava’s older cousin vapes at every family party.', ans: 2 },
+          { t: 'Most of the vapes at the gas station come in fruit and mint.', ans: 1 }
+        ],
+        explain: 'The most common reason students give for trying a vape is that a friend used one. The most common reason for continuing is feeling anxious, stressed, or depressed, which nicotine withdrawal can make worse.' },
+      { type: 'text', id: 's5_explain', q: 'In your own words, explain how each of the 4 reasons influences teens to vape.',
+        compare: 'Advertising: 7 in 10 students saw e-cigarette marketing in 2021, much of it in stores and on social media. Flavors: nearly 9 in 10 students who vape use flavored products, and most start with one. Social influences: friends and family who vape make it seem normal and easy to get. Nicotine: the teen brain gets used to it fast, so experimenting can turn into addiction.' }
+    ]
+  },
+  {
+    title: 'Helping a friend quit',
+    intro: 'Quitting is hard because nicotine is addictive, but no one has to do it alone.',
+    credit: { text: 'Adapted from “Vaping and Quitting,” Centers for Disease Control and Prevention (CDC).', url: 'https://www.cdc.gov/tobacco/e-cigarettes/quitting.html' },
+    reading: [
+      { h: 'Why quitting is hard',
+        p: ['Nicotine is addictive. When someone stops vaping, they may have withdrawal symptoms like cravings, irritability, restlessness, trouble concentrating, and feeling anxious or down. These feelings are uncomfortable, but they usually get easier with time.'] },
+      { h: 'Steps that help',
+        p: ['Quitting vaping is likely similar to quitting cigarettes, so the same proven tools can help:'],
+        list: ['Make a quit plan. Pick a quit day and figure out what makes you want to vape (your triggers).',
+               'Learn ways to handle cravings and other withdrawal symptoms.',
+               'Talk to a doctor, school nurse, or other health care provider.',
+               'Call 1-800-QUIT-NOW (1-800-784-8669) to talk with a free quit coach.',
+               'Sign up for SmokefreeTXT for Teens to get tips and support by text.',
+               'Download the free quitSTART app.'] },
+      { h: 'What doesn’t help',
+        p: ['Switching to regular cigarettes doesn’t fix a nicotine addiction, and cigarettes cause serious harm of their own. Keeping a quit attempt secret usually makes it harder. Support from friends, family, and trusted adults makes it easier.'] },
+      { h: 'Supporting a friend',
+        p: ['If a friend wants to quit, listen without judging and tell them you’re glad they shared. Offer to help them make a plan, and point them to free help and to a trusted adult.'] }
+    ],
+    blocks: [
+      { type: 'chat', id: 's6_chat', q: 'Your friend texts you. Choose how you’d respond.', turns: [
+        { friend: 'honestly I want to stop vaping but I can’t even get through 2nd period without it 😩', options: [
+          { t: 'Just stop. It’s not that hard.', good: false, fb: 'Nicotine is addictive, so quitting really is hard. Brushing it off might make your friend stop opening up to you.' },
+          { t: 'That sounds really hard. I’m glad you told me. Want help figuring out a plan?', good: true },
+          { t: 'lol same, don’t stress about it', good: false, fb: 'This makes vaping sound normal and doesn’t help your friend take a next step.' } ] },
+        { friend: 'idk where to even start', options: [
+          { t: 'Switch to cigarettes for a while. They’re easier to quit.', good: false, fb: 'Cigarettes contain nicotine too and come with their own serious harms. Swapping one for the other doesn’t solve the addiction.' },
+          { t: 'Just vape less on weekdays and see what happens.', good: false, fb: 'Cutting back can be a step, but the CDC recommends starting with a real quit plan and support.' },
+          { t: 'Let’s make a quit plan: pick a quit day and figure out what makes you want to vape.', good: true } ] },
+        { friend: 'what if the cravings get really bad?', options: [
+          { t: 'Then just take one hit. It’s fine.', good: false, fb: 'One hit can restart the cycle. Better to have a plan for cravings ahead of time.' },
+          { t: 'Keep it a secret so nobody gets on your case.', good: false, fb: 'Support makes quitting easier. Trusted adults and free programs can help.' },
+          { t: 'You can call or text for free help. 1-800-QUIT-NOW has quit coaches, and SmokefreeTXT for Teens sends tips. A doctor or school nurse can help too.', good: true } ] }
+      ], done: 'Nice work. You listened, helped make a plan, and connected your friend to real support.' },
+      { type: 'multi', id: 's6_steps', q: 'Which of these are quitting steps or resources the CDC recommends? Select all that apply.',
+        options: [
+          { t: 'Make a quit plan', ok: true }, { t: 'Talk to a health care provider', ok: true },
+          { t: 'Keep quitting a secret from everyone', ok: false }, { t: 'Call 1-800-QUIT-NOW to talk with a quit coach', ok: true },
+          { t: 'Sign up for SmokefreeTXT for Teens', ok: true }, { t: 'Switch to regular cigarettes', ok: false },
+          { t: 'Learn ways to manage withdrawal symptoms', ok: true }, { t: 'Download the quitSTART app', ok: true }
+        ],
+        explain: 'Quitting vaping is likely similar to quitting smoking, so these proven tools can help.' },
+      { type: 'text', id: 's6_advice', q: 'How would you approach a friend and offer advice on quitting vaping? What steps can they take?' },
+      { type: 'resources' }
+    ]
+  }
+];
+
+/* ---------- state ---------- */
+const KEY = 'clear-the-air-webquest-v1';
+let S = { name: '', step: 0, view: 'step', a: {}, r: {}, reveal: {} };
+try { const saved = localStorage.getItem(KEY); if (saved) S = Object.assign(S, JSON.parse(saved)); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+function h(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'class') n.className = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (v === true) n.setAttribute(k, '');
+    else if (v !== false && v != null) n.setAttribute(k, v);
+  }
+  for (const c of kids.flat(Infinity)) { if (c == null || c === false) continue; n.append(c.nodeType ? c : document.createTextNode(String(c))); }
+  return n;
+}
+const panel = document.getElementById('panel');
+const allBlocks = () => STEPS.flatMap(s => s.blocks);
+const findBlock = id => allBlocks().find(b => b.id === id);
+
+/* ---------- completion ---------- */
+function blockDone(b) {
+  const a = S.a[b.id];
+  switch (b.type) {
+    case 'text': return !!(a && a.trim().length > 0);
+    case 'videos': return Array.isArray(a) && a.length === 2;
+    case 'guess': return !!S.reveal[b.id];
+    case 'chat': return a && a.turn >= b.turns.length;
+    case 'resources': return true;
+    default: return S.r[b.id] === true;
+  }
+}
+function stepDone(i) { return STEPS[i].blocks.filter(b => !b.optional).every(blockDone); }
+function updateProgress() {
+  const done = STEPS.filter((_, i) => stepDone(i)).length;
+  document.documentElement.style.setProperty('--haze', String(1 - done / STEPS.length));
+  document.getElementById('cleared').innerHTML = done === STEPS.length
+    ? '<strong>All 6</strong> stops cleared. The air is clear.'
+    : `<strong>${done} of 6</strong> stops cleared`;
+  renderRail();
+}
+
+/* ---------- rail ---------- */
+function renderRail() {
+  const ol = document.getElementById('rail');
+  ol.replaceChildren(...STEPS.map((s, i) => h('li', {},
+    h('button', { type: 'button', 'aria-current': S.view === 'step' && S.step === i ? 'step' : false, onclick: () => go(i) },
+      h('span', { class: 'num' }, i + 1),
+      h('span', { class: 'label' }, s.title),
+      h('span', { class: 'tick', 'aria-label': stepDone(i) ? 'complete' : '' }, stepDone(i) ? '✓' : '')
+    ))));
+}
+function go(i) { S.view = 'step'; S.step = i; save(); render(); panel.focus({ preventScroll: true }); window.scrollTo({ top: document.querySelector('.shell').offsetTop - 10, behavior: 'smooth' }); }
+
+/* ---------- blocks ---------- */
+function refresh(id, focusSel) {
+  const old = panel.querySelector(`[data-block="${id}"]`);
+  if (!old) return;
+  const fresh = renderBlock(findBlock(id), old.dataset.qn);
+  old.replaceWith(fresh);
+  updateProgress(); save();
+  if (focusSel) { const f = fresh.querySelector(focusSel); if (f) f.focus(); }
+}
+function rereadBtn() {
+  if (!STEPS[S.step].reading) return null;
+  return h('button', { class: 'reread', type: 'button', onclick: () => {
+    const r = document.getElementById('reading');
+    if (r) { r.scrollIntoView({ behavior: 'smooth', block: 'start' }); r.focus({ preventScroll: true }); }
+  } }, 'Go back to the reading');
+}
+function fb(ok, title, text, extra) {
+  return h('div', { class: 'feedback ' + ok, role: 'status' }, h('b', {}, title), text ? h('p', {}, text) : null, extra || null);
+}
+
+function renderBlock(b, qn) {
+  const wrap = h('section', { class: 'q', 'data-block': b.id || 'res', 'data-qn': qn || '' });
+  const title = b.q ? h('h3', {}, qn ? h('span', { class: 'qn' }, qn) : null, b.q, b.optional ? h('span', { class: 'opt-tag' }, ' (bonus)') : null) : null;
+  if (title) wrap.append(title);
+  const R = S.r[b.id];
+
+  if (b.type === 'mc') {
+    const fs = h('fieldset', {}, h('legend', { class: 'sr', style: 'position:absolute;left:-9999px' }, b.q));
+    const box = h('div', { class: 'choices' });
+    b.options.forEach((o, i) => box.append(h('label', { class: 'choice' },
+      h('input', { type: 'radio', name: b.id, checked: S.a[b.id] === i, onchange: () => { S.a[b.id] = i; delete S.r[b.id]; save(); } }), o)));
+    fs.append(box); wrap.append(fs);
+    wrap.append(h('button', { class: 'btn', type: 'button', onclick: () => {
+      if (S.a[b.id] == null) { S.r[b.id] = 'empty'; } else S.r[b.id] = S.a[b.id] === b.answer;
+      refresh(b.id, '.feedback'); } }, 'Check answer'));
+    if (R === true) wrap.append(fb('ok', 'Correct.', b.explain));
+    else if (R === false) wrap.append(fb('no', 'Not quite. Look back at the reading and try another answer.', null, rereadBtn()));
+    else if (R === 'empty') wrap.append(fb('no', 'Pick an answer first.'));
+  }
+
+  if (b.type === 'multi') {
+    const sel = S.a[b.id] || [];
+    const box = h('div', { class: 'choices' });
+    b.options.forEach((o, i) => box.append(h('label', { class: 'choice' },
+      h('input', { type: 'checkbox', checked: sel.includes(i), onchange: e => {
+        const cur = new Set(S.a[b.id] || []); e.target.checked ? cur.add(i) : cur.delete(i);
+        S.a[b.id] = [...cur].sort((x, y) => x - y); delete S.r[b.id]; save(); } }), o.t)));
+    wrap.append(box);
+    wrap.append(h('button', { class: 'btn', type: 'button', onclick: () => {
+      const s = new Set(S.a[b.id] || []);
+      S.r[b.id] = b.options.every((o, i) => o.ok === s.has(i));
+      if (!s.size) S.r[b.id] = 'empty';
+      refresh(b.id, '.feedback'); } }, 'Check answers'));
+    if (R === true) wrap.append(fb('ok', 'You got them all.', b.explain));
+    else if (R === false) {
+      const s = new Set(S.a[b.id] || []);
+      const right = b.options.filter((o, i) => o.ok && s.has(i)).length;
+      const total = b.options.filter(o => o.ok).length;
+      const wrong = b.options.filter((o, i) => !o.ok && s.has(i)).length;
+      wrap.append(fb('no', `You have ${right} of ${total} correct choices` + (wrong ? ` and ${wrong} that don’t belong.` : '.'), 'Adjust your picks and check again.', rereadBtn()));
+    } else if (R === 'empty') wrap.append(fb('no', 'Select at least one answer first.'));
+  }
+
+  if (b.type === 'blanks') {
+    const a = S.a[b.id] || {};
+    const p = h('p', { class: 'blank-text' });
+    b.parts.forEach(part => {
+      if (typeof part === 'string') p.append(part);
+      else {
+        let cls = '';
+        if (R !== undefined && a[part.k] !== undefined && a[part.k] !== '') cls = Number(a[part.k]) === part.ans ? 'ok' : 'no';
+        p.append(h('input', { type: 'number', step: 'any', inputmode: 'decimal', class: cls, 'aria-label': 'Blank ' + part.k.toUpperCase(), value: a[part.k] ?? '',
+          oninput: e => { S.a[b.id] = Object.assign({}, S.a[b.id], { [part.k]: e.target.value }); save(); } }));
+      }
+    });
+    wrap.append(p);
+    wrap.append(h('button', { class: 'btn', type: 'button', onclick: () => {
+      const cur = S.a[b.id] || {};
+      S.r[b.id] = b.parts.filter(x => typeof x !== 'string').every(x => Number(cur[x.k]) === x.ans);
+      refresh(b.id, '.feedback'); } }, 'Check answers'));
+    if (R === true) wrap.append(fb('ok', 'Both blanks are correct.', b.right));
+    else if (R === false) wrap.append(fb('no', 'At least one blank isn’t right yet.', b.retry, rereadBtn()));
+  }
+
+  if (b.type === 'order') {
+    const order = S.a[b.id] || b.start.slice();
+    wrap.append(h('p', { class: 'hint' }, 'Drag the steps into order. You can also use the arrow buttons.'));
+    const list = h('ol', { class: 'order' });
+    let drag = null;
+    function startDrag(e) {
+      if (e.button > 0 || e.target.closest('button') || drag) return;
+      e.preventDefault();
+      const el = e.currentTarget;
+      const items = [...list.children];
+      const rects = items.map(x => x.getBoundingClientRect());
+      const from = items.indexOf(el);
+      const gap = rects.length > 1 ? rects[1].top - rects[0].bottom : 0;
+      drag = { el, items, rects, from, to: from, startY: e.clientY, step: rects[from].height + gap,
+        minDy: rects[0].top - rects[from].top, maxDy: rects[rects.length - 1].bottom - rects[from].bottom };
+      el.setPointerCapture(e.pointerId);
+      el.classList.add('dragging');
+    }
+    function moveDrag(e) {
+      if (!drag || drag.el !== e.currentTarget) return;
+      const { el, items, rects, from, step } = drag;
+      const dy = Math.min(drag.maxDy, Math.max(drag.minDy, e.clientY - drag.startY));
+      el.style.transform = `translateY(${dy}px)`;
+      const center = rects[from].top + rects[from].height / 2 + dy;
+      let to = 0;
+      rects.forEach((r, i) => { if (i !== from && r.top + r.height / 2 < center) to++; });
+      drag.to = to;
+      items.forEach((it, i) => {
+        if (i === from) return;
+        let shift = 0;
+        if (from < to && i > from && i <= to) shift = -step;
+        else if (to < from && i >= to && i < from) shift = step;
+        it.style.transform = shift ? `translateY(${shift}px)` : '';
+      });
+    }
+    function endDrag(e) {
+      if (!drag || drag.el !== e.currentTarget) return;
+      const { el, items, from, to } = drag;
+      drag = null;
+      el.classList.remove('dragging');
+      if (from === to) { items.forEach(it => { it.style.transform = ''; }); return; }
+      const o = items.map(li => Number(li.dataset.idx));
+      const [moved] = o.splice(from, 1);
+      o.splice(to, 0, moved);
+      S.a[b.id] = o; delete S.r[b.id]; refresh(b.id);
+    }
+    order.forEach((itemIdx, pos) => list.append(h('li', { 'data-idx': itemIdx, onpointerdown: startDrag, onpointermove: moveDrag, onpointerup: endDrag, onpointercancel: endDrag },
+      h('span', { class: 'grip', 'aria-hidden': 'true' }, '⠿'),
+      h('span', {}, b.items[itemIdx]),
+      h('span', { class: 'moves' },
+        h('button', { type: 'button', 'aria-label': 'Move up: ' + b.items[itemIdx], 'data-mv': 'u' + itemIdx, disabled: pos === 0, onclick: () => move(pos, -1, 'u' + itemIdx) }, '↑'),
+        h('button', { type: 'button', 'aria-label': 'Move down: ' + b.items[itemIdx], 'data-mv': 'd' + itemIdx, disabled: pos === order.length - 1, onclick: () => move(pos, 1, 'd' + itemIdx) }, '↓')))));
+    function move(pos, d, key) {
+      const o = (S.a[b.id] || b.start.slice()).slice();
+      [o[pos], o[pos + d]] = [o[pos + d], o[pos]];
+      S.a[b.id] = o; delete S.r[b.id];
+      refresh(b.id, `[data-mv="${key}"]:not([disabled])`);
+    }
+    wrap.append(list);
+    wrap.append(h('button', { class: 'btn', type: 'button', onclick: () => {
+      const o = S.a[b.id] || b.start; S.r[b.id] = o.every((v, i) => v === i); if (!S.a[b.id]) S.a[b.id] = o.slice();
+      refresh(b.id, '.feedback'); } }, 'Check order'));
+    if (R === true) wrap.append(fb('ok', 'That’s the right order.', b.explain));
+    else if (R === false) {
+      const o = S.a[b.id]; const n = o.filter((v, i) => v === i).length;
+      wrap.append(fb('no', `${n} of ${o.length} steps are in the right spot.`, 'Start with what makes the device turn on, and end with who breathes in the aerosol.', rereadBtn()));
+    }
+  }
+
+  if (b.type === 'match') {
+    const a = S.a[b.id] || [];
+    const box = h('div', { class: 'match' });
+    b.rows.forEach((row, i) => {
+      let cls = 'row';
+      if (R !== undefined && a[i] != null && a[i] !== '') cls += Number(a[i]) === row.ans ? ' ok' : ' no';
+      const sid = b.id + '_' + i;
+      box.append(h('div', { class: cls },
+        h('label', { for: sid }, row.t),
+        h('select', { id: sid, onchange: e => { const cur = (S.a[b.id] || []).slice(); cur[i] = e.target.value === '' ? null : Number(e.target.value); S.a[b.id] = cur; delete S.r[b.id]; save(); } },
+          h('option', { value: '' }, 'Choose…'),
+          b.choices.map((c, ci) => h('option', { value: ci, selected: a[i] === ci }, c)))));
+    });
+    wrap.append(box);
+    wrap.append(h('button', { class: 'btn', type: 'button', onclick: () => {
+      const cur = S.a[b.id] || []; S.r[b.id] = b.rows.every((row, i) => cur[i] === row.ans);
+      refresh(b.id, '.feedback'); } }, 'Check matches'));
+    if (R === true) wrap.append(fb('ok', 'All matched correctly.', b.explain));
+    else if (R === false) {
+      const cur = S.a[b.id] || []; const n = b.rows.filter((row, i) => cur[i] === row.ans).length;
+      wrap.append(fb('no', `${n} of ${b.rows.length} are correct.`, 'The red ones need another look.', rereadBtn()));
+    }
+  }
+
+  if (b.type === 'text') {
+    if (b.hint) wrap.append(h('p', { class: 'hint' }, b.hint));
+    const ta = h('textarea', { 'aria-label': b.q, placeholder: 'Type your answer here…', oninput: e => {
+      S.a[b.id] = e.target.value; save();
+      const btn = wrap.querySelector('.cmp'); if (btn) btn.disabled = e.target.value.trim().length < 15;
+      updateProgress(); } });
+    ta.value = S.a[b.id] || '';
+    wrap.append(ta);
+    if (b.compare) {
+      if (S.reveal[b.id]) wrap.append(h('div', { class: 'feedback info', role: 'status' }, h('b', {}, 'What the reading says'), h('p', {}, b.compare), h('p', {}, 'Did your answer cover these ideas? You can add to it above.')));
+      else wrap.append(h('div', { style: 'margin-top:.7rem' }, h('button', { class: 'btn ghost cmp', type: 'button', disabled: (S.a[b.id] || '').trim().length < 15,
+        onclick: () => { S.reveal[b.id] = true; refresh(b.id, '.feedback'); } }, 'Compare with the reading'),
+        h('span', { class: 'hint', style: 'margin-left:.7rem' }, 'Write your answer first.')));
+    }
+  }
+
+  if (b.type === 'videos') {
+    const sel = S.a[b.id] || [];
+    const box = h('div', { class: 'videos' });
+    const note = h('div', { 'aria-live': 'polite' });
+    function showNote(max) {
+      const n = (S.a[b.id] || []).length;
+      note.replaceChildren(max ? fb('no', 'You only need 2. Uncheck one first if you want to switch.') : h('p', { class: 'hint' }, `${n} of 2 chosen`));
+    }
+    b.videos.forEach((v, i) => box.append(h('div', { class: 'video' },
+      h('div', { class: 'player' },
+        h('iframe', { src: `https://www.youtube-nocookie.com/embed/${v.yt}?rel=0`, title: v.t, loading: 'lazy',
+          allow: 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture', allowfullscreen: true,
+          referrerpolicy: 'strict-origin-when-cross-origin' })),
+      h('p', { class: 'vt' }, v.t),
+      h('span', { class: 'len' }, v.len),
+      h('a', { class: 'yt', href: v.url, target: '_blank', rel: 'noopener' }, 'Video not playing? Watch it on YouTube'),
+      h('label', {}, h('input', { type: 'checkbox', checked: sel.includes(i), onchange: e => {
+        const cur = new Set(S.a[b.id] || []);
+        if (e.target.checked) { if (cur.size >= 2) { e.target.checked = false; showNote(true); return; } cur.add(i); } else cur.delete(i);
+        S.a[b.id] = [...cur]; delete S.r[b.id]; save(); showNote(false); updateProgress(); } }), 'I watched this'))));
+    wrap.append(box, note);
+    showNote(false);
+  }
+
+  if (b.type === 'guess') {
+    const v = S.a[b.id] ?? 50;
+    const out = h('output', {}, v + '%');
+    wrap.append(h('div', { class: 'guess' }, out,
+      h('input', { type: 'range', min: 0, max: 100, value: v, 'aria-label': 'Your guess in percent', disabled: !!S.reveal[b.id],
+        oninput: e => { S.a[b.id] = Number(e.target.value); out.textContent = e.target.value + '%'; save(); } })));
+    if (S.reveal[b.id]) {
+      const diff = Math.abs((S.a[b.id] ?? 50) - b.answer);
+      wrap.append(fb(diff <= 10 ? 'ok' : 'info', `You guessed ${S.a[b.id] ?? 50}%. The real number is ${b.answer}%.`, b.explain));
+    } else wrap.append(h('button', { class: 'btn', type: 'button', onclick: () => { if (S.a[b.id] == null) S.a[b.id] = 50; S.reveal[b.id] = true; refresh(b.id, '.feedback'); } }, 'Lock in my guess'));
+  }
+
+  if (b.type === 'chat') {
+    const st = S.a[b.id] || { turn: 0, picks: [], miss: null };
+    const log = h('div', { class: 'chat', 'aria-live': 'polite' });
+    for (let t = 0; t < Math.min(st.turn + 1, b.turns.length); t++) {
+      log.append(h('div', { class: 'bubble friend' }, b.turns[t].friend));
+      if (t < st.turn) log.append(h('div', { class: 'bubble me' }, b.turns[t].options[st.picks[t]].t));
+    }
+    wrap.append(log);
+    if (st.turn < b.turns.length) {
+      const turn = b.turns[st.turn];
+      if (st.miss != null) wrap.append(fb('no', 'Try a different response.', turn.options[st.miss].fb));
+      wrap.append(h('div', { class: 'chat-opts' }, turn.options.map((o, i) => h('button', { type: 'button', onclick: () => {
+        const cur = Object.assign({ turn: 0, picks: [], miss: null }, S.a[b.id]);
+        if (o.good) { cur.picks = cur.picks.concat(i); cur.turn += 1; cur.miss = null; } else cur.miss = i;
+        S.a[b.id] = cur; refresh(b.id, '.chat-opts button, .feedback'); } }, o.t))));
+    } else {
+      wrap.append(fb('ok', b.done));
+      wrap.append(h('button', { class: 'btn ghost', type: 'button', style: 'margin-top:.7rem', onclick: () => { S.a[b.id] = { turn: 0, picks: [], miss: null }; refresh(b.id, '.chat-opts button'); } }, 'Replay the chat'));
+    }
+  }
+
+  if (b.type === 'resources') {
+    wrap.append(h('div', { class: 'resources' },
+      h('h3', {}, 'Free, confidential help'),
+      h('ul', {},
+        h('li', {}, 'Call 1-800-QUIT-NOW (1-800-784-8669) to talk with a trained quit coach.'),
+        h('li', {}, h('a', { href: 'https://teen.smokefree.gov/quit-vaping', target: '_blank', rel: 'noopener' }, 'Smokefree Teen: quit vaping'), ', with tips, apps, and text support made for teens.'),
+        h('li', {}, 'Talk to a parent, school nurse, counselor, or doctor you trust.'))));
+  }
+  return wrap;
+}
+
+/* ---------- reading ---------- */
+function renderReading(s) {
+  const words = s.reading.flatMap(sec => [sec.h, ...(sec.p || []), ...(sec.list || []), ...(sec.stats || []).map(x => x.t)])
+    .join(' ').split(/\s+/).filter(Boolean).length;
+  const mins = Math.max(1, Math.round(words / 150));
+  return h('section', { class: 'reading', id: 'reading', tabindex: '-1', 'aria-labelledby': 'reading-title' },
+    h('div', { class: 'reading-top' },
+      h('h3', { id: 'reading-title' }, 'Reading'),
+      h('span', {}, `About ${mins} minute${mins > 1 ? 's' : ''}`)),
+    s.reading.map(sec => [
+      sec.h ? h('h4', {}, sec.h) : null,
+      (sec.p || []).slice(0, sec.list ? 1 : undefined).map(t => h('p', {}, t)),
+      sec.stats ? h('div', { class: 'stats' }, sec.stats.map(x => h('div', { class: 'stat' }, h('b', {}, x.n), h('span', {}, x.t)))) : null,
+      sec.list ? h('ul', {}, sec.list.map(t => h('li', {}, t))) : null,
+      sec.list ? (sec.p || []).slice(1).map(t => h('p', {}, t)) : null
+    ]),
+    s.credit ? h('p', { class: 'credit' }, s.credit.text, ' ',
+      s.credit.url ? h('a', { href: s.credit.url, target: '_blank', rel: 'noopener' }, 'Original source (optional)') : null) : null);
+}
+
+/* ---------- views ---------- */
+function renderStep() {
+  const i = S.step, s = STEPS[i];
+  const kids = [h('div', { class: 'step-head' },
+    h('p', { class: 'step-no', 'aria-hidden': 'true' }, i + 1),
+    h('h2', {}, h('span', { style: 'position:absolute;left:-9999px' }, `Stop ${i + 1}: `), s.title),
+    h('p', {}, s.intro))];
+  if (s.reading) {
+    kids.push(renderReading(s));
+    kids.push(h('p', { class: 'q-head' }, 'Questions'));
+  }
+  let n = 0;
+  s.blocks.forEach(b => { const qn = b.type === 'resources' ? '' : `${i + 1}${String.fromCharCode(97 + n++)}`; kids.push(renderBlock(b, qn)); });
+  kids.push(h('div', { class: 'pager' },
+    i > 0 ? h('button', { class: 'btn ghost', type: 'button', onclick: () => go(i - 1) }, 'Back') : h('span'),
+    i < STEPS.length - 1 ? h('button', { class: 'btn', type: 'button', onclick: () => go(i + 1) }, 'Next stop')
+      : h('button', { class: 'btn', type: 'button', onclick: showSummary }, 'See my answers')));
+  panel.replaceChildren(...kids);
+}
+
+function answerText(b) {
+  const a = S.a[b.id];
+  switch (b.type) {
+    case 'mc': return a == null ? '' : b.options[a];
+    case 'multi': return (a || []).map(i => b.options[i].t).join('; ');
+    case 'blanks': { if (!a) return ''; return b.parts.map(p => typeof p === 'string' ? p : `[${a[p.k] || '___'}]`).join(''); }
+    case 'order': return a ? a.map((v, i) => `${i + 1}. ${b.items[v]}`).join('\n') : '';
+    case 'match': return a ? b.rows.map((r, i) => `${r.t} → ${a[i] != null ? b.choices[a[i]] : '___'}`).join('\n') : '';
+    case 'text': return (a || '').trim();
+    case 'videos': return (a || []).map(i => b.videos[i].t).join('; ');
+    case 'guess': return S.reveal[b.id] ? `Guessed ${a}% (actual ${b.answer}%)` : '';
+    case 'chat': return a && a.turn >= b.turns.length ? 'Completed the help-a-friend chat.' : '';
+    default: return '';
+  }
+}
+const CHECKED = ['mc', 'multi', 'blanks', 'order', 'match'];
+
+function showSummary() { S.view = 'summary'; save(); render(); panel.focus({ preventScroll: true }); window.scrollTo({ top: document.querySelector('.shell').offsetTop - 10, behavior: 'smooth' }); }
+
+function renderSummary() {
+  const checkable = allBlocks().filter(b => CHECKED.includes(b.type));
+  const right = checkable.filter(b => S.r[b.id] === true).length;
+  const date = new Date().toLocaleDateString();
+  let plain = `Clear the Air: Vaping Webquest\nName: ${S.name || '(no name)'}\nDate: ${date}\nAuto-checked questions correct: ${right} of ${checkable.length}\n`;
+  const kids = [h('div', { class: 'step-head' },
+    h('h2', {}, 'My answers'),
+    h('p', {}, `${S.name || 'Add your name at the top of the page'}, ${date}`)),
+    h('p', { class: 'score' }, `${right} of ${checkable.length} correct`),
+    h('p', { style: 'margin:0;color:var(--muted)' }, 'on the auto-checked questions. Written answers are for your teacher to read.')];
+  const status = h('p', { class: 'status', role: 'status' });
+  const plainBox = h('textarea', { readonly: true, 'aria-label': 'All answers as plain text' });
+  kids.push(h('div', { class: 'actions no-print' },
+    window.jspdf ? h('button', { class: 'btn', type: 'button', onclick: async e => {
+      const btn = e.currentTarget; btn.disabled = true; status.textContent = 'Preparing your PDF…';
+      try {
+        const blob = makePdf();
+        const safeName = (S.name || 'my answers').replace(/[^\w\s-]/g, '').trim() || 'my answers';
+        const fname = `Vaping Webquest - ${safeName}.pdf`;
+        if (downloadsNs) {
+          await downloadsNs.save({ filename: fname, data: blob });
+          status.textContent = 'PDF saved. Upload it to your assignment.';
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = fname; document.body.append(a); a.click(); a.remove();
+          status.replaceChildren('Your PDF should be downloading. If nothing happened, ',
+            h('a', { href: url, target: '_blank', rel: 'noopener' }, 'open the PDF here'),
+            ' and save it from there.');
+        }
+      } catch (err) {
+        const c = err && err.code;
+        status.textContent = c === 'declined' ? 'Download canceled.'
+          : c === 'rate_limited' ? 'Another download is in progress. Try again in a moment.'
+          : 'Downloading isn’t available here. Use “Copy all answers” instead.';
+      }
+      btn.disabled = false;
+    } }, 'Download my answers (PDF)') : null,
+    h('button', { class: window.jspdf ? 'btn ghost' : 'btn', type: 'button', onclick: async () => {
+      try { await navigator.clipboard.writeText(plainBox.value); status.textContent = 'Copied. Paste it into your assignment.'; }
+      catch (e) { details.open = true; plainBox.focus(); plainBox.select(); status.textContent = 'Your browser blocked copying. The text is selected below, so press Ctrl+C (or ⌘+C).'; }
+    } }, 'Copy all answers')), status);
+
+  STEPS.forEach((s, i) => {
+    const sec = h('div', { class: 'sum-step' }, h('h3', {}, `${i + 1}. ${s.title}`));
+    plain += `\n--- ${i + 1}. ${s.title} ---\n`;
+    let n = 0;
+    s.blocks.forEach(b => {
+      if (b.type === 'resources') return;
+      const qn = `${i + 1}${String.fromCharCode(97 + n++)}`;
+      const ans = answerText(b);
+      let tag = null, tagTxt = '';
+      if (CHECKED.includes(b.type) && ans) {
+        const ok = S.r[b.id] === true;
+        tag = h('span', { class: 'tag ' + (ok ? 'ok' : 'no') }, ok ? 'correct' : 'not yet correct');
+        tagTxt = ok ? ' [correct]' : ' [not yet correct]';
+      }
+      sec.append(h('div', { class: 'sum-item' },
+        h('p', { class: 'sq' }, `${qn}. ${b.q}`, tag),
+        h('p', { class: 'sa' + (ans ? '' : ' empty') }, ans || 'Not answered yet')));
+      plain += `\n${qn}. ${b.q}${tagTxt}\n${ans || '(not answered)'}\n`;
+    });
+    kids.push(sec);
+  });
+  plainBox.value = plain;
+  const details = h('details', { class: 'plain no-print' }, h('summary', {}, 'Show as plain text'), plainBox);
+  kids.push(details);
+  let armed = false;
+  const reset = h('button', { class: 'reset no-print', type: 'button', onclick: () => {
+    if (!armed) { armed = true; reset.textContent = 'Click again to erase all answers and start over'; return; }
+    S = { name: '', step: 0, view: 'step', a: {}, r: {}, reveal: {} }; save();
+    document.getElementById('name').value = ''; render(); } }, 'Start over');
+  kids.push(h('div', { class: 'pager no-print' }, h('button', { class: 'btn ghost', type: 'button', onclick: () => go(STEPS.length - 1) }, 'Back to stop 6'), h('span')), reset);
+  panel.replaceChildren(...kids);
+}
+
+/* ---------- PDF ---------- */
+let downloadsNs = null;
+(async () => {
+  try {
+    if (window.claude && typeof window.claude.use === 'function') {
+      downloadsNs = await window.claude.use('downloads');
+      if (downloadsNs && S.view === 'summary') renderSummary();
+    }
+  } catch (e) { downloadsNs = null; }
+})();
+
+function pdfSafe(s) {
+  return String(s).replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/→/g, '->')
+    .replace(/[–—]/g, '-').replace(/…/g, '...').replace(/·/g, '-').replace(/[^\x00-\xFF]/g, '');
+}
+function makePdf() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 54, maxW = W - 2 * M;
+  let y = M;
+  const INK = [20, 33, 61], TEAL = [39, 71, 199], MUTED = [78, 91, 120], GOOD = [27, 122, 67], BAD = [180, 35, 24];
+  function need(hgt) { if (y + hgt > H - M) { doc.addPage(); y = M; } }
+  function write(text, o = {}) {
+    const size = o.size || 11;
+    doc.setFont('helvetica', o.bold ? 'bold' : (o.italic ? 'italic' : 'normal'));
+    doc.setFontSize(size); doc.setTextColor(...(o.color || INK));
+    const lh = size * 1.35;
+    for (const ln of doc.splitTextToSize(pdfSafe(text), maxW)) { need(lh); doc.text(ln, M, y + size); y += lh; }
+    y += o.gap ?? 4;
+  }
+  const checkable = allBlocks().filter(b => CHECKED.includes(b.type));
+  const right = checkable.filter(b => S.r[b.id] === true).length;
+  write('Clear the Air: A Vaping Webquest', { size: 20, bold: true, color: TEAL, gap: 6 });
+  write(`Name: ${S.name || '(no name entered)'}`, { size: 12, bold: true, gap: 2 });
+  write(`Date: ${new Date().toLocaleDateString()}`, { size: 11, color: MUTED, gap: 2 });
+  write(`Auto-checked questions correct: ${right} of ${checkable.length}`, { size: 11, color: MUTED, gap: 10 });
+  STEPS.forEach((s, i) => {
+    need(40);
+    doc.setDrawColor(200, 211, 230); doc.line(M, y, W - M, y); y += 10;
+    write(`${i + 1}. ${s.title}`, { size: 14, bold: true, color: TEAL, gap: 6 });
+    let n = 0;
+    s.blocks.forEach(b => {
+      if (b.type === 'resources') return;
+      const qn = `${i + 1}${String.fromCharCode(97 + n++)}`;
+      const ans = answerText(b);
+      write(`${qn}. ${b.q}`, { bold: true, gap: 2 });
+      if (CHECKED.includes(b.type) && ans) {
+        const ok = S.r[b.id] === true;
+        write(ok ? 'Correct' : 'Not yet correct', { size: 9, bold: true, color: ok ? GOOD : BAD, gap: 2 });
+      }
+      if (ans) write(ans, { gap: 10 }); else write('Not answered', { italic: true, color: MUTED, gap: 10 });
+    });
+  });
+  const pages = doc.getNumberOfPages();
+  for (let p = 1; p <= pages; p++) {
+    doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+    doc.text(`Page ${p} of ${pages}`, W - M, H - 28, { align: 'right' });
+  }
+  return doc.output('blob');
+}
+
+function render() { S.view === 'summary' ? renderSummary() : renderStep(); updateProgress(); }
+
+const nameInput = document.getElementById('name');
+nameInput.value = S.name || '';
+nameInput.addEventListener('input', e => { S.name = e.target.value; save(); });
+document.getElementById('toSummary').addEventListener('click', showSummary);
+render();
+</script>
+</body>
+</html>
