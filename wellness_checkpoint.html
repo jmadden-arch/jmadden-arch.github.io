@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wellness Checkpoint | Studio Fitness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F3F6F9; --surface:#FFFFFF; --ink:#15202B; --muted:#56636F; --line:#D5DDE4;
+  --blue:#1F4FBF; --blue-ink:#FFFFFF; --blue-soft:#E4ECFB; --lane:#F2C230;
+  --good:#1D7F57; --bad:#B9372F; --focus:#F2C230;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,"Segoe UI",sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E151D; --surface:#16212C; --ink:#E7EDF2; --muted:#9BA9B5; --line:#2A3846;
+    --blue:#82A8FF; --blue-ink:#0E151D; --blue-soft:#1B2A44; --lane:#E8BB2E;
+    --good:#4CC38A; --bad:#F07A70; color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+a{color:var(--blue)}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px}
+
+/* Hero */
+header.hero{padding:44px 0 28px;border-bottom:6px solid var(--ink)}
+.hero .course{font-family:var(--display);font-weight:600;font-size:1.2rem;letter-spacing:.02em;color:var(--muted);margin:0}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(3rem,11vw,6.2rem);line-height:.88;margin:.1em 0 .18em;letter-spacing:-.01em}
+.hero p.lede{max-width:60ch;margin:0 0 14px;color:var(--muted)}
+.due{display:inline-block;font-weight:700;border:2px solid var(--ink);padding:4px 12px;border-radius:4px}
+
+/* Sticky scoreboard */
+.board{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 0 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.board .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.lanes{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;flex:1 1 280px}
+.lanes a{display:block;height:12px;border-radius:2px;background:var(--line);text-decoration:none;position:relative}
+.lanes a.done{background:var(--good)}
+.lanes a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.board .count{font-family:var(--display);font-weight:700;font-size:1.15rem;white-space:nowrap}
+.board .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Buttons */
+button,.btn{font:inherit;font-weight:700;font-size:.95rem;border-radius:6px;padding:9px 16px;cursor:pointer;border:2px solid var(--ink);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,label.pick:focus-within{outline:3px solid var(--focus);outline-offset:2px}
+button:hover{filter:brightness(1.06)}
+
+/* Steps */
+section.step{padding:44px 0 8px;border-bottom:1px solid var(--line)}
+.step-head{display:flex;gap:16px;align-items:baseline;margin-bottom:6px}
+.step-num{font-family:var(--display);font-weight:800;font-size:3.2rem;line-height:.8;color:var(--blue);min-width:1.1em}
+.step h2{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;margin:0}
+.step .intro{color:var(--muted);margin:6px 0 20px;max-width:62ch}
+h3{font-family:var(--display);font-weight:700;font-size:1.45rem;margin:22px 0 8px;line-height:1.1}
+
+label{display:block;font-weight:700;margin:14px 0 6px}
+.hint{display:block;font-weight:400;color:var(--muted);font-size:.9rem}
+input[type=text],input[type=number],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:6px;padding:10px 12px}
+textarea{min-height:110px;resize:vertical}
+textarea.long{min-height:200px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.grid3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:0 18px}
+@media (max-width:620px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* Tables */
+.scroll{overflow-x:auto;border:1.5px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+thead th{font-family:var(--display);font-weight:700;font-size:1.1rem;background:var(--blue-soft)}
+tbody tr:last-child td{border-bottom:none}
+td input{min-width:80px}
+td.chg{font-weight:700;white-space:nowrap}
+.up{color:var(--good)} .down{color:var(--bad)}
+.unit{color:var(--muted);font-size:.85rem;display:block}
+
+/* Heart rate */
+.calc{border-left:6px solid var(--lane);background:var(--surface);padding:14px 18px;border-radius:0 8px 8px 0;margin-top:16px}
+.calc div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.calc div:last-child{border-bottom:none}
+.calc .math{color:var(--muted)}
+.calc strong{font-family:var(--display);font-size:1.35rem}
+
+/* Plans */
+.plans{display:grid;gap:12px;margin-bottom:6px}
+div.pick{border:2px solid var(--line);border-radius:10px;background:var(--surface)}
+div.pick.on{border-color:var(--blue);box-shadow:inset 6px 0 0 var(--blue)}
+label.pick-head{display:block;margin:0;font-weight:400;padding:16px 18px;cursor:pointer}
+label.pick-head input{position:absolute;opacity:0;pointer-events:none}
+label.pick-head:focus-within{outline:3px solid var(--focus);outline-offset:-3px;border-radius:8px}
+.plan-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.plan-name{font-family:var(--display);font-weight:700;font-size:1.6rem;line-height:1.05}
+.tag{font-size:.82rem;font-weight:700;border:1.5px solid var(--ink);border-radius:999px;padding:2px 10px}
+.plan-meta,.plan-moves{display:block;color:var(--muted);margin:4px 0 0;font-size:.95rem}
+.plan-moves{color:var(--ink)}
+.choose{display:inline-block;margin-top:10px;font-weight:700;font-size:.9rem;border:2px solid var(--ink);border-radius:6px;padding:5px 12px}
+div.pick.on .choose{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.plan-body{display:none;padding:0 18px 16px}
+div.pick.on .plan-body{display:block}
+.how{background:var(--blue-soft);border-radius:8px;padding:12px 16px;margin-bottom:14px}
+.how ol,.move ol{margin:6px 0;padding-left:1.3em}
+.how li,.move li{margin:3px 0}
+.how-title{font-family:var(--display);font-weight:700;font-size:1.25rem;margin:4px 0}
+.move{border-top:1px solid var(--line)}
+.move:last-child{border-bottom:1px solid var(--line)}
+.move summary{display:flex;gap:12px;align-items:center;padding:10px 4px;cursor:pointer;list-style:none}
+.move summary::-webkit-details-marker{display:none}
+.move summary::after{content:"+";margin-left:auto;font-family:var(--display);font-weight:700;font-size:1.5rem;color:var(--blue)}
+.move[open] summary::after{content:"−"}
+.move summary:focus-visible{outline:3px solid var(--focus)}
+.mv-n{font-family:var(--display);font-weight:800;font-size:1.6rem;color:var(--blue);min-width:1em;text-align:center}
+.feel{display:block;color:var(--muted);font-size:.9rem}
+.move ol,.move .note{margin-left:2.4em}
+.move .note{margin-top:2px;margin-bottom:6px}
+.note{font-size:.92rem;margin:6px 0 0}
+
+/* SMART */
+.smart-row{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:start;border-bottom:1px solid var(--line);padding:10px 0}
+.smart-row .L{font-family:var(--display);font-weight:800;font-size:2.8rem;line-height:1;color:var(--blue);text-align:center}
+.smart-row label{margin-top:0}
+
+/* Habits of Mind */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px}
+.chip{font-weight:700;font-size:.92rem;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px}
+.chip[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+.chip-help{min-height:1.6em;color:var(--muted);font-size:.95rem}
+.hom-card{border:2px solid var(--ink);border-radius:10px;padding:16px 18px;margin:18px 0;background:var(--surface)}
+.hom-card h3{margin-top:0}
+.hom-card .pe{color:var(--muted);margin:-2px 0 10px;font-size:.95rem}
+.rubric{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:620px){.rubric{grid-template-columns:1fr 1fr}}
+.rubric button{text-align:left;font-weight:400;border:2px solid var(--line);padding:10px;border-radius:8px;font-size:.85rem;line-height:1.35}
+.rubric button b{display:block;font-family:var(--display);font-size:1.2rem;font-weight:700}
+.rubric button[aria-pressed=true]{border-color:var(--blue);background:var(--blue-soft)}
+.empty{border:2px dashed var(--line);border-radius:10px;padding:22px;color:var(--muted);text-align:center;margin-top:16px}
+
+/* Reflections */
+.prompts{margin:0 0 6px;padding-left:1.2em}
+.prompts li{margin:6px 0}
+.counter{font-weight:700;font-size:.9rem;margin-top:6px}
+.counter.met{color:var(--good)}
+
+/* Finish */
+.finish{padding:44px 0 80px}
+.finish .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.status{margin-top:14px;font-weight:700}
+.missing{color:var(--bad)}
+footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
+.autosave{flex-basis:100%;font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.autosave::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+.autosave.ok::before{background:var(--good)}
+.autosave.off{color:var(--bad)}
+.autosave.off::before{background:var(--bad)}
+.linkbtn{border:none;background:none;padding:0;margin-left:auto;font-size:.85rem;font-weight:700;color:var(--muted);text-decoration:underline;cursor:pointer}
+
+@media (prefers-reduced-motion:no-preference){
+  .lanes a{transition:background .3s}
+}
+@media print{
+  .board,.finish .row,.chips,.chip-help,button{display:none!important}
+  section.step{break-inside:avoid-page}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="course" id="courseName">PE 2 Studio Fitness</p>
+    <h1>Wellness<br>Checkpoint</h1>
+    <p class="lede">Record your FitnessGram data, choose a weight room plan, set a SMART goal, and reflect on how you work. When you’re done, download a PDF of your responses and submit it.</p>
+    <span class="due" id="dueDate">Due Friday, December 11</span>
+  </div>
+</header>
+
+<nav class="board" aria-label="Checkpoint progress">
+  <div class="wrap row">
+    <div class="lanes" id="lanes"></div>
+    <span class="count" id="count">0 of 8 complete</span>
+    <div class="actions">
+      <button type="button" id="saveBtn" title="Download a progress file you can load later">Save progress</button>
+      <button type="button" id="loadBtn">Load progress</button>
+      <input type="file" id="loadFile" accept=".json,application/json" hidden>
+    </div>
+    <span class="autosave" id="autosave" aria-live="polite"></span>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 1 -->
+  <section class="step" id="s1" data-title="Student information">
+    <div class="step-head"><span class="step-num">1</span><h2>Student information</h2></div>
+    <div class="grid3">
+      <div><label for="name">Full name</label><input type="text" id="name" data-save autocomplete="name"></div>
+      <div><label for="hour">Hour</label><input type="text" id="hour" data-save></div>
+      <div><label for="age">Age</label><input type="number" id="age" data-save min="10" max="20"></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2" data-title="FitnessGram data">
+    <div class="step-head"><span class="step-num">2</span><h2>FitnessGram data</h2></div>
+    <p class="intro">Enter your pre-test and post-test scores. The change column fills in on its own. For resting heart rate, a lower number is an improvement.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Assessment</th><th>Pre-test</th><th>Post-test</th><th>Change</th></tr></thead>
+        <tbody id="fgBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3" data-title="Heart rate zones">
+    <div class="step-head"><span class="step-num">3</span><h2>Heart rate zones</h2></div>
+    <p class="intro">Your target heart rate tells you how hard to work during cardio. Enter your age in step 1 and your resting heart rate below.</p>
+    <div class="grid2">
+      <div><label for="hrRest">Resting heart rate <span class="hint">Beats per minute, taken sitting still</span></label><input type="number" id="hrRest" data-save min="30" max="140"></div>
+    </div>
+    <div class="calc" id="hrCalc" aria-live="polite"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4" data-title="Circuit">
+    <div class="step-head"><span class="step-num">4</span><h2>Choose your circuit</h2></div>
+    <p class="intro">Each circuit mixes machines from the 2026 weight room card with body weight and dumbbell moves. Pick the one that fits your SMART goal, then tap any move to see how to do it.</p>
+        <div class="plans" id="plans" role="radiogroup" aria-label="Circuits"></div>
+    <label for="planWhy">Why did you pick this circuit? <span class="hint">2–3 sentences. Connect it to a FitnessGram score you want to improve.</span></label>
+    <textarea id="planWhy" data-save></textarea>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5" data-title="SMART goal">
+    <div class="step-head"><span class="step-num">5</span><h2>Set your SMART goal</h2></div>
+    <p class="intro">Build your goal one piece at a time, then put it together in one complete statement.</p>
+    <div class="smart-row"><span class="L">S</span><div><label for="sm_s">Specific <span class="hint">Which component of fitness are you addressing? Be specific.</span></label><textarea id="sm_s" data-save></textarea></div></div>
+    <div class="smart-row"><span class="L">M</span><div><label for="sm_m">Measurable <span class="hint">What numbers will show progress, and what tool will you use to measure them?</span></label><textarea id="sm_m" data-save></textarea></div></div>
+    <div class="smart-row"><span class="L">A</span><div><label for="sm_a">Accountable <span class="hint">Who or what will keep you on track? A friend, app, parent, teacher, or a combination?</span></label><textarea id="sm_a" data-save></textarea></div></div>
+    <div class="smart-row"><span class="L">R</span><div><label for="sm_r">Realistic <span class="hint">Is this goal challenging but reachable? Explain why.</span></label><textarea id="sm_r" data-save></textarea></div></div>
+    <div class="smart-row"><span class="L">T</span><div><label for="sm_t">Timeline <span class="hint">By what date will you fully reach this goal?</span></label><textarea id="sm_t" data-save></textarea></div></div>
+    <label for="sm_stmt">SMART goal statement <span class="hint">Write it in complete sentences, using all five parts.</span></label>
+    <textarea id="sm_stmt" data-save class="long"></textarea>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6" data-title="Habits of Mind">
+    <div class="step-head"><span class="step-num">6</span><h2>Habits of Mind</h2></div>
+    <p class="intro">Habits of Mind are the ways you think and act when something is challenging. Your examples can come from this class, another subject, or your wellness in general (sleep, stress, friendships, nutrition). Choose 3 habits. For each one, rate yourself and answer four short prompts.</p>
+    <h3>Pick 3 habits</h3>
+    <div class="chips" id="chips"></div>
+    <p class="chip-help" id="chipHelp" aria-live="polite">Select a habit to see what it looks like.</p>
+    <div id="homCards"></div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7" data-title="FitnessGram reflection">
+    <div class="step-head"><span class="step-num">7</span><h2>FitnessGram and wellness summary</h2></div>
+    <p class="intro">Write at least 6 sentences that respond to all four prompts.</p>
+    <ul class="prompts">
+      <li><b>All four tests:</b> reflect on your performance across every fitness and wellness test.</li>
+      <li><b>Class connections:</b> connect your data to the wellness concepts discussed in class.</li>
+      <li><b>Motivation and potential:</b> were you fully motivated? Did you perform to your potential? What could boost your drive next time?</li>
+      <li><b>Future goals:</b> how will these results shape your upcoming physical health and fitness targets?</li>
+    </ul>
+    <label for="ref_fg" class="sr">Your reflection</label>
+    <textarea id="ref_fg" data-save class="long" data-min="6"></textarea>
+    <div class="counter" data-for="ref_fg"></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8" data-title="SMART goal reflection">
+    <div class="step-head"><span class="step-num">8</span><h2>SMART goal summary</h2></div>
+    <p class="intro">Review your goal, analyze your results, and plan your next steps. Write at least 6 sentences.</p>
+    <ul class="prompts">
+      <li><b>Progress and connections:</b> reflect on your progress, connecting it to class content and your future goals.</li>
+      <li><b>Analyze results:</b> did you accomplish your goal? Why do you think you got these results?</li>
+      <li><b>Adjustments:</b> if you didn’t meet your goal, what will you change? If you did, what is your new goal?</li>
+    </ul>
+    <label for="ref_smart">Your reflection</label>
+    <textarea id="ref_smart" data-save class="long" data-min="6"></textarea>
+    <div class="counter" data-for="ref_smart"></div>
+  </section>
+
+  <section class="finish" id="finish">
+    <h2 class="plan-name" style="font-size:2.2rem">Download and submit</h2>
+    <p class="intro" style="color:var(--muted)">Your PDF includes everything above. Check the progress bar first; any unfinished steps will be listed here.</p>
+    <div class="row">
+      <button type="button" class="primary" id="pdfBtn">Download PDF</button>
+      <button type="button" id="saveBtn2">Save progress</button>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <footer>Your work saves automatically in this browser on this device. Nothing is sent anywhere. If you switch computers, use a shared or guest computer, or browse in private mode, use Save progress to download a backup file and Load progress to bring it back.</footer>
+</main>
+
+<script>
+/* ======== Teacher settings ======== */
+const CONFIG = {
+  course: "PE 2 Studio Fitness",
+  due: "Due Friday, December 11"
+};
+
+/* ======== Data ======== */
+const TESTS = [
+  {k:"curl", name:"Curl-ups", unit:"reps"},
+  {k:"push", name:"Push-ups", unit:"reps"},
+  {k:"srl",  name:"Sit and reach, left", unit:"inches"},
+  {k:"srr",  name:"Sit and reach, right", unit:"inches"},
+  {k:"pacer",name:"PACER", unit:"laps"},
+  {k:"rhr",  name:"Resting heart rate", unit:"bpm (lower is better)", lowerBetter:true}
+];
+
+const M = "Machine", D = "Dumbbells", B = "Body weight";
+const PLANS = [
+  {
+    id:"c1", name:"Circuit 1: Legs and glutes", tag:"3 machines + 3 floor moves", kind:"mixed",
+    best:"Builds strength in your legs, hips, and glutes, with a plank to finish each round.",
+    ex:[
+      {n:"Leg press", eq:M, dose:"12 reps", feel:"Front of thighs, glutes",
+       steps:["Sit with your back flat against the pad. Feet shoulder-width apart on the platform.","Release the handles and bend your knees toward your chest.","Push the platform away. Don’t lock your knees at the end."],
+       easier:"Lower the weight.", harder:"Raise the weight by one plate."},
+      {n:"Alternating side lunge", eq:B, dose:"10 each side", feel:"Inner and outer thighs, glutes",
+       steps:["Stand tall with feet together.","Take a big step out to the side. Sit your hips back and bend that knee. Keep the other leg straight.","Push off to come back to the middle, then switch sides."],
+       easier:"Take a smaller step.", harder:"Hold one dumbbell at your chest."},
+      {n:"Seated leg curl", eq:M, dose:"12 reps", feel:"Back of thighs (hamstrings)",
+       steps:["Sit with the lower pad behind your ankles and the top pad snug on your thighs.","Bend your knees to pull your heels under the seat.","Return slowly."],
+       easier:"Lower the weight.", harder:"Slow the return to 3 seconds."},
+      {n:"Glute bridge", eq:B, dose:"15 reps", feel:"Glutes, back of thighs",
+       steps:["Lie on your back with knees bent and feet flat, hip-width apart.","Squeeze your glutes and lift your hips until your body makes a straight line from knees to shoulders.","Hold 1 second, then lower slowly."],
+       easier:"Lift your hips only halfway.", harder:"Rest a dumbbell on your hips."},
+      {n:"Hip abduction (seated)", eq:M, dose:"12 reps", feel:"Outer hips, glutes",
+       steps:["Sit with the pads on the outside of your knees.","Push your legs apart as far as is comfortable.","Let them come back together slowly."],
+       easier:"Lower the weight.", harder:"Pause 1 second when your legs are open."},
+      {n:"Front plank", eq:B, dose:"30 sec", feel:"Abs, shoulders",
+       steps:["Rest on your forearms with elbows under your shoulders.","Step your feet back so your body makes a straight line from head to heels.","Squeeze your abs and glutes and breathe. Don’t let your hips sag."],
+       easier:"Keep your knees on the floor.", harder:"Hold for 45 seconds."}
+    ]
+  },
+  {
+    id:"c2", name:"Circuit 2: Upper body", tag:"3 machines + 3 floor moves", kind:"mixed",
+    best:"Strengthens your chest, back, shoulders, and arms. Helps your push-up score.",
+    ex:[
+      {n:"Chest press", eq:M, dose:"12 reps", feel:"Chest, shoulders, back of arms",
+       steps:["Adjust the seat so the handles line up with the middle of your chest.","Push the handles straight forward.","Bring them back slowly."],
+       easier:"Lower the weight.", harder:"Raise the weight."},
+      {n:"Push-up (on knees)", eq:B, dose:"10 reps", feel:"Chest, shoulders, back of arms",
+       steps:["Knees on the mat, hands a little wider than your shoulders.","Keep a straight line from your knees to your head.","Lower your chest toward the floor, then push back up."],
+       easier:"Put your hands on a bench.", harder:"Do it on your toes."},
+      {n:"Diverging lat pulldown", eq:M, dose:"12 reps", feel:"Back, front of arms",
+       steps:["Sit with your thighs tucked under the pad. Grab the handles.","Pull the handles down to your shoulders, elbows heading toward your ribs.","Let them rise back up slowly."],
+       easier:"Lower the weight.", harder:"Raise the weight."},
+      {n:"Dumbbell row", eq:D, dose:"12 reps", feel:"Upper back",
+       steps:["Hold a dumbbell in each hand. Bend forward at the hips with a flat back.","Pull your elbows back and squeeze your shoulder blades together.","Lower the weights slowly."],
+       easier:"Use lighter dumbbells.", harder:"Pause 1 second at the top."},
+      {n:"Converging shoulder press", eq:M, dose:"12 reps", feel:"Shoulders, back of arms",
+       steps:["Adjust the seat so the handles start at shoulder height.","Press the handles up overhead.","Lower them back to your shoulders slowly."],
+       easier:"Lower the weight.", harder:"Raise the weight."},
+      {n:"Bicep curls", eq:D, dose:"12 reps", feel:"Front of arms",
+       steps:["Stand with a dumbbell in each hand, palms facing forward.","Bend your elbows to bring the weights up to your shoulders. Elbows stay at your sides.","Lower slowly. No swinging."],
+       easier:"Use lighter dumbbells.", harder:"Go slower on the way down."}
+    ]
+  },
+  {
+    id:"c3", name:"Circuit 3: Full body", tag:"3 machines + 3 floor moves", kind:"mixed",
+    best:"Works everything and gets your heart rate up. Good if you want to improve your PACER.",
+    ex:[
+      {n:"Leg extension", eq:M, dose:"12 reps", feel:"Front of thighs (quads)",
+       steps:["Sit with your back against the pad and the lower pad on the front of your ankles.","Straighten your legs to lift the pad.","Lower slowly."],
+       easier:"Lower the weight.", harder:"Pause 1 second at the top."},
+      {n:"Goblet squat", eq:D, dose:"12 reps", feel:"Thighs, glutes",
+       steps:["Hold one dumbbell upright against your chest. Feet a little wider than your hips.","Sit your hips back and down like sitting in a chair. Keep your chest up.","Push through your heels to stand."],
+       easier:"Do it with no weight.", harder:"Use a heavier dumbbell."},
+      {n:"Pec fly", eq:M, dose:"12 reps", feel:"Chest",
+       steps:["Adjust the seat so the handles are at chest height. Sit with your back on the pad.","With a slight bend in your elbows, bring the handles together in front of you, like hugging a big tree.","Open back up slowly."],
+       easier:"Lower the weight.", harder:"Squeeze for 1 second in front."},
+      {n:"Thruster", eq:D, dose:"10 reps", feel:"Legs, shoulders, whole body",
+       steps:["Hold a dumbbell in each hand at your shoulders.","Squat down like you’re sitting in a chair.","As you stand up, press the weights straight overhead. Bring them back to your shoulders."],
+       easier:"Do it with no weight.", harder:"Use heavier dumbbells."},
+      {n:"Rear delt", eq:M, dose:"12 reps", feel:"Back of shoulders, upper back",
+       steps:["Sit facing the pad with your chest against it. Grab the handles in front of you.","Pull your arms back and out to the sides, like opening wings.","Return slowly."],
+       easier:"Lower the weight.", harder:"Squeeze your shoulder blades for 1 second."},
+      {n:"Mountain climbers", eq:B, dose:"30 sec", feel:"Abs, shoulders, heart rate",
+       steps:["Start in a plank on your hands, shoulders over your wrists.","Drive one knee toward your chest, then switch legs, like running in place.","Keep your hips low and move at a pace you can hold."],
+       easier:"Step your feet in one at a time, slowly.", harder:"Go faster."}
+    ]
+  },
+  {
+    id:"c4", name:"Circuit 4: Core and arms", tag:"3 machines + 3 floor moves", kind:"mixed",
+    best:"Strengthens your abs, back, and arms. Helps your curl-up score and posture.",
+    ex:[
+      {n:"Abdominal crunch", eq:M, dose:"12 reps", feel:"Abs",
+       steps:["Adjust the seat and hold the handles or pads.","Use your abs to curl your chest down toward your knees. Don’t pull with your arms.","Return slowly."],
+       easier:"Lower the weight.", harder:"Pause at the bottom."},
+      {n:"Russian twist", eq:B, dose:"20 total", feel:"Abs, sides of your waist",
+       steps:["Sit with knees bent and heels on the floor. Lean back a little.","Clasp your hands and twist to touch the floor beside one hip.","Twist to the other side and keep going."],
+       easier:"Lean back less.", harder:"Lift your feet or hold a dumbbell."},
+      {n:"Arm curl", eq:M, dose:"12 reps", feel:"Front of arms (biceps)",
+       steps:["Adjust the seat so the backs of your arms rest flat on the pad.","Curl the handles up toward your shoulders.","Lower slowly until your arms are almost straight."],
+       easier:"Lower the weight.", harder:"Slow the lowering to 3 seconds."},
+      {n:"Overhead triceps extension", eq:D, dose:"12 reps", feel:"Back of arms",
+       steps:["Hold one dumbbell with both hands straight above your head.","Bend your elbows to lower the weight behind your head. Elbows point forward.","Straighten your arms to lift it back up."],
+       easier:"Use a lighter dumbbell.", harder:"Use a heavier dumbbell."},
+      {n:"Low back extension", eq:M, dose:"12 reps", feel:"Lower back",
+       steps:["Sit with the pad across your upper back and your feet on the platform.","Push back slowly until your body is straight.","Return slowly. Stop if it hurts your back."],
+       easier:"Lower the weight.", harder:"Pause 1 second when straight."},
+      {n:"Alternating side plank", eq:B, dose:"20 sec each side", feel:"Sides of your waist",
+       steps:["Lie on your side and prop yourself up on your forearm, elbow under your shoulder.","Lift your hips so your body makes a straight line.","Hold, then switch sides."],
+       easier:"Keep your bottom knee on the floor.", harder:"Lift your top leg."}
+    ]
+  }
+];
+
+const HOW = {
+  mixed:{
+    title:"How the circuit works",
+    steps:[
+      "Warm up for 5 minutes (light jog, arm circles, leg swings).",
+      "Go through the 6 moves in order. Do the amount listed for each one, then move to the next.",
+      "After the last move, rest 1–2 minutes. That’s 1 round.",
+      "Do 3 rounds. Write your machine weights on your 2026 weight room card.",
+      "Cool down with 5 minutes of stretching. Hold each stretch for 20–30 seconds."
+    ],
+    note:"For machines and dumbbells, pick a weight where the last 2 reps feel hard but you can still do them correctly. Check that the pin is all the way in before you start, and wipe machines down when you finish."
+  }
+};
+
+const HABITS = [
+  {k:"persisting", n:"Persisting", pe:"Sticking with something hard, like a tough math problem, a long project, or a new routine, instead of giving up."},
+  {k:"impulsivity", n:"Managing impulsivity", pe:"Pausing to think before you act, speak, or turn in work, instead of rushing."},
+  {k:"listening", n:"Listening with understanding and empathy", pe:"Really listening to a classmate, friend, or teacher and trying to understand how they feel."},
+  {k:"flexibly", n:"Thinking flexibly", pe:"Trying a new approach when your first plan isn’t working, or seeing something from another point of view."},
+  {k:"metacognition", n:"Thinking about your thinking", pe:"Noticing how you learn best, how you handle stress, or why you made a choice, and adjusting on purpose."},
+  {k:"accuracy", n:"Striving for accuracy", pe:"Checking your work, rereading before you submit, and taking pride in getting things right."},
+  {k:"questioning", n:"Questioning and posing problems", pe:"Asking good questions in class, or asking for help when something doesn’t make sense."},
+  {k:"pastknowledge", n:"Applying past knowledge to new situations", pe:"Using something you learned before, in any class or in life, to handle something new."},
+  {k:"clarity", n:"Thinking and communicating with clarity", pe:"Explaining your ideas clearly when you write, present, or talk through a problem with someone."},
+  {k:"senses", n:"Gathering data through all senses", pe:"Paying attention to what you see, hear, and feel, like noticing when you’re tired, stressed, or hungry."},
+  {k:"creating", n:"Creating, imagining, innovating", pe:"Coming up with your own idea for a project, a solution, or a new healthy habit."},
+  {k:"wonderment", n:"Responding with wonderment and awe", pe:"Getting curious and excited about something you’re learning, inside or outside of school."},
+  {k:"risks", n:"Taking responsible risks", pe:"Trying something new, like speaking up in class or joining a club, in a safe and thoughtful way."},
+  {k:"humor", n:"Finding humor", pe:"Keeping a positive attitude and laughing in ways that help you and others get through hard days."},
+  {k:"interdependent", n:"Thinking interdependently", pe:"Working well in a group, sharing the load, and helping others succeed."},
+  {k:"learning", n:"Remaining open to continuous learning", pe:"Accepting feedback and always looking for the next thing to improve."}
+];
+
+const RUBRIC = [
+  {n:1, l:"Beginning", d:"I rarely showed this habit, even with reminders."},
+  {n:2, l:"Developing", d:"I showed it sometimes, mostly when someone prompted me."},
+  {n:3, l:"Proficient", d:"I showed it on my own during most class periods."},
+  {n:4, l:"Exemplary", d:"I showed it every class and helped others show it too."}
+];
+
+const HOM_PROMPTS = [
+  {k:"when", q:"When did you show it?", h:"Describe one specific moment in any class, at home, at work, or in your wellness routine."},
+  {k:"evidence", q:"What’s your evidence?", h:"A grade, a score, a project, a log entry, or feedback someone gave you."},
+  {k:"impact", q:"What was the impact?", h:"How did this habit affect your learning, your health, your relationships, or someone else?"},
+  {k:"next", q:"What’s your next step?", h:"One thing you’ll do to grow this habit before the next checkpoint."}
+];
+
+/* ======== State ======== */
+let homSelected = [];
+let homData = {};
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ======== Render: FitnessGram ======== */
+function renderFG(){
+  $("#fgBody").innerHTML = TESTS.map(t => `
+    <tr>
+      <td><b>${t.name}</b><span class="unit">${t.unit}</span></td>
+      <td><input type="number" step="any" id="fg_${t.k}_pre" data-save aria-label="${t.name} pre-test"></td>
+      <td><input type="number" step="any" id="fg_${t.k}_post" data-save aria-label="${t.name} post-test"></td>
+      <td class="chg" id="fg_${t.k}_chg">–</td>
+    </tr>`).join("");
+}
+function fgChange(t){
+  const a = parseFloat($(`#fg_${t.k}_pre`).value), b = parseFloat($(`#fg_${t.k}_post`).value);
+  if (isNaN(a) || isNaN(b)) return null;
+  const d = Math.round((b - a) * 10) / 10;
+  const improved = t.lowerBetter ? d < 0 : d > 0;
+  return {d, improved, same: d === 0};
+}
+function updateFG(){
+  TESTS.forEach(t => {
+    const c = fgChange(t), cell = $(`#fg_${t.k}_chg`);
+    cell.className = "chg";
+    if (!c){ cell.textContent = "–"; return; }
+    cell.textContent = (c.d > 0 ? "+" : "") + c.d + (c.same ? "" : c.improved ? " improved" : " declined");
+    if (!c.same) cell.classList.add(c.improved ? "up" : "down");
+  });
+}
+
+/* ======== Heart rate ======== */
+function hrValues(){
+  const age = parseFloat($("#age").value), rest = parseFloat($("#hrRest").value);
+  if (isNaN(age) || isNaN(rest)) return null;
+  const max = 220 - age, hrr = max - rest;
+  return {age, rest, max, hrr, thr: Math.round(hrr * 0.5 + rest), hi: Math.round(hrr * 0.85 + rest)};
+}
+function updateHR(){
+  const v = hrValues(), box = $("#hrCalc");
+  if (!v){ box.innerHTML = `<div><span>Enter your age (step 1) and resting heart rate to see your numbers.</span></div>`; return; }
+  box.innerHTML = `
+    <div><span>Max heart rate<br><span class="math">220 − ${v.age}</span></span><strong>${v.max} bpm</strong></div>
+    <div><span>Heart rate reserve<br><span class="math">${v.max} − ${v.rest}</span></span><strong>${v.hrr} bpm</strong></div>
+    <div><span>Target heart rate (50%)<br><span class="math">(${v.hrr} × 0.5) + ${v.rest}</span></span><strong>${v.thr} bpm</strong></div>
+    <div><span>Training zone<br><span class="math">50% to 85% of reserve</span></span><strong>${v.thr}–${v.hi} bpm</strong></div>`;
+}
+
+/* ======== Plans ======== */
+function renderPlans(){
+  $("#plans").innerHTML = PLANS.map(p => {
+    const how = HOW[p.kind];
+    return `
+    <div class="pick" data-plan="${p.id}">
+      <label class="pick-head">
+        <input type="radio" name="plan" value="${p.id}">
+        <span class="plan-top"><span class="plan-name">${p.name}</span><span class="tag">${p.tag}</span></span>
+        <span class="plan-meta">${p.best}</span>
+        <span class="plan-moves">Moves: ${p.ex.map(e => e.n).join(", ")}</span>
+        <span class="choose">${"Choose this circuit"}</span>
+      </label>
+      <div class="plan-body">
+        <div class="how">
+          <p class="how-title">${how.title}</p>
+          <ol>${how.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+          <p class="note">${how.note}</p>
+        </div>
+        <p class="how-title">The moves</p>
+        ${p.ex.map((e, i) => `
+          <details class="move">
+            <summary><span class="mv-n">${i + 1}</span><span><b>${e.n}</b><span class="feel">${e.eq}, ${e.dose}. Works: ${e.feel}</span></span></summary>
+            <ol>${e.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+            <p class="note"><b>Easier:</b> ${e.easier}</p>
+            <p class="note"><b>Harder:</b> ${e.harder}</p>
+          </details>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+  $$('input[name=plan]').forEach(r => r.addEventListener("change", syncPlan));
+}
+function syncPlan(){
+  $$("div.pick").forEach(d => {
+    const on = d.querySelector("input").checked;
+    d.classList.toggle("on", on);
+    d.querySelector(".choose").textContent = on ? "Your circuit" : "Choose this circuit";
+  });
+  update();
+}
+const chosenPlan = () => { const r = $('input[name=plan]:checked'); return r ? PLANS.find(p => p.id === r.value) : null; };
+
+/* ======== Habits of Mind ======== */
+function renderChips(){
+  $("#chips").innerHTML = HABITS.map(h =>
+    `<button type="button" class="chip" data-k="${h.k}" aria-pressed="${homSelected.includes(h.k)}">${h.n}</button>`).join("");
+  const full = homSelected.length >= 3;
+  $$(".chip").forEach(c => {
+    if (full && c.getAttribute("aria-pressed") !== "true") c.disabled = true;
+    c.addEventListener("click", () => toggleHabit(c.dataset.k));
+    c.addEventListener("mouseenter", () => showHelp(c.dataset.k));
+    c.addEventListener("focus", () => showHelp(c.dataset.k));
+  });
+}
+function showHelp(k){
+  const h = HABITS.find(x => x.k === k);
+  $("#chipHelp").textContent = `${h.n}: ${h.pe}`;
+}
+function toggleHabit(k){
+  if (homSelected.includes(k)) homSelected = homSelected.filter(x => x !== k);
+  else if (homSelected.length < 3) homSelected.push(k);
+  if (!homData[k]) homData[k] = {rating:0, when:"", evidence:"", impact:"", next:""};
+  renderChips(); renderHomCards(); update();
+  $("#chipHelp").textContent = homSelected.length >= 3
+    ? "You’ve picked 3 habits. Deselect one to swap it."
+    : `${3 - homSelected.length} more to choose.`;
+}
+function renderHomCards(){
+  const wrap = $("#homCards");
+  if (!homSelected.length){ wrap.innerHTML = `<div class="empty">Your 3 habits will appear here once you pick them.</div>`; return; }
+  wrap.innerHTML = homSelected.map((k, i) => {
+    const h = HABITS.find(x => x.k === k), d = homData[k];
+    return `<div class="hom-card" data-k="${k}">
+      <h3>Habit ${i + 1}: ${h.n}</h3>
+      <p class="pe">This looks like: ${h.pe}</p>
+      <label>Self-rating</label>
+      <div class="rubric" role="radiogroup" aria-label="Self-rating for ${h.n}">
+        ${RUBRIC.map(r => `<button type="button" data-r="${r.n}" aria-pressed="${d.rating === r.n}"><b>${r.n} ${r.l}</b>${r.d}</button>`).join("")}
+      </div>
+      ${HOM_PROMPTS.map(p => `
+        <label for="hom_${k}_${p.k}">${p.q} <span class="hint">${p.h}</span></label>
+        <textarea id="hom_${k}_${p.k}" data-hk="${k}" data-hp="${p.k}" style="min-height:80px">${esc(d[p.k])}</textarea>`).join("")}
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll(".rubric button").forEach(b => b.addEventListener("click", () => {
+    const k = b.closest(".hom-card").dataset.k;
+    homData[k].rating = +b.dataset.r;
+    b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    update();
+  }));
+  wrap.querySelectorAll("textarea").forEach(t => t.addEventListener("input", () => {
+    homData[t.dataset.hk][t.dataset.hp] = t.value; update();
+  }));
+}
+
+/* ======== Sentence counter ======== */
+function sentences(t){
+  const m = t.trim().match(/[^.!?]*[A-Za-z][^.!?]*[.!?]+/g);
+  return m ? m.length : 0;
+}
+function updateCounters(){
+  $$(".counter").forEach(c => {
+    const ta = $("#" + c.dataset.for), min = +ta.dataset.min, n = sentences(ta.value);
+    c.textContent = `${n} of ${min} sentences`;
+    c.classList.toggle("met", n >= min);
+  });
+}
+
+/* ======== Completion ======== */
+const filled = id => $("#" + id).value.trim() !== "";
+function stepStatus(){
+  return [
+    filled("name") && filled("hour") && filled("age"),
+    TESTS.every(t => filled(`fg_${t.k}_pre`) && filled(`fg_${t.k}_post`)),
+    !!hrValues(),
+    !!chosenPlan() && filled("planWhy"),
+    ["sm_s","sm_m","sm_a","sm_r","sm_t","sm_stmt"].every(filled),
+    homSelected.length === 3 && homSelected.every(k => homData[k].rating && HOM_PROMPTS.every(p => homData[k][p.k].trim())),
+    sentences($("#ref_fg").value) >= 6,
+    sentences($("#ref_smart").value) >= 6
+  ];
+}
+function renderLanes(){
+  $("#lanes").innerHTML = $$("section.step").map((s, i) =>
+    `<a href="#${s.id}" title="${i + 1}. ${s.dataset.title}" aria-label="Step ${i + 1}: ${s.dataset.title}"></a>`).join("");
+}
+function update(){
+  updateFG(); updateHR(); updateCounters();
+  const st = stepStatus();
+  $$("#lanes a").forEach((a, i) => {
+    a.classList.toggle("done", st[i]);
+    a.setAttribute("aria-label", `Step ${i + 1}: ${$$("section.step")[i].dataset.title}, ${st[i] ? "complete" : "not complete"}`);
+  });
+  $("#count").textContent = `${st.filter(Boolean).length} of 8 complete`;
+  scheduleSave();
+}
+
+/* ======== Save / load progress ======== */
+function collect(){
+  const fields = {};
+  $$("[data-save]").forEach(el => fields[el.id] = el.value);
+  const p = chosenPlan();
+  return {version:1, fields, plan: p ? p.id : null, homSelected, homData};
+}
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+}
+const fileBase = () => (($("#name").value.trim() || "Student").replace(/[^A-Za-z0-9]+/g, "_")) + "_Wellness_Checkpoint";
+function saveProgress(){
+  downloadBlob(new Blob([JSON.stringify(collect(), null, 2)], {type:"application/json"}), fileBase() + "_progress.json");
+  $("#status").textContent = "Progress file saved. Use Load progress next class to pick up where you left off.";
+}
+function loadProgress(file){
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      applyData(JSON.parse(r.result));
+      saveNow();
+      $("#status").textContent = "Progress loaded.";
+    }catch(e){
+      $("#status").textContent = "That file couldn’t be read. Choose the .json progress file you saved from this page.";
+    }
+  };
+  r.readAsText(file);
+}
+
+function applyData(d){
+  Object.entries(d.fields || {}).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
+  $$('input[name=plan]').forEach(x => x.checked = x.value === d.plan);
+  homSelected = (d.homSelected || []).filter(k => HABITS.some(h => h.k === k)).slice(0, 3);
+  homData = d.homData || {};
+  homSelected.forEach(k => { if (!homData[k]) homData[k] = {rating:0, when:"", evidence:"", impact:"", next:""}; });
+  syncPlan(); renderChips(); renderHomCards(); update();
+}
+
+/* ======== Autosave (browser storage on this device) ======== */
+const STORE_KEY = "wellnessCheckpoint:" + CONFIG.course;
+let storageOK = false, saveTimer = null, restoring = true;
+try{
+  localStorage.setItem(STORE_KEY + ":test", "1");
+  localStorage.removeItem(STORE_KEY + ":test");
+  storageOK = true;
+}catch(e){ storageOK = false; }
+
+function setSaveStatus(msg, cls){
+  const el = $("#autosave");
+  el.className = "autosave " + (cls || "");
+  el.innerHTML = `<span>${esc(msg)}</span>` + (storageOK ? `<button type="button" class="linkbtn" id="clearBtn">Start over</button>` : "");
+  const c = $("#clearBtn");
+  if (c) c.addEventListener("click", startOver);
+}
+function saveNow(){
+  if (!storageOK || restoring) return;
+  clearTimeout(saveTimer);
+  try{
+    const d = collect(); d.savedAt = new Date().toISOString();
+    localStorage.setItem(STORE_KEY, JSON.stringify(d));
+    setSaveStatus("Saved on this device at " + new Date().toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}), "ok");
+  }catch(e){
+    setSaveStatus("Couldn’t save automatically. Use Save progress to download a backup.", "off");
+  }
+}
+function scheduleSave(){
+  if (!storageOK || restoring) return;
+  setSaveStatus("Saving…", "");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 600);
+}
+function restore(){
+  if (!storageOK){
+    setSaveStatus("Autosave isn’t available in this browser. Use Save progress before you leave.", "off");
+    return false;
+  }
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw){ setSaveStatus("Your work will save automatically as you type.", "ok"); return false; }
+    const d = JSON.parse(raw);
+    applyData(d);
+    const when = d.savedAt ? new Date(d.savedAt) : null;
+    setSaveStatus("Welcome back. Your work was restored" + (when ? " from " + when.toLocaleDateString([], {month:"short", day:"numeric"}) + " at " + when.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) : "") + ".", "ok");
+    return true;
+  }catch(e){
+    setSaveStatus("Saved work couldn’t be restored. Use Load progress if you have a backup file.", "off");
+    return false;
+  }
+}
+function startOver(){
+  if (!confirm("Clear every answer on this page and start over? This can’t be undone unless you saved a backup file.")) return;
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  $$("[data-save]").forEach(el => el.value = "");
+  $$('input[name=plan]').forEach(x => x.checked = false);
+  homSelected = []; homData = {};
+  syncPlan(); renderChips(); renderHomCards(); update();
+  $("#status").textContent = "";
+  setSaveStatus("Cleared. Your work will save automatically as you type.", "ok");
+}
+
+/* ======== PDF ======== */
+function clean(s){
+  return String(s ?? "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-")
+    .replace(/×/g, "x").replace(/−/g, "-").replace(/…/g, "...").replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+}
+function makePDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:"pt", format:"letter"});
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 54, CW = W - M * 2;
+  let y = M;
+  const need = h => { if (y + h > H - M){ doc.addPage(); y = M; } };
+  const text = (s, size = 11, style = "normal", gap = 4, indent = 0) => {
+    doc.setFont("helvetica", style); doc.setFontSize(size);
+    const lines = doc.splitTextToSize(clean(s) || " ", CW - indent);
+    const lh = size * 1.35;
+    lines.forEach(l => { need(lh); doc.text(l, M + indent, y + size); y += lh; });
+    y += gap;
+  };
+  const section = s => {
+    need(40); y += 10;
+    doc.setDrawColor(31, 79, 191); doc.setLineWidth(2); doc.line(M, y, M + CW, y); y += 8;
+    text(s, 15, "bold", 6);
+  };
+  const qa = (q, a) => { text(q, 10.5, "bold", 2); text(a && a.trim() ? a : "(no response)", 11, "normal", 8); };
+
+  const f = id => $("#" + id).value.trim();
+  // Header
+  text(CONFIG.course, 10, "normal", 0);
+  text("Wellness Checkpoint", 24, "bold", 4);
+  text(`Name: ${f("name") || "-"}     Hour: ${f("hour") || "-"}     Age: ${f("age") || "-"}`, 11, "normal", 2);
+  text(`Downloaded ${new Date().toLocaleDateString()}     ${CONFIG.due}`, 9.5, "normal", 4);
+
+  // FitnessGram
+  section("1. FitnessGram data");
+  const cols = [M, M + CW * 0.42, M + CW * 0.6, M + CW * 0.78];
+  need(20);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(10.5);
+  ["Assessment", "Pre-test", "Post-test", "Change"].forEach((h, i) => doc.text(h, cols[i], y + 10));
+  y += 16; doc.setLineWidth(.5); doc.setDrawColor(150); doc.line(M, y, M + CW, y); y += 4;
+  doc.setFont("helvetica", "normal");
+  TESTS.forEach(t => {
+    need(18);
+    const c = fgChange(t);
+    const ch = c ? (c.d > 0 ? "+" : "") + c.d + (c.same ? "" : c.improved ? " (improved)" : " (declined)") : "-";
+    [`${t.name} (${t.unit.split(" ")[0]})`, f(`fg_${t.k}_pre`) || "-", f(`fg_${t.k}_post`) || "-", ch]
+      .forEach((v, i) => doc.text(clean(v), cols[i], y + 11));
+    y += 17;
+  });
+  y += 4;
+
+  // Heart rate
+  section("2. Heart rate zones");
+  const v = hrValues();
+  if (v){
+    text(`Max heart rate: 220 - ${v.age} = ${v.max} bpm`);
+    text(`Heart rate reserve: ${v.max} - ${v.rest} = ${v.hrr} bpm`);
+    text(`Target heart rate: (${v.hrr} x 0.5) + ${v.rest} = ${v.thr} bpm`);
+    text(`Training zone (50-85%): ${v.thr}-${v.hi} bpm`, 11, "normal", 6);
+  } else text("(age or resting heart rate not entered)");
+
+  // Plan
+  section("3. Circuit");
+  const p = chosenPlan();
+  if (p){
+    text(`${p.name} (${p.tag})`, 12.5, "bold", 2);
+    HOW[p.kind].steps.slice(1, 4).forEach(st => text(st, 10.5, "normal", 0, 8));
+    y += 4;
+    p.ex.forEach((e, i) => text(`${i + 1}. ${e.n} (${e.eq}) - ${e.dose} - works: ${e.feel}`, 10.5, "normal", 0, 8));
+    y += 6;
+  } else text("(no circuit selected)");
+  qa("Why I picked this circuit", f("planWhy"));
+
+  // SMART
+  section("4. SMART goal");
+  [["Specific","sm_s"],["Measurable","sm_m"],["Accountable","sm_a"],["Realistic","sm_r"],["Timeline","sm_t"],["SMART goal statement","sm_stmt"]]
+    .forEach(([q, id]) => qa(q, f(id)));
+
+  // HoM
+  section("5. Habits of Mind");
+  if (!homSelected.length) text("(no habits selected)");
+  homSelected.forEach((k, i) => {
+    const h = HABITS.find(x => x.k === k), d = homData[k], r = RUBRIC.find(x => x.n === d.rating);
+    need(50);
+    text(`Habit ${i + 1}: ${h.n}`, 12.5, "bold", 1);
+    text(`Self-rating: ${r ? `${r.n} - ${r.l} (${r.d})` : "not rated"}`, 10.5, "italic", 5);
+    HOM_PROMPTS.forEach(pr => qa(pr.q, d[pr.k]));
+  });
+
+  // Reflections
+  section("6. FitnessGram and wellness summary");
+  text(`(${sentences(f("ref_fg"))} sentences)`, 9.5, "italic", 2);
+  text(f("ref_fg") || "(no response)", 11, "normal", 6);
+  section("7. SMART goal summary");
+  text(`(${sentences(f("ref_smart"))} sentences)`, 9.5, "italic", 2);
+  text(f("ref_smart") || "(no response)", 11, "normal", 6);
+
+  // Page numbers
+  const n = doc.getNumberOfPages();
+  for (let i = 1; i <= n; i++){
+    doc.setPage(i); doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(120);
+    doc.text(clean(`${f("name") || "Student"} - Wellness Checkpoint - page ${i} of ${n}`), M, H - 28);
+    doc.setTextColor(0);
+  }
+  doc.save(fileBase() + ".pdf");
+}
+function handlePDF(){
+  const st = stepStatus(), titles = $$("section.step").map(s => s.dataset.title);
+  const missing = titles.filter((t, i) => !st[i]);
+  const status = $("#status");
+  if (missing.length){
+    status.innerHTML = `<span class="missing">Still unfinished: ${missing.map(esc).join(", ")}.</span> Your PDF downloaded anyway so you can see your work; finish these before you submit.`;
+  } else status.textContent = "All 8 steps complete. Your PDF downloaded; submit it to your teacher.";
+  if (window.jspdf && window.jspdf.jsPDF){
+    try{ makePDF(); } catch(e){ status.textContent = "The PDF couldn’t be created. Use your browser’s print menu and choose Save as PDF."; window.print(); }
+  } else {
+    status.textContent = "The PDF tool didn’t load (check your internet connection). Your print menu will open; choose Save as PDF.";
+    window.print();
+  }
+}
+
+/* ======== Init ======== */
+$("#courseName").textContent = CONFIG.course;
+$("#dueDate").textContent = CONFIG.due;
+renderFG(); renderPlans(); renderChips(); renderHomCards(); renderLanes();
+document.addEventListener("input", e => { if (e.target.matches("[data-save]")) update(); });
+$("#saveBtn").addEventListener("click", saveProgress);
+$("#saveBtn2").addEventListener("click", saveProgress);
+$("#loadBtn").addEventListener("click", () => $("#loadFile").click());
+$("#loadFile").addEventListener("change", e => { if (e.target.files[0]) loadProgress(e.target.files[0]); e.target.value = ""; });
+$("#pdfBtn").addEventListener("click", handlePDF);
+restore();
+update();
+restoring = false;
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveNow(); });
+window.addEventListener("pagehide", saveNow);
+window.addEventListener("beforeunload", e => {
+  saveNow();
+  if (!storageOK && stepStatus().some(Boolean)){ e.preventDefault(); e.returnValue = ""; }
+});
+</script>
+</body>
+</html>
