@@ -43,7 +43,7 @@ header.hero{padding:44px 0 28px;border-bottom:6px solid var(--ink)}
 .board{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 0 12px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
 .board .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.lanes{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;flex:1 1 280px}
+.lanes{display:grid;grid-template-columns:repeat(var(--steps,10),1fr);gap:4px;flex:1 1 280px}
 .lanes a{display:block;height:12px;border-radius:2px;background:var(--line);text-decoration:none;position:relative}
 .lanes a.done{background:var(--good)}
 .lanes a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
@@ -90,6 +90,21 @@ td.chg{font-weight:700;white-space:nowrap}
 .calc div:last-child{border-bottom:none}
 .calc .math{color:var(--muted)}
 .calc strong{font-family:var(--display);font-size:1.35rem}
+
+/* About me + HR activity */
+.quote{border-left:4px solid var(--blue);padding:2px 0 6px 16px;margin:14px 0}
+.quote label:first-child{margin-top:4px}
+.hra td:first-child{min-width:220px}
+.hra td input{max-width:120px}
+.hra .choice{margin-top:6px}
+.zone{display:flex;align-items:center;gap:10px;min-width:170px}
+.zone .bar{flex:1;height:10px;border-radius:5px;background:var(--line);position:relative;overflow:hidden;min-width:70px}
+.zone .bar i{position:absolute;inset:0 auto 0 0;background:var(--muted);border-radius:5px}
+.zone .bar b{position:absolute;top:0;bottom:0;background:var(--good);opacity:.25}
+.zone.in .bar i{background:var(--good)}
+.zone.above .bar i{background:var(--bad)}
+.zone span{font-weight:700;font-size:.85rem;white-space:nowrap}
+.zone.in span{color:var(--good)} .zone.above span{color:var(--bad)}
 
 /* Plans */
 .plans{display:grid;gap:12px;margin-bottom:6px}
@@ -188,7 +203,7 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
 <nav class="board" aria-label="Checkpoint progress">
   <div class="wrap row">
     <div class="lanes" id="lanes"></div>
-    <span class="count" id="count">0 of 8 complete</span>
+    <span class="count" id="count"></span>
     <div class="actions">
       <button type="button" id="saveBtn" title="Download a progress file you can load later">Save progress</button>
       <button type="button" id="loadBtn">Load progress</button>
@@ -202,7 +217,7 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
 
   <!-- 1 -->
   <section class="step" id="s1" data-title="Student information">
-    <div class="step-head"><span class="step-num">1</span><h2>Student information</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>Student information</h2></div>
     <div class="grid3">
       <div><label for="name">Full name</label><input type="text" id="name" data-save autocomplete="name"></div>
       <div><label for="hour">Hour</label><input type="text" id="hour" data-save></div>
@@ -211,8 +226,39 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
   </section>
 
   <!-- 2 -->
+  <section class="step" id="sAbout" data-title="About me">
+    <div class="step-head"><span class="step-num"></span><h2>About me</h2></div>
+    <p class="intro">Tell us about yourself as it relates to fitness and health. Write at least 3 sentences for each.</p>
+    <label for="ab_me">About me <span class="hint">Sports, activities, or ways you like to move. How do you feel about exercise?</span></label>
+    <textarea id="ab_me" data-save data-min="3"></textarea>
+    <div class="counter" data-for="ab_me"></div>
+    <label for="ab_goals">My health goals <span class="hint">Why do you want to get healthy and stay healthy?</span></label>
+    <textarea id="ab_goals" data-save data-min="3"></textarea>
+    <div class="counter" data-for="ab_goals"></div>
+    <label for="ab_motive">What motivates me <span class="hint">People, music, goals, or anything else that inspires you to keep going.</span></label>
+    <textarea id="ab_motive" data-save data-min="3"></textarea>
+    <div class="counter" data-for="ab_motive"></div>
+
+    <h3>My favorite motivational quotes</h3>
+    <p class="intro" style="margin-top:0">Add at least one quote that motivates you, and say who said it or where you found it.</p>
+    <div class="quote">
+      <label for="q1_text">Quote 1</label>
+      <textarea id="q1_text" data-save style="min-height:70px"></textarea>
+      <label for="q1_src">Source <span class="hint">Who said it, or where you found it</span></label>
+      <input type="text" id="q1_src" data-save>
+    </div>
+    <div class="quote">
+      <label for="q2_text">Quote 2 <span class="hint">Optional</span></label>
+      <textarea id="q2_text" data-save style="min-height:70px"></textarea>
+      <label for="q2_src">Source</label>
+      <input type="text" id="q2_src" data-save>
+    </div>
+    <label for="q_why">Why does this quote motivate you? <span class="hint">1–2 sentences</span></label>
+    <textarea id="q_why" data-save style="min-height:70px"></textarea>
+  </section>
+
   <section class="step" id="s2" data-title="FitnessGram data">
-    <div class="step-head"><span class="step-num">2</span><h2>FitnessGram data</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>FitnessGram data</h2></div>
     <p class="intro">Enter your pre-test and post-test scores. The change column fills in on its own. For resting heart rate, a lower number is an improvement.</p>
     <div class="scroll">
       <table>
@@ -224,7 +270,7 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
 
   <!-- 3 -->
   <section class="step" id="s3" data-title="Heart rate zones">
-    <div class="step-head"><span class="step-num">3</span><h2>Heart rate zones</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>Heart rate zones</h2></div>
     <p class="intro">Your target heart rate tells you how hard to work during cardio. Enter your age in step 1 and your resting heart rate below.</p>
     <div class="grid2">
       <div><label for="hrRest">Resting heart rate <span class="hint">Beats per minute, taken sitting still</span></label><input type="number" id="hrRest" data-save min="30" max="140"></div>
@@ -233,8 +279,21 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
   </section>
 
   <!-- 4 -->
+  <section class="step" id="sHRA" data-title="Heart rate activity">
+    <div class="step-head"><span class="step-num"></span><h2>Heart rate activity</h2></div>
+    <p class="intro">Do each activity, then right away count your pulse for 15 seconds and multiply by 4. Enter your beats per minute. If you’ve finished Heart rate zones, each row shows whether you reached your training zone.</p>
+    <div class="scroll">
+      <table class="hra">
+        <thead><tr><th>Activity</th><th>Heart rate (bpm)</th><th>Zone</th></tr></thead>
+        <tbody id="hraBody"></tbody>
+      </table>
+    </div>
+    <label for="hra_why">What did you notice? <span class="hint">2–3 sentences. Which activity raised your heart rate the most? Which ones put you in your training zone?</span></label>
+    <textarea id="hra_why" data-save></textarea>
+  </section>
+
   <section class="step" id="s4" data-title="Circuit">
-    <div class="step-head"><span class="step-num">4</span><h2>Choose your circuit</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>Choose your circuit</h2></div>
     <p class="intro">Each circuit mixes machines from the 2026 weight room card with body weight and dumbbell moves. Pick the one that fits your SMART goal, then tap any move to see how to do it.</p>
         <div class="plans" id="plans" role="radiogroup" aria-label="Circuits"></div>
     <label for="planWhy">Why did you pick this circuit? <span class="hint">2–3 sentences. Connect it to a FitnessGram score you want to improve.</span></label>
@@ -243,7 +302,7 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
 
   <!-- 5 -->
   <section class="step" id="s5" data-title="SMART goal">
-    <div class="step-head"><span class="step-num">5</span><h2>Set your SMART goal</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>Set your SMART goal</h2></div>
     <p class="intro">Build your goal one piece at a time, then put it together in one complete statement.</p>
     <div class="smart-row"><span class="L">S</span><div><label for="sm_s">Specific <span class="hint">Which component of fitness are you addressing? Be specific.</span></label><textarea id="sm_s" data-save></textarea></div></div>
     <div class="smart-row"><span class="L">M</span><div><label for="sm_m">Measurable <span class="hint">What numbers will show progress, and what tool will you use to measure them?</span></label><textarea id="sm_m" data-save></textarea></div></div>
@@ -256,7 +315,7 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
 
   <!-- 6 -->
   <section class="step" id="s6" data-title="Habits of Mind">
-    <div class="step-head"><span class="step-num">6</span><h2>Habits of Mind</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>Habits of Mind</h2></div>
     <p class="intro">Habits of Mind are the ways you think and act when something is challenging. Your examples can come from this class, another subject, or your wellness in general (sleep, stress, friendships, nutrition). Choose 3 habits. For each one, rate yourself and answer four short prompts.</p>
     <h3>Pick 3 habits</h3>
     <div class="chips" id="chips"></div>
@@ -266,7 +325,7 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
 
   <!-- 7 -->
   <section class="step" id="s7" data-title="FitnessGram reflection">
-    <div class="step-head"><span class="step-num">7</span><h2>FitnessGram and wellness summary</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>FitnessGram and wellness summary</h2></div>
     <p class="intro">Write at least 6 sentences that respond to all four prompts.</p>
     <ul class="prompts">
       <li><b>All four tests:</b> reflect on your performance across every fitness and wellness test.</li>
@@ -281,7 +340,7 @@ footer{color:var(--muted);font-size:.85rem;padding-bottom:40px}
 
   <!-- 8 -->
   <section class="step" id="s8" data-title="SMART goal reflection">
-    <div class="step-head"><span class="step-num">8</span><h2>SMART goal summary</h2></div>
+    <div class="step-head"><span class="step-num"></span><h2>SMART goal summary</h2></div>
     <p class="intro">Review your goal, analyze your results, and plan your next steps. Write at least 6 sentences.</p>
     <ul class="prompts">
       <li><b>Progress and connections:</b> reflect on your progress, connecting it to class content and your future goals.</li>
@@ -324,6 +383,17 @@ const TESTS = [
 ];
 
 const M = "Machine", D = "Dumbbells", B = "Body weight";
+const HR_ACTS = [
+  {k:"rest", n:"Standing relaxed"},
+  {k:"squat", n:"After 30 seconds of squats"},
+  {k:"jj", n:"After 1 minute of jumping jacks"},
+  {k:"burpee", n:"After 45 seconds of burpees"},
+  {k:"walk", n:"After walking at an easy pace for 3 minutes"},
+  {k:"jog", n:"After jogging in place for 2 minutes"},
+  {k:"run", n:"After running for 1 minute (or in place)"},
+  {k:"choice", n:"Activity of your choice for 1 minute", custom:true}
+];
+
 const PLANS = [
   {
     id:"c1", name:"Circuit 1: Legs and glutes", tag:"3 machines + 3 floor moves", kind:"mixed",
@@ -522,6 +592,34 @@ function updateHR(){
     <div><span>Training zone<br><span class="math">50% to 85% of reserve</span></span><strong>${v.thr}–${v.hi} bpm</strong></div>`;
 }
 
+/* ======== Heart rate activity ======== */
+function renderHRA(){
+  $("#hraBody").innerHTML = HR_ACTS.map(a => `
+    <tr>
+      <td><b>${a.n}</b>${a.custom ? `<input type="text" class="choice" id="hra_choice_name" data-save placeholder="Name your activity" aria-label="Name of your chosen activity">` : ""}</td>
+      <td><input type="number" id="hra_${a.k}" data-save min="30" max="230" aria-label="Heart rate ${a.n}"></td>
+      <td><div class="zone" id="hra_${a.k}_z"></div></td>
+    </tr>`).join("");
+}
+function updateHRA(){
+  const v = hrValues();
+  HR_ACTS.forEach(a => {
+    const bpm = parseFloat($(`#hra_${a.k}`).value), z = $(`#hra_${a.k}_z`);
+    z.className = "zone";
+    if (isNaN(bpm)){ z.innerHTML = ""; return; }
+    if (!v){ z.innerHTML = `<span style="color:var(--muted)">Finish heart rate zones</span>`; return; }
+    const pct = x => Math.max(0, Math.min(100, x / v.max * 100));
+    const label = bpm < v.thr ? "Below zone" : bpm <= v.hi ? "In zone" : "Above zone";
+    z.classList.add(bpm < v.thr ? "below" : bpm <= v.hi ? "in" : "above");
+    z.innerHTML = `<div class="bar" aria-hidden="true"><b style="left:${pct(v.thr)}%;width:${pct(v.hi) - pct(v.thr)}%"></b><i style="width:${pct(bpm)}%"></i></div><span>${label}</span>`;
+  });
+}
+function hraZoneLabel(k){
+  const v = hrValues(), bpm = parseFloat($(`#hra_${k}`).value);
+  if (isNaN(bpm) || !v) return "";
+  return bpm < v.thr ? "below zone" : bpm <= v.hi ? "in zone" : "above zone";
+}
+
 /* ======== Plans ======== */
 function renderPlans(){
   $("#plans").innerHTML = PLANS.map(p => {
@@ -632,30 +730,33 @@ function updateCounters(){
 
 /* ======== Completion ======== */
 const filled = id => $("#" + id).value.trim() !== "";
+const CHECKS = {
+  s1: () => filled("name") && filled("hour") && filled("age"),
+  sAbout: () => ["ab_me","ab_goals","ab_motive"].every(id => sentences($("#" + id).value) >= 3) && filled("q1_text") && filled("q1_src") && filled("q_why"),
+  s2: () => TESTS.every(t => filled(`fg_${t.k}_pre`) && filled(`fg_${t.k}_post`)),
+  s3: () => !!hrValues(),
+  sHRA: () => HR_ACTS.every(a => filled(`hra_${a.k}`)) && filled("hra_choice_name") && filled("hra_why"),
+  s4: () => !!chosenPlan() && filled("planWhy"),
+  s5: () => ["sm_s","sm_m","sm_a","sm_r","sm_t","sm_stmt"].every(filled),
+  s6: () => homSelected.length === 3 && homSelected.every(k => homData[k].rating && HOM_PROMPTS.every(p => homData[k][p.k].trim())),
+  s7: () => sentences($("#ref_fg").value) >= 6,
+  s8: () => sentences($("#ref_smart").value) >= 6
+};
 function stepStatus(){
-  return [
-    filled("name") && filled("hour") && filled("age"),
-    TESTS.every(t => filled(`fg_${t.k}_pre`) && filled(`fg_${t.k}_post`)),
-    !!hrValues(),
-    !!chosenPlan() && filled("planWhy"),
-    ["sm_s","sm_m","sm_a","sm_r","sm_t","sm_stmt"].every(filled),
-    homSelected.length === 3 && homSelected.every(k => homData[k].rating && HOM_PROMPTS.every(p => homData[k][p.k].trim())),
-    sentences($("#ref_fg").value) >= 6,
-    sentences($("#ref_smart").value) >= 6
-  ];
+  return $$("section.step").map(sec => CHECKS[sec.id] ? CHECKS[sec.id]() : false);
 }
 function renderLanes(){
   $("#lanes").innerHTML = $$("section.step").map((s, i) =>
     `<a href="#${s.id}" title="${i + 1}. ${s.dataset.title}" aria-label="Step ${i + 1}: ${s.dataset.title}"></a>`).join("");
 }
 function update(){
-  updateFG(); updateHR(); updateCounters();
+  updateFG(); updateHR(); updateHRA(); updateCounters();
   const st = stepStatus();
   $$("#lanes a").forEach((a, i) => {
     a.classList.toggle("done", st[i]);
     a.setAttribute("aria-label", `Step ${i + 1}: ${$$("section.step")[i].dataset.title}, ${st[i] ? "complete" : "not complete"}`);
   });
-  $("#count").textContent = `${st.filter(Boolean).length} of 8 complete`;
+  $("#count").textContent = `${st.filter(Boolean).length} of ${st.length} complete`;
   scheduleSave();
 }
 
@@ -779,7 +880,8 @@ function makePDF(){
     lines.forEach(l => { need(lh); doc.text(l, M + indent, y + size); y += lh; });
     y += gap;
   };
-  const section = s => {
+  let secN = 0;
+  const section = s => { s = `${++secN}. ${s}`;
     need(40); y += 10;
     doc.setDrawColor(31, 79, 191); doc.setLineWidth(2); doc.line(M, y, M + CW, y); y += 8;
     text(s, 15, "bold", 6);
@@ -793,8 +895,21 @@ function makePDF(){
   text(`Name: ${f("name") || "-"}     Hour: ${f("hour") || "-"}     Age: ${f("age") || "-"}`, 11, "normal", 2);
   text(`Downloaded ${new Date().toLocaleDateString()}     ${CONFIG.due}`, 9.5, "normal", 4);
 
+  // About me
+  section("About me");
+  qa("About me", f("ab_me"));
+  qa("My health goals", f("ab_goals"));
+  qa("What motivates me", f("ab_motive"));
+  text("Favorite motivational quotes", 10.5, "bold", 2);
+  [["q1_text","q1_src"],["q2_text","q2_src"]].forEach(([q, src]) => {
+    if (f(q)) text(`"${f(q)}"${f(src) ? " - " + f(src) : ""}`, 11, "italic", 4, 8);
+  });
+  if (!f("q1_text") && !f("q2_text")) text("(no quote added)", 11, "normal", 4);
+  y += 4;
+  qa("Why this quote motivates me", f("q_why"));
+
   // FitnessGram
-  section("1. FitnessGram data");
+  section("FitnessGram data");
   const cols = [M, M + CW * 0.42, M + CW * 0.6, M + CW * 0.78];
   need(20);
   doc.setFont("helvetica", "bold"); doc.setFontSize(10.5);
@@ -812,7 +927,7 @@ function makePDF(){
   y += 4;
 
   // Heart rate
-  section("2. Heart rate zones");
+  section("Heart rate zones");
   const v = hrValues();
   if (v){
     text(`Max heart rate: 220 - ${v.age} = ${v.max} bpm`);
@@ -821,8 +936,28 @@ function makePDF(){
     text(`Training zone (50-85%): ${v.thr}-${v.hi} bpm`, 11, "normal", 6);
   } else text("(age or resting heart rate not entered)");
 
+  need(120);
+  section("Heart rate activity");
+  const hc = [M, M + CW * 0.62, M + CW * 0.8];
+  need(20);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(10.5);
+  ["Activity", "BPM", "Zone"].forEach((h, i) => doc.text(h, hc[i], y + 10));
+  y += 16; doc.setLineWidth(.5); doc.setDrawColor(150); doc.line(M, y, M + CW, y); y += 4;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10.5);
+  HR_ACTS.forEach(a => {
+    const name = a.custom ? `Choice: ${f("hra_choice_name") || "(not named)"} (1 min)` : a.n;
+    const lines = doc.splitTextToSize(clean(name), CW * 0.6);
+    need(lines.length * 13 + 6);
+    lines.forEach((l, i) => doc.text(l, hc[0], y + 11 + i * 13));
+    doc.text(clean(f(`hra_${a.k}`) || "-"), hc[1], y + 11);
+    doc.text(clean(hraZoneLabel(a.k) || "-"), hc[2], y + 11);
+    y += lines.length * 13 + 5;
+  });
+  y += 6;
+  qa("What I noticed", f("hra_why"));
+
   // Plan
-  section("3. Circuit");
+  section("Circuit");
   const p = chosenPlan();
   if (p){
     text(`${p.name} (${p.tag})`, 12.5, "bold", 2);
@@ -834,12 +969,12 @@ function makePDF(){
   qa("Why I picked this circuit", f("planWhy"));
 
   // SMART
-  section("4. SMART goal");
+  section("SMART goal");
   [["Specific","sm_s"],["Measurable","sm_m"],["Accountable","sm_a"],["Realistic","sm_r"],["Timeline","sm_t"],["SMART goal statement","sm_stmt"]]
     .forEach(([q, id]) => qa(q, f(id)));
 
   // HoM
-  section("5. Habits of Mind");
+  section("Habits of Mind");
   if (!homSelected.length) text("(no habits selected)");
   homSelected.forEach((k, i) => {
     const h = HABITS.find(x => x.k === k), d = homData[k], r = RUBRIC.find(x => x.n === d.rating);
@@ -850,10 +985,10 @@ function makePDF(){
   });
 
   // Reflections
-  section("6. FitnessGram and wellness summary");
+  section("FitnessGram and wellness summary");
   text(`(${sentences(f("ref_fg"))} sentences)`, 9.5, "italic", 2);
   text(f("ref_fg") || "(no response)", 11, "normal", 6);
-  section("7. SMART goal summary");
+  section("SMART goal summary");
   text(`(${sentences(f("ref_smart"))} sentences)`, 9.5, "italic", 2);
   text(f("ref_smart") || "(no response)", 11, "normal", 6);
 
@@ -872,7 +1007,7 @@ function handlePDF(){
   const status = $("#status");
   if (missing.length){
     status.innerHTML = `<span class="missing">Still unfinished: ${missing.map(esc).join(", ")}.</span> Your PDF downloaded anyway so you can see your work; finish these before you submit.`;
-  } else status.textContent = "All 8 steps complete. Your PDF downloaded; submit it to your teacher.";
+  } else status.textContent = `All ${st.length} steps complete. Your PDF downloaded; submit it to your teacher.`;
   if (window.jspdf && window.jspdf.jsPDF){
     try{ makePDF(); } catch(e){ status.textContent = "The PDF couldn’t be created. Use your browser’s print menu and choose Save as PDF."; window.print(); }
   } else {
@@ -884,7 +1019,9 @@ function handlePDF(){
 /* ======== Init ======== */
 $("#courseName").textContent = CONFIG.course;
 $("#dueDate").textContent = CONFIG.due;
-renderFG(); renderPlans(); renderChips(); renderHomCards(); renderLanes();
+$$("section.step").forEach((sec, i) => sec.querySelector(".step-num").textContent = i + 1);
+document.documentElement.style.setProperty("--steps", $$("section.step").length);
+renderFG(); renderHRA(); renderPlans(); renderChips(); renderHomCards(); renderLanes();
 document.addEventListener("input", e => { if (e.target.matches("[data-save]")) update(); });
 $("#saveBtn").addEventListener("click", saveProgress);
 $("#saveBtn2").addEventListener("click", saveProgress);
