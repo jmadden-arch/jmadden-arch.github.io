@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Memory Quiz 3 Review · AP Psych 2.5–2.6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F7; --surface:#FFFFFF; --ink:#18213D; --muted:#5A6482; --line:#D5DBE8;
+  --encode:#159A94; --store:#E0A21C; --retrieve:#D9446E; --violet:#7A5FD0;
+  --good:#1F8A5B; --good-bg:#E2F4EA; --bad:#C23A3A; --bad-bg:#FBE6E6;
+  --chip:#E4E9F3; --shadow:0 1px 0 rgba(24,33,61,.06), 0 6px 20px rgba(24,33,61,.06);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1426; --surface:#182039; --ink:#E8ECF7; --muted:#9AA4C2; --line:#2B3555;
+    --encode:#3CC7BF; --store:#F2BE4C; --retrieve:#F06A92; --violet:#A58EF0;
+    --good:#58D49A; --good-bg:#173A2C; --bad:#F27C7C; --bad-bg:#3E1E25;
+    --chip:#232D4C; --shadow:none; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1426; --surface:#182039; --ink:#E8ECF7; --muted:#9AA4C2; --line:#2B3555;
+  --encode:#3CC7BF; --store:#F2BE4C; --retrieve:#F06A92; --violet:#A58EF0;
+  --good:#58D49A; --good-bg:#173A2C; --bad:#F27C7C; --bad-bg:#3E1E25;
+  --chip:#232D4C; --shadow:none; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.5}
+h1,h2,h3{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;line-height:1.15;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+.wrap{max-width:960px;margin:0 auto;padding:0 18px 48px}
+header.hero{padding:28px 0 18px}
+.hero h1{font-size:clamp(30px,6vw,52px);font-weight:800;letter-spacing:-.02em}
+.hero p{color:var(--muted);margin:8px 0 0;max-width:62ch}
+.path{display:flex;align-items:center;gap:0;margin:22px 0 4px;flex-wrap:nowrap}
+.node{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-weight:600;font-size:clamp(14px,2.6vw,18px)}
+.dot{width:clamp(30px,6vw,44px);height:clamp(30px,6vw,44px);border-radius:50%;flex:none}
+.wire{flex:1;height:4px;border-radius:2px;margin:0 10px;min-width:14px;background:var(--line);position:relative;overflow:hidden}
+.wire i{position:absolute;inset:0;width:0;background:var(--ink);opacity:.55;transition:width .6s ease}
+.progress-line{color:var(--muted);font-size:15px;margin-top:10px}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:22px;scrollbar-width:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+nav.tabs a{flex:none;text-decoration:none;color:var(--muted);padding:8px 14px;border-radius:999px;font-weight:700;font-size:15px;border:1px solid transparent}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+nav.tabs a:hover{border-color:var(--line)}
+section.view{display:none}
+section.view.on{display:block}
+.view h2{font-size:28px;font-weight:800;margin-bottom:4px}
+.lede{color:var(--muted);margin:0 0 18px;max-width:64ch}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;background:var(--chip);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:999px;font-size:14px;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:10px;font-weight:700;font-size:15px}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.good{background:var(--good-bg);color:var(--good);border-color:transparent}
+.btn.warn{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.btn:disabled{opacity:.45;cursor:default}
+.spacer{flex:1}
+.muted{color:var(--muted)}
+.tag{display:inline-block;font-size:13px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--chip);color:var(--muted)}
+.tag.s25{color:var(--store)} .tag.s26{color:var(--retrieve)}
+.card-stage{perspective:1200px}
+.flash{position:relative;width:100%;min-height:290px;border:0;background:transparent;padding:0;transform-style:preserve-3d;transition:transform .5s ease;text-align:left}
+.flash.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.face.back{transform:rotateY(180deg)}
+.face .term{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(28px,5.5vw,44px);margin:auto 0;letter-spacing:-.01em}
+.face .def{font-size:19px;margin:12px 0 10px;max-width:62ch}
+.face .ex{color:var(--muted);border-left:4px solid var(--store);padding-left:12px;max-width:62ch}
+.face .hint{color:var(--muted);font-size:14px;margin-top:auto}
+.status-mark{font-size:14px;font-weight:700}
+.status-mark.known{color:var(--good)} .status-mark.learning{color:var(--retrieve)}
+.match-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px}
+.col{display:flex;flex-direction:column;gap:10px}
+.tile{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;text-align:left;font-size:15.5px;min-height:56px;transition:border-color .15s, background .15s}
+.tile.term{font-weight:700;font-size:16.5px}
+.tile.sel{border-color:var(--violet);background:color-mix(in srgb,var(--violet) 12%,var(--surface))}
+.tile.done{border-color:transparent;background:var(--good-bg);color:var(--good);cursor:default}
+.tile.wrong{border-color:var(--bad);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.flash{transition:none}.tile.wrong{animation:none}.wire i{transition:none}}
+.sort-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+.sort-card .scenario{font-size:21px;margin:6px 0 18px;max-width:60ch}
+.bins{display:flex;flex-wrap:wrap;gap:8px}
+.bins .btn{flex:1 1 150px}
+.bins .btn.right{background:var(--good-bg);color:var(--good);border-color:var(--good)}
+.bins .btn.wrongpick{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.why{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--chip);display:none}
+.why.show{display:block}
+.meter{height:8px;background:var(--chip);border-radius:4px;overflow:hidden;margin:4px 0 14px}
+.meter i{display:block;height:100%;background:var(--encode);width:0;transition:width .3s}
+.q-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+.q-card .stem{font-size:19px;margin:8px 0 16px;max-width:64ch}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 14px}
+.opt b{flex:none;width:26px;height:26px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrongpick{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.result{text-align:center;padding:30px 10px}
+.result .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:64px;line-height:1}
+.fr{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+.fr h3{font-size:21px;margin-bottom:8px}
+.fr .prompt{margin:0 0 10px;max-width:68ch}
+.fr ol{margin:6px 0 12px;padding-left:22px}
+textarea{width:100%;min-height:140px;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;font-size:16px;background:var(--bg);color:var(--ink);resize:vertical}
+.model{display:none;margin-top:12px;padding:14px 16px;border-left:4px solid var(--encode);background:var(--chip);border-radius:0 10px 10px 0}
+.model.show{display:block}
+.model p{margin:0 0 8px}
+.saved{font-size:13px;color:var(--muted)}
+footer{color:var(--muted);font-size:14px;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:620px){
+  .match-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .tile{font-size:14px;padding:10px}
+  .tile.term{font-size:15px}
+  .face{padding:20px}
+  .node span{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Memory review for Quiz 3</h1>
+    <p>AP Psychology Topics 2.5 (storing memories) and 2.6 (retrieving memories). Quiz 3 is Monday, November 23. Work through the tabs in any order; your progress saves on this device.</p>
+    <div class="path" aria-label="Your progress">
+      <div class="node"><div class="dot" style="background:var(--encode)"></div><span>Encode</span></div>
+      <div class="wire"><i id="w1"></i></div>
+      <div class="node"><div class="dot" style="background:var(--store)"></div><span>Store</span></div>
+      <div class="wire"><i id="w2"></i></div>
+      <div class="node"><div class="dot" style="background:var(--retrieve)"></div><span>Retrieve</span></div>
+    </div>
+    <div class="progress-line" id="progressLine"></div>
+  </header>
+
+  <nav class="tabs" aria-label="Review activities">
+    <a href="#flashcards" data-view="flashcards">Flashcards</a>
+    <a href="#match" data-view="match">Match-up</a>
+    <a href="#sort" data-view="sort">Sort it</a>
+    <a href="#quiz" data-view="quiz">Practice quiz</a>
+    <a href="#write" data-view="write">Write it</a>
+  </nav>
+
+  <section class="view" id="v-flashcards">
+    <h2>Flashcards</h2>
+    <p class="lede">All 24 vocab-list terms plus 18 key concepts from the slides and textbook (brain structures, H.M., LTP, and retrieval strategies). Try to say the definition out loud before you flip; that’s retrieval practice, and it works better than rereading.</p>
+    <div class="bar">
+      <div class="seg" id="fcFilter">
+        <button data-f="all" class="on">All</button>
+        <button data-f="2.5">2.5</button>
+        <button data-f="2.6">2.6</button>
+        <button data-f="learning">Still learning</button>
+      </div>
+      <button class="btn" id="fcShuffle">Shuffle</button>
+      <span class="spacer"></span>
+      <span class="muted" id="fcCount"></span>
+    </div>
+    <div class="card-stage">
+      <button class="flash" id="flash" aria-label="Flashcard, press to flip">
+        <div class="face front">
+          <div><span class="tag" id="fcTag"></span> <span class="status-mark" id="fcMark"></span></div>
+          <div class="term" id="fcTerm"></div>
+          <div class="hint">Tap or press Space to flip</div>
+        </div>
+        <div class="face back">
+          <div><span class="tag" id="fcTag2"></span></div>
+          <div class="def" id="fcDef"></div>
+          <div class="ex" id="fcEx"></div>
+          <div class="hint">Did you get it?</div>
+        </div>
+      </button>
+    </div>
+    <div class="bar" style="margin-top:14px">
+      <button class="btn" id="fcPrev">Previous</button>
+      <button class="btn" id="fcNext">Next</button>
+      <span class="spacer"></span>
+      <button class="btn warn" id="fcLearning">Still learning</button>
+      <button class="btn good" id="fcKnown">Got it</button>
+    </div>
+  </section>
+
+  <section class="view" id="v-match">
+    <h2>Match-up</h2>
+    <p class="lede">Pick a term, then pick its definition. Six pairs per round.</p>
+    <div class="bar">
+      <div class="seg" id="mFilter">
+        <button data-f="all" class="on">All</button>
+        <button data-f="2.5">2.5</button>
+        <button data-f="2.6">2.6</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="muted" id="mStatus"></span>
+      <button class="btn primary" id="mNew">New round</button>
+    </div>
+    <div class="match-grid">
+      <div class="col" id="mTerms"></div>
+      <div class="col" id="mDefs"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-sort">
+    <h2>Sort it</h2>
+    <p class="lede">Read the situation and pick the concept it shows. This is how the quiz will test you: the definition applied to a scenario.</p>
+    <div class="bar">
+      <div class="seg" id="sSet"></div>
+    </div>
+    <div class="muted" id="sCount"></div>
+    <div class="meter"><i id="sMeter"></i></div>
+    <div class="sort-card" id="sCard"></div>
+  </section>
+
+  <section class="view" id="v-quiz">
+    <h2>Practice quiz</h2>
+    <p class="lede">AP-style multiple choice. You’ll see why each answer is right or wrong right away.</p>
+    <div class="bar">
+      <span class="muted" id="qCount"></span>
+      <span class="spacer"></span>
+      <span class="muted" id="qBest"></span>
+      <button class="btn" id="qRestart">Start over</button>
+    </div>
+    <div class="meter"><i id="qMeter" style="background:var(--retrieve)"></i></div>
+    <div class="q-card" id="qCard"></div>
+  </section>
+
+  <section class="view" id="v-write">
+    <h2>Write it</h2>
+    <p class="lede">Practice the AAQ format from class: identify, define, and explain using the scenario. Write your answer first, then compare it to the model.</p>
+    <div id="frList"></div>
+  </section>
+
+  <footer>Built from the Nov 16–20 class slides, textbook Modules 2.5–2.6, the 2.5/2.6 guided notes and vocab list, and the Quiz 3 study guide. Progress is saved only in this browser.</footer>
+</div>
+
+<script>
+const KEY = "apPsychMemoryQuiz3:v1";
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+const state = Object.assign({known:{}, learning:{}, quizBest:null, fr:{}, sortDone:{}, matchRounds:0}, load());
+
+const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+const VOCAB = [
+ ["2.5","storage","Keeping encoded information over time. Memories are spread across networks of neurons, not saved as one “video file” in a single spot.","Lashley’s rats still partly remembered a maze no matter which small piece of cortex was removed."],
+ ["2.5","sensory memory","The immediate, very brief recording of sights, sounds, and other sensations that feeds into working memory.","The glowing trail a sparkler leaves for a split second."],
+ ["2.5","short-term memory","Briefly activated memory that holds about 7 items for a few seconds before it is stored or forgotten.","Holding a verification code in mind just long enough to type it."],
+ ["2.5","working memory","The active mental “scratch pad” where new information is processed and linked with what’s already in long-term memory.","Calculating a tip in your head."],
+ ["2.5","long-term memory","The relatively permanent and essentially limitless storehouse of knowledge, skills, and experiences.","Remembering your childhood address years later."],
+ ["2.5","capacity","How much information a memory system can hold. Short-term memory holds about 7 items; long-term memory is essentially limitless.","One researcher compared long-term memory’s capacity to the World Wide Web."],
+ ["2.5","duration","How long information stays available in a memory system: fractions of a second (sensory), seconds (short-term), up to a lifetime (long-term).","A face you glance at fades instantly; your best friend’s face lasts decades."],
+ ["2.5","maintenance rehearsal","Repeating information to keep it active in short-term memory, without adding meaning.","Repeating a room number in your head until you reach the door."],
+ ["2.5","elaborative rehearsal","Connecting new information to its meaning and to what you already know. Produces better long-term retention than repetition.","Explaining a psych term in your own words with an example from your life."],
+ ["2.5","autobiographical memory","Memory of your own life story, blending personal episodes with facts about yourself.","Remembering your first day of high school and the name of the school."],
+ ["2.5","memory consolidation","The neural process that stabilizes and reorganizes new memories over time, shifting them from the hippocampus to the cortex for long-term storage. Sleep supports it.","During deep sleep, the hippocampus and cortex “replay” the day’s learning."],
+ ["2.5","amnesia","Partial or total loss of memory caused by brain injury, disease, or surgery.","Patient H.M. after surgery removed parts of his medial temporal lobes."],
+ ["2.5","anterograde amnesia","Inability to form new explicit memories after an injury, while older memories stay mostly intact.","H.M. couldn’t remember people he met or conversations he had after surgery."],
+ ["2.5","retrograde amnesia","Inability to retrieve memories formed before an injury or trauma.","After a concussion, an athlete can’t remember the plays leading up to the hit."],
+ ["2.5","infantile amnesia","Adults’ inability to consciously recall events from roughly the first 3–4 years of life, because the hippocampus is still maturing and young children lack the language to index memories.","An adult has no memory of a Disney World trip at age 2."],
+ ["2.5","Alzheimer’s disease","A progressive brain disease marked by worsening memory loss and cognitive decline, especially in explicit memory.","Struggling to recognize close family members."],
+ ["2.5","explicit (declarative) memory","Memory you can consciously recall and describe: facts (semantic) and personal events (episodic). Processed by the hippocampus and frontal lobes.","“I remember my first day of high school.” “A neuron is a nerve cell.”"],
+ ["2.5","implicit (nondeclarative) memory","Learning shown in behavior without conscious recollection: skills and conditioned responses. Processed by the cerebellum and basal ganglia.","Typing faster with practice without remembering the practice sessions."],
+ ["2.5","episodic memory","Explicit memory of personally experienced events.","Your family’s last holiday dinner."],
+ ["2.5","semantic memory","Explicit memory of facts and general knowledge.","Knowing the meaning of the word “neuron.”"],
+ ["2.5","procedural memory","Implicit memory for motor and cognitive skills: knowing how to do something.","Riding a bike; brushing your teeth."],
+ ["2.5","hippocampus","A limbic-system structure in the temporal lobe that acts like a “save button” or loading dock for new explicit memories. It holds them temporarily; it is not their permanent home.","H.M. lost hippocampal tissue and could no longer form new conscious memories."],
+ ["2.5","cerebellum","Brain region key to forming and storing implicit memories created by classical conditioning (and some motor learning).","People with cerebellar damage can’t learn to blink when a tone predicts a puff of air."],
+ ["2.5","basal ganglia","Deep brain structures involved in movement that help form procedural memories for skills and habits.","If you can ride a bike, thank your basal ganglia."],
+ ["2.5","amygdala","Limbic-system emotion center. Stress hormones activate it, and it boosts activity in memory-forming areas, so emotional events are encoded strongly.","You vividly remember where you were when you heard shocking news."],
+ ["2.5","flashbulb memory","A vivid, confident memory of an emotionally significant moment. Vivid does not mean accurate; details can shift over time.","Remembering exactly where you were when a loved one called with big news."],
+ ["2.5","long-term potentiation (LTP)","A lasting increase in synaptic strength after repeated, coordinated firing; a biological basis for learning and memory.","“Neurons that fire together, wire together.”"],
+ ["2.6","retrieval","Getting stored information out of long-term memory and back into working memory.","Pulling up a definition to answer a quiz question."],
+ ["2.6","recall","Producing previously learned information without being shown the answer.","Fill-in-the-blank or essay questions."],
+ ["2.6","recognition","Identifying previously learned information when it appears among choices.","Picking the right term from four multiple-choice options."],
+ ["2.6","relearning","Learning previously studied material faster the second time; measures the time saved.","Restudying a vocab list in 15 minutes that first took you 60."],
+ ["2.6","retrieval cue","Any stimulus or association (smell, place, word, image) that helps you access a stored memory.","A song on the radio brings back a summer road trip."],
+ ["2.6","encoding specificity principle","Cues and contexts that match the ones present at learning are the most effective at triggering that memory. The match helps; it doesn’t guarantee.","You struggle to place your teacher when you see them at the grocery store."],
+ ["2.6","context-dependent memory","Better retrieval when the outside setting at testing matches the setting at learning.","Scuba divers recalled words best in the same place they learned them (underwater or on the beach)."],
+ ["2.6","state-dependent memory","Better retrieval when your internal physical state at testing matches your state at learning.","Similar levels of alertness while studying and while testing."],
+ ["2.6","mood-congruent memory","The tendency to recall experiences that match your current mood.","Feeling cheerful makes other happy memories come to mind."],
+ ["2.6","testing effect","Enhanced memory after actively retrieving information (self-testing) rather than just rereading it. Also called retrieval practice.","Closing your notes and answering practice questions, then checking."],
+ ["2.6","priming","The activation, often unconscious, of particular associations in memory.","After seeing “rabbit,” you spell the spoken word “hair/hare” as h-a-r-e."],
+ ["2.6","serial-position effect","Recalling the last items in a list best right away (recency) and the first items best after a delay (primacy).","Remembering the first and last names at a new-job introduction but not the middle."],
+ ["2.6","interleaving","A retrieval practice strategy that mixes the study of different topics.","Switching between biology and psychology during a study session."],
+ ["2.6","metacognition","Thinking about your own thinking: monitoring what you know and don’t know.","Self-testing to find which terms you still can’t explain."],
+ ["2.6","hits and false alarms","In a recognition test, a hit is correctly picking an item that was on the list; a false alarm is picking an item that was not.","Circling “tiger” (on the list) is a hit; circling “hammer” (a distractor) is a false alarm."]
+].map(([s,t,d,e],i)=>({id:i,s,t,d,e}));
+
+function updateProgress(){
+  const known = Object.keys(state.known).length;
+  const sorted = Object.keys(state.sortDone).length;
+  const fcPct = known / VOCAB.length;
+  const quizPct = state.quizBest ? state.quizBest.score/state.quizBest.total : 0;
+  $("#w1").style.width = Math.round(Math.min(1,(fcPct + Math.min(1,state.matchRounds/3))/2)*100)+"%";
+  $("#w2").style.width = Math.round(Math.min(1,(Math.min(1,sorted/SORTS.length) + quizPct)/2)*100)+"%";
+  const parts = [`${known} of ${VOCAB.length} terms marked “got it”`];
+  parts.push(`${sorted} of ${SORTS.length} sorts finished`);
+  if(state.quizBest) parts.push(`best quiz score ${state.quizBest.score}/${state.quizBest.total}`);
+  $("#progressLine").textContent = parts.join(", ") + ".";
+}
+
+let fcFilter="all", fcDeck=[], fcI=0;
+function buildDeck(){
+  let d = VOCAB.filter(v => fcFilter==="all" || v.s===fcFilter || (fcFilter==="learning" && state.learning[v.id]));
+  fcDeck = d; fcI = Math.min(fcI, Math.max(0,d.length-1)); renderCard();
+}
+function renderCard(){
+  const flash=$("#flash"); flash.classList.remove("flipped");
+  if(!fcDeck.length){
+    $("#fcTerm").textContent = fcFilter==="learning" ? "Nothing marked “still learning.”" : "No cards";
+    $("#fcTag").textContent=""; $("#fcMark").textContent=""; $("#fcDef").textContent=""; $("#fcEx").textContent=""; $("#fcTag2").textContent="";
+    $("#fcCount").textContent="0 cards"; return;
+  }
+  const v=fcDeck[fcI];
+  const cls = v.s==="2.5"?"tag s25":"tag s26";
+  $("#fcTag").className=cls; $("#fcTag2").className=cls;
+  $("#fcTag").textContent=$("#fcTag2").textContent=v.s==="2.5"?"2.5 Storing memories":"2.6 Retrieving memories";
+  $("#fcTerm").textContent=v.t; $("#fcDef").textContent=v.d; $("#fcEx").textContent="Example: "+v.e;
+  const m=$("#fcMark");
+  if(state.known[v.id]){m.textContent="Got it";m.className="status-mark known";}
+  else if(state.learning[v.id]){m.textContent="Still learning";m.className="status-mark learning";}
+  else {m.textContent="";m.className="status-mark";}
+  $("#fcCount").textContent=`Card ${fcI+1} of ${fcDeck.length}`;
+}
+$("#flash").addEventListener("click",()=>$("#flash").classList.toggle("flipped"));
+$("#fcNext").onclick=()=>{ if(fcDeck.length){fcI=(fcI+1)%fcDeck.length;renderCard();} };
+$("#fcPrev").onclick=()=>{ if(fcDeck.length){fcI=(fcI-1+fcDeck.length)%fcDeck.length;renderCard();} };
+$("#fcShuffle").onclick=()=>{ fcDeck=shuffle(fcDeck); fcI=0; renderCard(); };
+function mark(kind){
+  if(!fcDeck.length) return;
+  const v=fcDeck[fcI];
+  if(kind==="known"){ state.known[v.id]=1; delete state.learning[v.id]; }
+  else { state.learning[v.id]=1; delete state.known[v.id]; }
+  save(); updateProgress();
+  if(fcFilter==="learning" && kind==="known"){ buildDeck(); return; }
+  fcI=(fcI+1)%fcDeck.length; renderCard();
+}
+$("#fcKnown").onclick=()=>mark("known");
+$("#fcLearning").onclick=()=>mark("learning");
+$("#fcFilter").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  [...$("#fcFilter").children].forEach(x=>x.classList.toggle("on",x===b));
+  fcFilter=b.dataset.f; fcI=0; buildDeck();
+});
+document.addEventListener("keydown",e=>{
+  if(currentView!=="flashcards" || e.target.tagName==="TEXTAREA") return;
+  if(e.key===" "&&e.target.id!=="flash"){e.preventDefault();$("#flash").classList.toggle("flipped");}
+  if(e.key==="ArrowRight") $("#fcNext").click();
+  if(e.key==="ArrowLeft") $("#fcPrev").click();
+});
+
+let mFilter="all", mSelTerm=null, mSelDef=null, mLeft=0, mMisses=0;
+function newRound(){
+  const pool = shuffle(VOCAB.filter(v=>mFilter==="all"||v.s===mFilter)).slice(0,6);
+  mLeft=pool.length; mMisses=0; mSelTerm=mSelDef=null;
+  $("#mTerms").innerHTML = shuffle(pool).map(v=>`<button class="tile term" data-id="${v.id}">${esc(v.t)}</button>`).join("");
+  $("#mDefs").innerHTML  = shuffle(pool).map(v=>`<button class="tile" data-id="${v.id}">${esc(v.d)}</button>`).join("");
+  $("#mStatus").textContent=`${mLeft} pairs left`;
+}
+function tryMatch(){
+  if(!mSelTerm||!mSelDef) return;
+  const a=mSelTerm,b=mSelDef; mSelTerm=mSelDef=null;
+  if(a.dataset.id===b.dataset.id){
+    [a,b].forEach(t=>{t.classList.remove("sel");t.classList.add("done");t.disabled=true;});
+    mLeft--;
+    if(mLeft===0){
+      state.matchRounds++; save(); updateProgress();
+      $("#mStatus").textContent = mMisses===0 ? "Perfect round." : `Round done with ${mMisses} miss${mMisses===1?"":"es"}.`;
+    } else $("#mStatus").textContent=`${mLeft} pairs left`;
+  } else {
+    mMisses++;
+    [a,b].forEach(t=>{t.classList.remove("sel");t.classList.add("wrong");setTimeout(()=>t.classList.remove("wrong"),400);});
+  }
+}
+$("#mTerms").addEventListener("click",e=>{const t=e.target.closest(".tile");if(!t||t.disabled)return;
+  if(mSelTerm)mSelTerm.classList.remove("sel"); mSelTerm=t; t.classList.add("sel"); tryMatch();});
+$("#mDefs").addEventListener("click",e=>{const t=e.target.closest(".tile");if(!t||t.disabled)return;
+  if(mSelDef)mSelDef.classList.remove("sel"); mSelDef=t; t.classList.add("sel"); tryMatch();});
+$("#mNew").onclick=newRound;
+$("#mFilter").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  [...$("#mFilter").children].forEach(x=>x.classList.toggle("on",x===b)); mFilter=b.dataset.f; newRound();});
+
+const SORTS = [
+ {name:"Memory systems", bins:["Episodic","Semantic","Procedural","Classical conditioning"], items:[
+  ["You remember your first day of high school, including where you sat at lunch.","Episodic","A specific event you personally experienced (explicit)."],
+  ["You know that the hippocampus is in the temporal lobe.","Semantic","A fact you can state, not tied to a personal event (explicit)."],
+  ["A student types a familiar password faster after weeks of practice.","Procedural","A practiced skill that improves without conscious effort (implicit)."],
+  ["You feel anxious walking into a dentist’s office, even before anything happens.","Classical conditioning","A learned emotional response to a place, formed without conscious recall (implicit)."],
+  ["You know that DNA stands for deoxyribonucleic acid.","Semantic","General knowledge."],
+  ["You brush your teeth without thinking through the steps.","Procedural","An automatic motor routine."],
+  ["You recall the surprise party your friends threw for your 16th birthday.","Episodic","A personal event with a time and place."],
+  ["A patient pulls her hand back from a doctor who once pricked her with a tack, but can’t say why.","Classical conditioning","She learned to associate the handshake with pain without remembering it (LeDoux’s case)."],
+  ["H.M. got better at mirror tracing each day without remembering he had practiced.","Procedural","Motor skill learning survived even though explicit memory did not."],
+  ["You know the rules of basketball.","Semantic","Rules are facts and general knowledge."]
+ ]},
+ {name:"Brain structures", bins:["Hippocampus","Cerebellum","Basal ganglia","Amygdala"], items:[
+  ["Registers the details of a new conversation so it can later be moved to the cortex.","Hippocampus","The “loading dock” for new explicit memories."],
+  ["Learns to blink when a tone predicts a puff of air.","Cerebellum","Classically conditioned reflexes depend on the cerebellum."],
+  ["Helps you learn to ride a bike or shoot a free throw.","Basal ganglia","Procedural memories for motor skills."],
+  ["Responds to stress hormones and boosts memory for a frightening event.","Amygdala","Emotion-related memory formation."],
+  ["Damaged in H.M., leaving him unable to form new conscious memories.","Hippocampus","Medial temporal lobe surgery removed hippocampal tissue."],
+  ["Its rear area grows larger as London taxi drivers learn the city’s streets.","Hippocampus","Spatial memory is part of hippocampal processing."],
+  ["Helps you build a habit, like checking your phone when you wake up.","Basal ganglia","Habits and routines are procedural."],
+  ["Explains why you remember exactly where you were when you heard shocking news.","Amygdala","Emotional arousal strengthens encoding (flashbulb memory)."],
+  ["Damage here means a person can’t form new conditioned responses.","Cerebellum","Implicit memory formation for conditioning needs the cerebellum."]
+ ]},
+ {name:"Amnesia", bins:["Anterograde","Retrograde","Infantile"], items:[
+  ["After surgery, H.M. couldn’t remember people he met the day before.","Anterograde","He couldn’t form new explicit memories after the injury."],
+  ["After a concussion, a quarterback can’t remember the plays right before the hit.","Retrograde","Memories from before the injury are lost; they likely hadn’t consolidated yet."],
+  ["You can’t remember anything from your second birthday party.","Infantile","Early childhood memories are largely blank for adults."],
+  ["After a car accident, Leslie keeps asking the same questions because she forgets the answers within minutes.","Anterograde","New information isn’t being stored."],
+  ["A patient wakes from a coma unable to recall the last month before the accident.","Retrograde","Loss of memories formed before the trauma."],
+  ["Your older brother remembers your family’s first apartment, but you were 2 and remember nothing.","Infantile","The hippocampus and language were not mature enough yet."],
+  ["After a stroke, a man remembers his whole childhood but can’t remember what he ate for breakfast.","Anterograde","Old memories intact, new ones not forming."]
+ ]},
+ {name:"Recall, recognition, relearning", bins:["Recall","Recognition","Relearning"], items:[
+  ["Writing the three working-memory components from memory.","Recall","You produce the answer with no choices."],
+  ["Choosing the correct term from four options.","Recognition","The answer appears among choices."],
+  ["Reviewing forgotten vocabulary much faster than when you first learned it.","Relearning","Time saved the second time shows something was retained."],
+  ["Answering a fill-in-the-blank question.","Recall","Generating information without options."],
+  ["You can’t name a psychologist, but you spot the right name in a list.","Recognition","Choices act as complete retrieval cues."],
+  ["Picking out a suspect from a lineup.","Recognition","Identifying a previously seen face among options."],
+  ["Spanish comes back quickly in a refresher course years after high school.","Relearning","Faster second learning."],
+  ["Writing an essay on a free-response question.","Recall","Producing information from memory."],
+  ["Circling the 10 words you think were on the original list.","Recognition","Identifying targets among distractors (counting hits and false alarms)."]
+ ]},
+ {name:"Context, state, or mood", bins:["Context-dependent","State-dependent","Mood-congruent"], items:[
+  ["Walking back to the room where you left your backpack reminds you what you went to get.","Context-dependent","The outside setting acts as the cue."],
+  ["Feeling cheerful makes it easier to think of other happy experiences.","Mood-congruent","Current mood brings up memories with a matching emotional tone."],
+  ["You recall study material better when you’re as alert during the test as you were while studying.","State-dependent","Your internal physical condition matches."],
+  ["Scuba divers recall words better when tested in the same place they learned them.","Context-dependent","Godden and Baddeley: underwater vs. on the beach."],
+  ["After a terrible day, you keep remembering other times things went wrong.","Mood-congruent","A gloomy mood primes gloomy memories."],
+  ["You remember a library definition when you sit at the same study table.","Context-dependent","Surroundings from encoding become retrieval cues."],
+  ["Infants kicked more to move a crib mobile when tested in the same crib where they learned.","Context-dependent","Rovee-Collier’s studies with 3-month-olds."],
+  ["A tired student remembers late-night study material better when tested late at night while equally tired.","State-dependent","Matching physiological state, not location or emotion."],
+  ["When teens were in a bad mood, they rated their parents as colder than they did weeks later.","Mood-congruent","Mood colors what we recall and how we judge others."]
+ ]},
+ {name:"Study strategies", bins:["Testing effect","Interleaving","Metacognition","Elaborative rehearsal","Maintenance rehearsal"], items:[
+  ["Closing your notes and answering practice questions, then checking your answers.","Testing effect","Active retrieval strengthens later access."],
+  ["Switching between biology and psychology problems in one study session.","Interleaving","Mixing topics gives extra retrieval practice."],
+  ["Asking yourself, “Which of these terms can I not explain yet?”","Metacognition","Monitoring your own understanding."],
+  ["Explaining consolidation in your own words using an example from your life.","Elaborative rehearsal","Linking new info to meaning and what you already know."],
+  ["Repeating a phone number over and over until you dial it.","Maintenance rehearsal","Keeps it active briefly, adds no meaning."],
+  ["Making flashcards and quizzing yourself every night.","Testing effect","Repeated self-testing boosts retention."],
+  ["Noticing you’re overconfident about a chapter and planning more review.","Metacognition","Evaluating what you know vs. don’t know."],
+  ["Mixing Unit 1 and Unit 2 questions in a practice set instead of doing them in blocks.","Interleaving","Mixed practice protects against overconfidence."],
+  ["Saying “cerebellum, conditioning” ten times in a row.","Maintenance rehearsal","Shallow repetition."],
+  ["Connecting the hippocampus to a library’s loading dock that sends books to the shelves.","Elaborative rehearsal","A meaningful analogy creates more retrieval cues."]
+ ]}
+];
+let sSet=0, sOrder=[], sI=0, sRight=0, sAnswered=false;
+function startSort(k){
+  sSet=k; sOrder=shuffle(SORTS[k].items); sI=0; sRight=0;
+  [...$("#sSet").children].forEach((b,i)=>b.classList.toggle("on",i===k));
+  renderSort();
+}
+function renderSort(){
+  const set=SORTS[sSet];
+  $("#sMeter").style.width=(sI/sOrder.length*100)+"%";
+  if(sI>=sOrder.length){
+    state.sortDone[set.name]=1; save(); updateProgress();
+    $("#sCount").textContent=`${set.name}: done`;
+    $("#sCard").innerHTML=`<div class="result"><div class="big">${sRight}/${sOrder.length}</div><p>${sRight===sOrder.length?"Every one right.":"Go again to lock in the ones you missed."}</p><div class="bar" style="justify-content:center"><button class="btn primary" id="sAgain">Sort again</button>${sSet<SORTS.length-1?'<button class="btn" id="sNextSet">Next set</button>':""}</div></div>`;
+    $("#sAgain").onclick=()=>startSort(sSet);
+    const n=$("#sNextSet"); if(n) n.onclick=()=>startSort(sSet+1);
+    return;
+  }
+  const [txt]=sOrder[sI]; sAnswered=false;
+  $("#sCount").textContent=`${set.name}: ${sI+1} of ${sOrder.length}, ${sRight} right so far`;
+  $("#sCard").innerHTML=`<span class="tag">Which one?</span><div class="scenario">${esc(txt)}</div>
+    <div class="bins">${set.bins.map(b=>`<button class="btn" data-b="${esc(b)}">${esc(b)}</button>`).join("")}</div>
+    <div class="why" id="sWhy"></div>
+    <div class="bar" style="margin-top:14px"><span class="spacer"></span><button class="btn primary" id="sNext" disabled>Next</button></div>`;
+  $("#sCard").querySelector(".bins").addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b||sAnswered) return; sAnswered=true;
+    const [,ans,why]=sOrder[sI];
+    const ok=b.dataset.b===ans; if(ok) sRight++;
+    [...b.parentElement.children].forEach(x=>{ if(x.dataset.b===ans) x.classList.add("right"); });
+    if(!ok) b.classList.add("wrongpick");
+    const w=$("#sWhy"); w.innerHTML=`<strong>${ok?"Correct.":"It’s "+esc(ans)+"."}</strong> ${esc(why)}`; w.classList.add("show");
+    $("#sNext").disabled=false; $("#sNext").focus();
+  });
+  $("#sNext").onclick=()=>{sI++;renderSort();};
+}
+$("#sSet").innerHTML=SORTS.map((s,i)=>`<button data-i="${i}">${esc(s.name)}</button>`).join("");
+$("#sSet").addEventListener("click",e=>{const b=e.target.closest("button");if(b)startSort(+b.dataset.i);});
+
+const QUIZ = [
+ ["After an injury, a patient remembers how to brush his teeth but can’t recall a conversation from an hour ago. This best shows that","explicit and implicit memory rely on different brain systems",["sensory memory has been destroyed","implicit memory is stored only in the hippocampus","all long-term memories are stored in one location"],"Recalling a conversation is explicit (hippocampus); brushing teeth is procedural, implicit memory (basal ganglia and cerebellum)."],
+ ["After surgery on his medial temporal lobes, H.M. improved at mirror tracing each day but never remembered practicing. His improvement reflects","procedural (implicit) memory",["episodic memory","semantic memory","flashbulb memory"],"Motor skills can be learned without conscious recollection, through structures outside the hippocampus."],
+ ["Which statement about the hippocampus is most accurate?","It helps form new explicit memories, which are later stored in networks across the cortex",["It permanently stores every memory a person has","It is mainly responsible for classically conditioned reflexes","It forms procedural memories for motor skills"],"The hippocampus is a temporary loading dock; consolidation moves memories to the cortex."],
+ ["People with damage to which structure cannot learn to blink when a tone predicts a puff of air?","Cerebellum",["Hippocampus","Amygdala","Frontal lobes"],"The cerebellum is key for implicit memories formed through classical conditioning."],
+ ["A researcher studies the brain regions involved in forming implicit memories. Which would be the best independent variable?","Activation in the cerebellum",["Activation in the hippocampus","Activation in the frontal lobes","Activation in the occipital lobes"],"The cerebellum (with the basal ganglia) supports implicit memory; the hippocampus and frontal lobes support explicit memory."],
+ ["Learning to ride a skateboard depends most on the","basal ganglia",["amygdala","hippocampus","occipital lobes"],"The basal ganglia help form procedural memories for motor skills."],
+ ["Karl Lashley removed different small pieces of rats’ cortex after they learned a maze, and the rats still partly remembered the route. This suggests that","memories are distributed across networks of brain locations",["memories are stored in one specific spot","the cerebellum stores all spatial memories","rats do not form long-term memories"],"No single small area held the whole memory; components are spread across a network."],
+ ["Memory consolidation is best described as","the neural process that stabilizes new memories and moves them into long-term storage",["the immediate recording of sensory input","identifying information among choices","the tendency to recall the first items in a list"],"Consolidation stabilizes and reorganizes memories over time, from the hippocampus to the cortex."],
+ ["Students who studied, slept, then restudied remembered more weeks later than students who studied twice in one day without sleep. The independent variable is","whether students slept between study sessions",["how much students remembered","the material students studied","the length of the delay before testing"],"The researchers manipulated sleep between sessions; memory was the dependent variable."],
+ ["Which statement about sleep and memory is most accurate?","Sleep supports consolidation but can’t replace paying attention and studying while awake",["Sleep alone guarantees you’ll remember material","Sleep has no effect on memory","Sleep moves memories from the cortex into the hippocampus"],"During sleep the hippocampus and cortex replay learning, but information must be encoded first."],
+ ["Emotional arousal releases stress hormones that activate the","amygdala, which boosts activity in memory-forming areas",["cerebellum, which blocks memory formation","basal ganglia, which store facts","occipital lobe, which records sensory memory"],"The amygdala signals the brain to strongly encode emotional moments."],
+ ["Anna vividly remembers the day her father returned from a military deployment because it was so emotional. This is an example of a","flashbulb memory",["procedural memory","semantic network","state-dependent memory"],"A clear memory of an emotionally significant moment is a flashbulb memory."],
+ ["Someone says, “I remember that emotional night so clearly, every detail must be right.” The best response is that","emotion can strengthen central details while other details stay weak or change over time",["emotional memories are always more accurate than ordinary memories","emotional memories are stored only in the amygdala","vivid memories cannot be retrieved"],"Vividness and confidence don’t guarantee accuracy; rehearsal can introduce errors."],
+ ["Long-term potentiation (LTP) refers to","a lasting increase in synaptic strength after repeated coordinated firing",["the loss of memories formed before an injury","a mnemonic for memorizing lists","the brief recording of sensory input"],"LTP is a biological basis for learning: neurons that fire together, wire together."],
+ ["After a concussion, a soccer player can’t remember the minutes before the collision. This is","retrograde amnesia",["anterograde amnesia","infantile amnesia","mood-congruent memory"],"Losing memories formed before an injury is retrograde amnesia."],
+ ["Adults usually can’t recall events from before about age 4 because","the hippocampus is still maturing and young children lack language to index memories",["children don’t form any memories","the amygdala erases early memories","long-term memory has limited capacity"],"These two influences explain infantile amnesia."],
+ ["A student can’t produce a definition from memory but picks it out on a multiple-choice question. This shows the difference between","recall and recognition",["storage and consolidation","episodic and semantic memory","priming and interleaving"],"Recall requires producing information; recognition supplies choices that act as cues."],
+ ["Learning a list of Spanish words faster the second time than the first is an example of","relearning",["recognition","cued recall","state-dependent memory"],"Relearning measures the time saved when studying material again."],
+ ["In the class demo, students recalled more words after hearing category hints like “fruit” and “tool.” The hints served as","retrieval cues",["distractors","false alarms","independent variables"],"Cues activate associations that lead to the stored memory."],
+ ["John scores better on chemistry exams when he sits in the same seat he uses during class. Assuming he is prepared, the best explanation is","context-dependent memory",["the serial-position effect","explicit memory","relearning"],"The physical setting at learning becomes a retrieval cue at testing."],
+ ["You run into your teacher at the mall and feel like you know them but can’t place who they are. The principle that best explains this is","the encoding specificity principle",["long-term potentiation","the testing effect","infantile amnesia"],"Cues specific to the original context (the classroom) are missing in the new setting."],
+ ["After failing a test and losing her phone, Jada can only think of other bad things that have happened this year. This is","mood-congruent memory",["context-dependent memory","procedural memory","the primacy effect"],"Your current mood makes memories with a matching emotional tone more accessible."],
+ ["What best distinguishes state-dependent memory from mood-congruent memory?","State-dependent depends on matching an internal physical condition; mood-congruent depends on emotional tone",["State-dependent is about the outside setting; mood-congruent is about sleep","They are identical terms","State-dependent applies only to recognition tests"],"The slides stress they are related ideas but not identical."],
+ ["Two students study equally long. One closes her notes and answers practice questions; the other rereads. The first student will likely remember more because of","the testing effect",["infantile amnesia","the recency effect","maintenance rehearsal"],"Active retrieval strengthens later access; rereading creates false familiarity."],
+ ["Antonia self-tests to find which psych terms she still doesn’t understand. Besides the testing effect, she is using","metacognition",["interleaving","priming","mood-congruent memory"],"Monitoring what you know and don’t know is metacognition."],
+ ["Gabe switches back and forth between studying biology and psychology. This is","interleaving",["metacognition","maintenance rehearsal","the encoding specificity principle"],"Mixing topics gives extra retrieval practice and protects against overconfidence."],
+ ["In a recognition test, a student correctly circles 8 list words but also circles 3 words that were never shown. The student has","8 hits and 3 false alarms",["3 hits and 8 false alarms","11 hits and 0 false alarms","8 recalls and 3 recognitions"],"Hits are correct picks; false alarms are distractors chosen by mistake."],
+ ["A classroom lab always gives free recall first and recognition second. Why isn’t this a controlled experiment?","The fixed order and lack of random assignment mean other variables could explain the difference",["It measured more than one variable","It used words instead of pictures","Recognition can’t be measured"],"Order effects, extra exposure, and individual strategies weren’t controlled."],
+ ["Researchers find a significant positive correlation between hours slept and vocabulary words remembered the next day. The best interpretation is that","there is a low likelihood the relationship was due to chance",["sleep definitely caused better memory","there is a high likelihood the relationship was due to chance","sleep affects only implicit memory"],"Statistical significance means the result is unlikely to be chance; a correlation alone doesn’t prove cause."],
+ ["Dani meets eight people at once and, right afterward, remembers only the last two names. This is","the recency effect",["the primacy effect","priming","relearning"],"Right after a list, the last items are recalled best (serial-position effect)."]
+];
+let qOrder=[], qI=0, qScore=0, qMissed=[], qAnswered=false, qRetry=false;
+function startQuiz(list){
+  qRetry=!!list;
+  qOrder=(list||shuffle(QUIZ)).map(q=>{const opts=shuffle([q[1],...q[2]]);return {stem:q[0],ans:q[1],opts,why:q[3],src:q};});
+  qI=0;qScore=0;qMissed=[];renderQ();
+}
+function renderQ(){
+  $("#qBest").textContent = state.quizBest ? `Best: ${state.quizBest.score}/${state.quizBest.total}` : "";
+  $("#qMeter").style.width=(qI/qOrder.length*100)+"%";
+  if(qI>=qOrder.length){
+    if(!qRetry && (!state.quizBest || qScore>state.quizBest.score)){ state.quizBest={score:qScore,total:qOrder.length}; save(); updateProgress(); }
+    $("#qCount").textContent="Finished";
+    $("#qCard").innerHTML=`<div class="result"><div class="big">${qScore}/${qOrder.length}</div><p>${qScore===qOrder.length?"A perfect run.":qScore/qOrder.length>=.8?"Strong. Review the ones you missed, then you’re ready.":"Retry the missed questions, then try the flashcards for those terms."}</p>
+    <div class="bar" style="justify-content:center">${qMissed.length?'<button class="btn primary" id="qMissedBtn">Retry the '+qMissed.length+' missed</button>':""}<button class="btn" id="qAll">New full quiz</button></div></div>`;
+    const m=$("#qMissedBtn"); if(m) m.onclick=()=>startQuiz(qMissed);
+    $("#qAll").onclick=()=>startQuiz();
+    return;
+  }
+  const q=qOrder[qI]; qAnswered=false;
+  $("#qCount").textContent=`Question ${qI+1} of ${qOrder.length}${qRetry?" (retry)":""}, ${qScore} correct`;
+  $("#qCard").innerHTML=`<div class="stem">${esc(q.stem)}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-o="${i}"><b>${"ABCD"[i]}</b><span>${esc(o)}</span></button>`).join("")}</div>
+    <div class="why" id="qWhy"></div>
+    <div class="bar" style="margin-top:14px"><span class="spacer"></span><button class="btn primary" id="qNext" disabled>Next question</button></div>`;
+  $("#qCard").querySelector(".opts").addEventListener("click",e=>{
+    const b=e.target.closest(".opt"); if(!b||qAnswered) return; qAnswered=true;
+    const pick=q.opts[+b.dataset.o], ok=pick===q.ans;
+    if(ok) qScore++; else qMissed.push(q.src);
+    [...b.parentElement.children].forEach(x=>{x.disabled=true; if(q.opts[+x.dataset.o]===q.ans) x.classList.add("right");});
+    if(!ok) b.classList.add("wrongpick");
+    const w=$("#qWhy"); w.innerHTML=`<strong>${ok?"Correct.":"Not quite."}</strong> ${esc(q.why)}`; w.classList.add("show");
+    $("#qNext").disabled=false; $("#qNext").focus();
+  });
+  $("#qNext").onclick=()=>{qI++;renderQ();};
+}
+$("#qRestart").onclick=()=>startQuiz();
+
+const FR = [
+ {id:"aaq1", title:"Mini-AAQ: retrieval practice",
+  prompt:"Researchers recruit 40 students to study the same 15 vocabulary terms for equal amounts of time. One group completes three short retrieval quizzes; the other rereads the list three times. Two days later, all students take the same 15-item vocabulary test. The retrieval-practice group earns a significantly higher average score.",
+  ask:["Identify the independent variable.","Operationally define the dependent variable.","Identify one variable that should be controlled.","Explain why the higher average supports a benefit of retrieval practice, and name one piece of information needed before making a strong causal claim."],
+  model:["<strong>A. Independent variable:</strong> the study method (three short retrieval quizzes vs. rereading the list three times).","<strong>B. Dependent variable:</strong> each student’s score out of 15 on the vocabulary test given two days after studying.","<strong>C. Controlled variable:</strong> total study time, the same 15 terms, or the same two-day delay before the test.","<strong>D. Explanation:</strong> The result fits the testing effect. Producing answers from memory strengthens the pathways used to retrieve them later, while rereading mostly creates familiarity. Before claiming cause, we need to know that students were <em>randomly assigned</em> to groups, so differences in prior knowledge or memory ability don’t explain the result."]},
+ {id:"lab1", title:"Analyze the lab: recall vs. recognition",
+  prompt:"Students study 10 words for 25 seconds, then write as many as they can remember in 45 seconds. Next, they see 20 words and circle the 10 they think were on the list. Kenji recalls 4 words. On the recognition round, he circles 7 of the original words and 3 words that were never shown.",
+  ask:["Identify Kenji’s hits and false alarms.","Explain why recognition scores are usually higher than recall scores.","Name one reason this activity is not a controlled experiment."],
+  model:["<strong>Hits and false alarms:</strong> 7 hits (correctly identified list words) and 3 false alarms (distractors he mistakenly circled).","<strong>Why recognition is easier:</strong> In recognition, the word itself is shown, so it acts as a complete retrieval cue. In free recall, Kenji has to generate the word with no cues, so he only gets the ones he can find on his own.","<strong>Limitation:</strong> Recall always came first, so the recognition round followed extra exposure to the task (an order effect). There was also no random assignment and no control over students’ strategies or attention, so the difference can’t be blamed on the retrieval format alone."]},
+ {id:"app1", title:"Apply the concepts",
+  prompt:"Sofia has Quiz 3 on Monday.",
+  ask:["Explain how sleep Sunday night could help her remember what she studied over the weekend, using the hippocampus and consolidation.","Sofia is sure she remembers every detail of an emotional argument with her friend. Explain, using the amygdala, why that confidence may not be justified.","Sofia studied at the same kitchen table all weekend. Explain how context-dependent memory could affect her performance in the classroom, and one strategy to reduce the problem."],
+  model:["<strong>Sleep and consolidation:</strong> Her hippocampus temporarily holds new explicit memories of what she studied. During sleep, the hippocampus and cortex replay that activity, helping consolidate the memories into stable long-term storage in the cortex. Sleep only helps if she actually encoded the material while awake.","<strong>Amygdala:</strong> Stress hormones during the argument activated her amygdala, which strengthened encoding of the central emotional moments and made the memory feel vivid. But emotion narrows attention, so surrounding details may be weak, and retelling the story can introduce errors. Vivid and confident is not the same as accurate.","<strong>Context-dependent memory:</strong> The kitchen table’s surroundings became retrieval cues during learning; the classroom won’t provide them, so some material may be harder to access. She could study in more than one place, or review some material in the classroom, so her memory isn’t tied to one setting."]}
+];
+$("#frList").innerHTML = FR.map(f=>`<div class="fr">
+  <h3>${f.title}</h3>
+  <p class="prompt">${f.prompt}</p>
+  <ol>${f.ask.map(a=>`<li>${a}</li>`).join("")}</ol>
+  <textarea data-id="${f.id}" aria-label="Your answer for ${f.title}" placeholder="Write your answer here..."></textarea>
+  <div class="bar" style="margin-top:10px"><span class="saved" id="sv-${f.id}"></span><span class="spacer"></span><button class="btn" data-model="${f.id}">Show model answer</button></div>
+  <div class="model" id="md-${f.id}">${f.model.map(p=>`<p>${p}</p>`).join("")}<p class="muted">Check yours: does it name the concept, use the scenario’s specific numbers or details, and explain <em>why</em>?</p></div>
+</div>`).join("");
+document.querySelectorAll("#frList textarea").forEach(t=>{
+  t.value=state.fr[t.dataset.id]||"";
+  let timer; t.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(()=>{state.fr[t.dataset.id]=t.value;save();$("#sv-"+t.dataset.id).textContent="Saved";},400);});
+});
+$("#frList").addEventListener("click",e=>{const b=e.target.closest("[data-model]");if(!b)return;
+  const m=$("#md-"+b.dataset.model); const on=m.classList.toggle("show"); b.textContent=on?"Hide model answer":"Show model answer";});
+
+const VIEWS=["flashcards","match","sort","quiz","write"];
+let currentView="flashcards";
+function route(){
+  const h=location.hash.replace("#","");
+  currentView=VIEWS.includes(h)?h:"flashcards";
+  VIEWS.forEach(v=>$("#v-"+v).classList.toggle("on",v===currentView));
+  document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.view===currentView) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+}
+window.addEventListener("hashchange",route);
+
+buildDeck(); newRound(); startSort(0); startQuiz(); route(); updateProgress();
+</script>
+</body>
+</html>
